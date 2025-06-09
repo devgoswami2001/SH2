@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
@@ -6,6 +7,7 @@ import { Footer } from '@/components/layout/Footer';
 import { Toaster } from "@/components/ui/toaster";
 import ThreeParticleSystem from '@/components/effects/three-particle-system';
 import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeToggleButton } from '@/components/layout/ThemeToggleButton';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -18,7 +20,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'HyreSense - Revolutionize Your Job Search',
+  title: 'HyreSence - Revolutionize Your Job Search',
   description: 'AI-powered job matching. Find talent and get hired faster with HyreSence.',
 };
 
@@ -30,7 +32,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
-        <link rel="icon" type="image/png" href="/logo.png" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen bg-transparent relative`}>
         <ThemeProvider
@@ -48,6 +49,9 @@ export default function RootLayout({
             <Footer />
           </div>
           <Toaster />
+          <div className="fixed bottom-6 right-6 z-50">
+            <ThemeToggleButton />
+          </div>
         </ThemeProvider>
       </body>
     </html>

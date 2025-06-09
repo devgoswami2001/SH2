@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Linkedin, Twitter, Instagram, Briefcase } from 'lucide-react';
-import { ThemeToggleButton } from './ThemeToggleButton';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -66,9 +65,6 @@ export function Footer() {
               <span className="sr-only">Instagram</span>
               <Instagram className="h-6 w-6" />
             </Link>
-            <div className="md:order-3 mt-4 md:mt-0 md:ml-6">
-            <ThemeToggleButton />
-          </div>
           </div>
         </div>
       </div>
