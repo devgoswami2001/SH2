@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -85,13 +86,47 @@ export default {
   				to: {
   					height: '0'
   				}
-  			}
+  			},
+        'subtle-float': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-8px)' },
+        },
+        'hover-glow-effect': {
+          '0%': { boxShadow: '0 0 15px 5px hsl(var(--primary)/0.2)', opacity: '0.5', transform: 'scale(1)' },
+          '100%': { boxShadow: '0 0 30px 10px hsl(var(--primary)/0.4)', opacity: '0.85', transform: 'scale(1.03)' },
+        },
+        'card-enter': {
+          '0%': { opacity: '0', transform: 'translateY(20px) scale(0.95)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
+        'swipe-left': {
+          '0%': { opacity: '1', transform: 'translateX(0) rotate(0)' },
+          '100%': { opacity: '0', transform: 'translateX(-150%) rotate(-15deg)' },
+        },
+        'swipe-right': {
+          '0%': { opacity: '1', transform: 'translateX(0) rotate(0)' },
+          '100%': { opacity: '0', transform: 'translateX(150%) rotate(15deg)' },
+        },
+        'feedback-fade': {
+          '0%': { opacity: '0', transform: 'scale(0.8)' },
+          '20%': { opacity: '1', transform: 'scale(1.1)' },
+          '80%': { opacity: '1', transform: 'scale(1.1)' },
+          '100%': { opacity: '0', transform: 'scale(0.8)' },
+        }
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+        'subtle-float': 'subtle-float 5s ease-in-out infinite',
+        'hover-glow-effect': 'hover-glow-effect 0.4s ease-out forwards',
+        'card-enter': 'card-enter 0.5s ease-out forwards',
+        'swipe-left': 'swipe-left 0.5s ease-in forwards',
+        'swipe-right': 'swipe-right 0.5s ease-in forwards',
+        'feedback-fade': 'feedback-fade 0.5s ease-in-out forwards',
   		}
   	}
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
+
+    

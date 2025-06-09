@@ -6,6 +6,9 @@ import { AiBenefitsSection } from '@/components/landing/AiBenefitsSection';
 import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
 import { TestimonialsSection } from '@/components/landing/TestimonialsSection';
 import { CtaSection } from '@/components/landing/CtaSection';
+import { SwipeToHireSection } from '@/components/landing/SwipeToHireSection';
+import { PoweredByHyreSenseAiSection } from '@/components/landing/PoweredByHyreSenseAiSection';
+import { AiDemoSection } from '@/components/landing/AiDemoSection';
 
 export default function HomePage() {
   return (
@@ -14,6 +17,9 @@ export default function HomePage() {
       <AiBenefitsSection /> {/* Renamed from Features to AI Benefits */}
       <JobSeekersSection />
       <EmployersSection />
+      <SwipeToHireSection />
+      <PoweredByHyreSenseAiSection />
+      <AiDemoSection />
       <HowItWorksSection />
       <TestimonialsSection />
       <CtaSection />
