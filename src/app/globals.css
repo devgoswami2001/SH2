@@ -4,45 +4,45 @@
 
 @layer base {
   :root {
-    --background: 199 88% 94%; /* #E5F6FD - Light Desaturated Blue */
+    --background: 0 0% 100%; /* White */
     --foreground: 210 40% 10%; /* Dark Blue/Gray for text */
 
-    --card: 0 0% 100%; /* White for cards for contrast on light blue bg */
+    --card: 0 0% 100%; /* White for cards */
     --card-foreground: 210 40% 15%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 210 40% 15%;
 
-    --primary: 196 74% 52%; /* #29ABE2 - Vibrant Blue */
-    --primary-foreground: 210 100% 98%; /* White/very light for text on primary */
+    --primary: 220 83% 54%; /* #2664EB */
+    --primary-foreground: 210 100% 98%; /* Almost white */
 
-    --secondary: 196 60% 85%; /* Lighter shade of primary */
-    --secondary-foreground: 196 74% 30%; /* Darker shade of primary for text on secondary */
+    --secondary: 255 80% 36%; /* #3C12A8 */
+    --secondary-foreground: 210 100% 98%; /* Almost white */
 
-    --muted: 200 30% 90%;
-    --muted-foreground: 200 20% 45%;
+    --muted: 210 25% 95%; /* Very light gray for muted elements on white bg */
+    --muted-foreground: 210 20% 45%;
 
-    --accent: 175 74% 52%; /* #29E2D2 - Lively Cyan */
-    --accent-foreground: 210 40% 5%; /* Dark text for accent buttons */
+    --accent: 248 69% 69%; /* #8A7BE3 */
+    --accent-foreground: 210 40% 5%; /* Almost black */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 200 30% 85%;
+    --border: 200 30% 85%; /* Light gray border */
     --input: 0 0% 100%; /* White inputs */
-    --ring: 196 74% 52%; /* Primary color for rings */
+    --ring: 220 83% 54%; /* Primary color for rings - #2664EB */
 
-    --radius: 0.75rem; /* Slightly more rounded corners */
+    --radius: 0.75rem;
 
-    /* Sidebar specific, kept for consistency if app expands */
-    --sidebar-background: 200 50% 96%;
+    /* Sidebar specific */
+    --sidebar-background: 0 0% 98%; /* Very light gray for sidebar */
     --sidebar-foreground: 210 40% 20%;
-    --sidebar-primary: 196 74% 52%;
+    --sidebar-primary: 220 83% 54%; /* #2664EB */
     --sidebar-primary-foreground: 210 100% 98%;
-    --sidebar-accent: 175 74% 80%;
-    --sidebar-accent-foreground: 175 74% 20%;
-    --sidebar-border: 200 30% 88%;
-    --sidebar-ring: 196 74% 52%;
+    --sidebar-accent: 248 69% 69%; /* #8A7BE3 */
+    --sidebar-accent-foreground: 210 40% 5%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 220 83% 54%;
 
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
@@ -61,34 +61,34 @@
     --popover: 210 20% 15%;
     --popover-foreground: 200 30% 85%;
 
-    --primary: 196 74% 52%;
-    --primary-foreground: 210 20% 5%;
+    --primary: 220 83% 54%; /* #2664EB */
+    --primary-foreground: 210 100% 98%; /* Almost white */
 
-    --secondary: 196 50% 30%;
-    --secondary-foreground: 196 70% 90%;
+    --secondary: 255 80% 36%; /* #3C12A8 */
+    --secondary-foreground: 210 100% 98%; /* Almost white */
 
     --muted: 210 15% 25%;
     --muted-foreground: 200 20% 65%;
 
-    --accent: 175 74% 52%;
-    --accent-foreground: 210 20% 5%;
+    --accent: 248 69% 69%; /* #8A7BE3 */
+    --accent-foreground: 210 40% 5%; /* Almost black */
 
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 210 15% 30%;
     --input: 210 15% 25%;
-    --ring: 196 74% 52%;
+    --ring: 220 83% 54%; /* Primary color for rings - #2664EB */
     
     /* Sidebar dark theme */
     --sidebar-background: 210 20% 12%;
     --sidebar-foreground: 200 30% 88%;
-    --sidebar-primary: 196 74% 52%;
-    --sidebar-primary-foreground: 210 20% 5%;
-    --sidebar-accent: 175 74% 30%;
-    --sidebar-accent-foreground: 175 70% 90%;
+    --sidebar-primary: 220 83% 54%; /* #2664EB */
+    --sidebar-primary-foreground: 210 100% 98%; 
+    --sidebar-accent: 248 69% 69%; /* #8A7BE3 */
+    --sidebar-accent-foreground: 210 40% 5%;
     --sidebar-border: 210 15% 28%;
-    --sidebar-ring: 196 74% 52%;
+    --sidebar-ring: 220 83% 54%;
 
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
@@ -103,14 +103,12 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground; /* Default background, text color */
-    /* Removed background-size for previous gradient animation */
+    @apply bg-background text-foreground;
   }
 }
 
 @layer utilities {
-  /* Removed animate-gradient-xy as it's no longer used */
   .bg-transparent {
-    background-color: hsl(var(--background)); /* Overriding Tailwind's bg-transparent */
+    background-color: transparent; /* Ensure this is truly transparent */
   }
 }
