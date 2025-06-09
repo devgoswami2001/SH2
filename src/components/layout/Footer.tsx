@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Linkedin, Twitter, Instagram, Briefcase } from 'lucide-react';
+import { ThemeToggleButton } from './ThemeToggleButton';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -13,7 +14,7 @@ export function Footer() {
             <Link href="/" className="flex items-center gap-2 mb-4">
                <Image src="/logo.png" alt="Logo" width={50} height={32} />
                {/* <Briefcase className="h-7 w-7 text-primary" /> */}
-                <span className="text-2xl font-bold text-foreground" style={{ fontSize: 25, paddingBottom: 8 , color: '#4670bf' }}>hyre <span style={{color:'#7a5fdb'}}>SENSE</span> </span>
+                <span className="text-2xl font-bold text-foreground" style={{ fontSize: 25, paddingBottom: 8 , color: '#4670bf' }}>hyre<span style={{color:'#7a5fdb'}}>SENSE</span> </span>
             </Link>
             <p className="text-sm text-muted-foreground">
               Revolutionizing how you find and hire talent with AI-powered job matching.
@@ -50,7 +51,7 @@ export function Footer() {
 
         <div className="mt-8 border-t border-border/60 pt-8 flex flex-col md:flex-row items-center justify-between">
           <p className="text-sm text-muted-foreground md:order-1">
-            &copy; {currentYear} <span style={{ color: '#4670bf' }}>hyre <span style={{color:'#7a5fdb'}}>SENSE</span></span>. All rights reserved.
+            &copy; {currentYear} <span style={{ color: '#4670bf' }}>hyre<span style={{color:'#7a5fdb'}}>SENSE</span></span>. All rights reserved.
           </p>
           <div className="flex space-x-6 md:order-2 mt-4 md:mt-0">
             <Link href="#" className="text-muted-foreground hover:text-foreground">
@@ -65,6 +66,9 @@ export function Footer() {
               <span className="sr-only">Instagram</span>
               <Instagram className="h-6 w-6" />
             </Link>
+            <div className="md:order-3 mt-4 md:mt-0 md:ml-6">
+            <ThemeToggleButton />
+          </div>
           </div>
         </div>
       </div>

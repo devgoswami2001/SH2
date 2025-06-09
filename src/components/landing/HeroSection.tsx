@@ -13,7 +13,7 @@ export function HeroSection() {
           <span className="block bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mt-2">Find and Hire Talent</span>
         </h1>
         <p className="mt-6 max-w-md mx-auto text-lg text-muted-foreground sm:text-xl md:mt-8 md:max-w-3xl">
-          AI-powered job matching. <span style={{ color: '#4670bf' }}>hyre <span style={{color:'#7a5fdb'}}>SENSE</span></span> connects top talent with innovative companies, faster and smarter.
+          AI-powered job matching. <span style={{ color: '#4670bf' }}>hyre<span style={{color:'#7a5fdb'}}>SENSE</span></span> connects top talent with innovative companies, faster and smarter.
         </p>
         <div className="mt-10 max-w-sm mx-auto sm:max-w-none sm:flex sm:justify-center space-y-4 sm:space-y-0 sm:space-x-4">
           <Button size="lg" className="w-full sm:w-auto group">

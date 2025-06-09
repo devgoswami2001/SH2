@@ -27,7 +27,7 @@ export function Header() {
         <Link href="/" className="flex items-center gap-2">
           <Image src="/logo.png" alt="Logo" width={50} height={32} />
           {/* <Briefcase className="h-7 w-7 text-primary" /> */}
-          <span className="text-2xl font-bold text-foreground" style={{ fontSize: 25, paddingBottom: 8 , color: '#4670bf' }}>hyre <span style={{color:'#7a5fdb'}}>SENSE</span> </span>
+          <span className="text-2xl font-bold text-foreground" style={{ fontSize: 25, paddingBottom: 8 , color: '#4670bf' }}>hyre<span style={{color:'#7a5fdb'}}>SENSE</span> </span>
           
         </Link>
         
@@ -61,7 +61,7 @@ export function Header() {
                 <div className="flex items-center justify-start p-4 border-b">
                   <Link href="/" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
                     <Image src="/logo.png" alt="Logo" width={35} height={32} />
-                    <span className="text-xl font-bold"><span style={{fontSize: 22,color: '#4670bf' }}>hyre <span style={{color:'#7a5fdb'}}>SENSE</span></span></span>
+                    <span className="text-xl font-bold"><span style={{fontSize: 22,color: '#4670bf' }}>hyre<span style={{color:'#7a5fdb'}}>SENSE</span></span></span>
                   </Link>
                 </div>
                 <nav className="flex flex-col gap-4 p-4 mt-4">

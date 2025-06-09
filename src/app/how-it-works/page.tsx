@@ -35,7 +35,7 @@ export default function HowItWorksPage() {
       <section className="py-12 md:py-20 bg-gradient-to-b from-primary/10 to-transparent">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
-            How <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"><span style={{ color: '#4670bf' }}>hyre <span style={{color:'#7a5fdb'}}>SENSE</span></span></span> Works
+            How <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"><span style={{ color: '#4670bf' }}>hyre<span style={{color:'#7a5fdb'}}>SENSE</span></span></span> Works
           </h1>
           <p className="mt-6 max-w-2xl mx-auto text-lg text-muted-foreground sm:text-xl">
             Discover the simple, intelligent process that connects talent with opportunity and empowers your career or hiring journey.
@@ -48,7 +48,7 @@ export default function HowItWorksPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight">
-              Your Journey with <span style={{ color: '#4670bf' }}>hyre <span style={{color:'#7a5fdb'}}>SENCE</span></span>
+              Your Journey with <span style={{ color: '#4670bf' }}>hyre<span style={{color:'#7a5fdb'}}>SENSE</span></span>
             </h2>
             <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
               Four simple steps to unlock a smarter way to hire and get hired.
@@ -148,7 +148,7 @@ export default function HowItWorksPage() {
             className="rounded-lg shadow-xl mx-auto mb-8"
           />
           <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
-            Ready to Experience the <span style={{ color: '#4670bf' }}>hyre <span style={{color:'#7a5fdb'}}>SENSE</span></span> Difference?
+            Ready to Experience the <span style={{ color: '#4670bf' }}>hyre<span style={{color:'#7a5fdb'}}>SENSE</span></span> Difference?
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
             Join our platform today and take the next step in your career or find the perfect addition to your team.

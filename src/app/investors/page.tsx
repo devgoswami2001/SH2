@@ -16,7 +16,7 @@ export default function InvestorRelationsPage() {
             <span className="block bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mt-2">Talent Acquisition</span>
           </h1>
           <p className="mt-6 max-w-md mx-auto text-lg text-muted-foreground sm:text-xl md:mt-8 md:max-w-3xl">
-            <span style={{ color: '#4670bf' }}>hyre <span style={{color:'#7a5fdb'}}>SENCE</span> </span> is revolutionizing how companies find and hire top talent, and how professionals build their careers. We're seeking partners to join us on this transformative journey.
+            <span style={{ color: '#4670bf' }}>hyre<span style={{color:'#7a5fdb'}}>SENSE</span> </span> is revolutionizing how companies find and hire top talent, and how professionals build their careers. We're seeking partners to join us on this transformative journey.
           </p>
           <div className="mt-10">
             <Button size="lg" asChild>
@@ -34,7 +34,7 @@ export default function InvestorRelationsPage() {
               Shaping the Future of Work
             </h2>
             <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-              At <span style={{color: '#4670bf' }}>hyre <span style={{color:'#7a5fdb'}}>SENCE</span> </span>, we believe in a world where everyone can find fulfilling work and every company can build its dream team, effortlessly.
+              At <span style={{color: '#4670bf' }}>hyre<span style={{color:'#7a5fdb'}}>SENSE</span> </span>, we believe in a world where everyone can find fulfilling work and every company can build its dream team, effortlessly.
             </p>
           </div>
           <div className="grid md:grid-cols-2 gap-8 items-center">
@@ -72,7 +72,7 @@ export default function InvestorRelationsPage() {
       <section className="py-16 sm:py-24 bg-secondary/30 dark:bg-slate-800/50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
           <div className="text-center mb-16">
-            <h2 className="text-base font-semibold text-primary tracking-wide uppercase">The <span style={{color: '#4670bf' }}>hyre <span style={{color:'#7a5fdb'}}>SENCE</span> </span> Advantage</h2>
+            <h2 className="text-base font-semibold text-primary tracking-wide uppercase">The <span style={{color: '#4670bf' }}>hyre<span style={{color:'#7a5fdb'}}>SENSE</span> </span> Advantage</h2>
             <p className="mt-2 text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight">
               A New Era for Recruitment
             </p>
@@ -97,7 +97,7 @@ export default function InvestorRelationsPage() {
                 />
                 <div className="space-y-4">
                   <p className="text-lg text-muted-foreground">
-                    <span style={{ color: '#4670bf' }}>hyre <span style={{color:'#7a5fdb'}}>SENCE</span> </span> leverages cutting-edge AI to:
+                    <span style={{ color: '#4670bf' }}>hyre<span style={{color:'#7a5fdb'}}>SENSE</span> </span> leverages cutting-edge AI to:
                   </p>
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground">
                     <li>Provide intelligent job and candidate matching.</li>
@@ -114,7 +114,7 @@ export default function InvestorRelationsPage() {
             <div>
               <h3 className="text-2xl font-semibold mb-4 text-center">Market Opportunity</h3>
               <p className="text-muted-foreground text-lg max-w-3xl mx-auto text-center">
-                The global recruitment market is valued at over $600 billion and is rapidly evolving. The demand for AI-driven HR technology is skyrocketing as businesses seek to optimize talent acquisition and workforce management. <span style={{ color: '#4670bf' }}>hyre <span style={{color:'#7a5fdb'}}>SENCE</span> </span> is perfectly positioned to capture a significant share of this expanding market.
+                The global recruitment market is valued at over $600 billion and is rapidly evolving. The demand for AI-driven HR technology is skyrocketing as businesses seek to optimize talent acquisition and workforce management. <span style={{ color: '#4670bf' }}>hyre<span style={{color:'#7a5fdb'}}>SENSE</span> </span> is perfectly positioned to capture a significant share of this expanding market.
               </p>
             </div>
           </div>
@@ -126,7 +126,7 @@ export default function InvestorRelationsPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight">
-              Why Invest in <span style={{color: '#4670bf' }}>hyre <span style={{color:'#7a5fdb'}}>SENCE</span> </span>?
+              Why Invest in <span style={{color: '#4670bf' }}>hyre<span style={{color:'#7a5fdb'}}>SENSE</span> </span>?
             </h2>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -176,7 +176,7 @@ export default function InvestorRelationsPage() {
               For investment inquiries, please reach out to:
             </p>
             <a href="mailto:investors@hyresence.com" className="text-xl font-semibold hover:underline">
-              investors@hyresence.com
+              contact@hyresense.com
             </a>
             <p className="mt-6 text-sm opacity-80">
               We look forward to discussing how we can build the future of work, together.

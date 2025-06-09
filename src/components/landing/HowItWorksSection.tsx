@@ -31,7 +31,7 @@ export function HowItWorksSection() {
         <div className="text-center mb-16">
           <h2 className="text-base font-semibold text-primary tracking-wide uppercase">Simple & Effective</h2>
           <p className="mt-2 text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight">
-            How <span style={{ color: '#4670bf' }}>hyre <span style={{color:'#7a5fdb'}}>SENSE</span></span> Works
+            How <span style={{ color: '#4670bf' }}>hyre<span style={{color:'#7a5fdb'}}>SENSE</span></span> Works
           </p>
         </div>
         <div className="relative">
