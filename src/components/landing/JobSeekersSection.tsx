@@ -4,55 +4,62 @@
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Smartphone, Lightbulb, TrendingUp } from 'lucide-react';
+import { Smartphone, Lightbulb, TrendingUp, Sparkles } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { cn } from '@/lib/utils';
 
 const features = [
   {
     icon: <Smartphone className="h-7 w-7 text-primary" />,
-    title: "Intuitive Swipe-Apply",
-    description: "Glide through opportunities. Our sleek swipe interface makes job hunting effortless and engaging, not a chore.",
+    title: "Easy Job Swiping",
+    description: "Effortlessly browse job recommendations tailored to you. Our AI makes your job search intuitive and engaging.",
     visual: (
-      <div className="mt-6 w-32 mx-auto group">
+      <div className="mt-6 w-40 mx-auto group text-center">
         <Image 
           src="https://placehold.co/150x300.png" 
           alt="Swipe interface mockup" 
-          width={120} 
-          height={240} 
-          data-ai-hint="futuristic interface" // Updated data-ai-hint
-          className="rounded-xl shadow-lg transition-transform duration-300 group-hover:scale-105 border-2 border-primary/30" 
+          width={130} 
+          height={260} 
+          data-ai-hint="job search interface"
+          className="rounded-xl shadow-lg transition-transform duration-300 group-hover:scale-105 border-2 border-primary/40 inline-block" 
         />
+        <p className="font-mono text-xs text-accent mt-3 animate-pulse">
+          AI Matching Your Profile...
+        </p>
       </div>
     )
   },
   {
     icon: <Lightbulb className="h-7 w-7 text-primary" />,
-    title: "AI Co-Pilot for Skills",
-    description: "Unlock your potential. Our AI analyzes your profile, revealing hidden skill gaps and charting your course to mastery.",
+    title: "AI Skill Suggestions",
+    description: "Get personalized advice from our AI. It analyzes your profile, identifies skills you can learn to advance, and suggests relevant resources.",
     visual: (
-      <div className="mt-6 p-3 bg-foreground/5 dark:bg-foreground/10 border border-primary/20 rounded-lg text-left transition-shadow duration-300 hover:shadow-md hover:shadow-accent/20"> {/* Added hover shadow */}
-        <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap">
-          <span className="text-primary/80 block mb-1">&gt; AI INSIGHT_</span>
-          <span className="text-foreground/90">Consider mastering </span>
-          <strong className="text-accent font-semibold">Quantum Algorithms</strong>
-          <span className="text-foreground/90"> to enhance your profile for Advanced Research roles.</span>
+      <div className="mt-4 p-3 bg-foreground/5 dark:bg-foreground/10 border border-primary/30 rounded-lg text-left transition-shadow duration-300 hover:shadow-md hover:shadow-accent/20">
+        <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap leading-relaxed">
+          <span className="text-primary/80 block">&gt; HyreSense AI Analyzer</span>
+          <span className="text-foreground/90 block">> Analyzing profile for: UI/UX Designer</span>
+          <span className="text-foreground/90 block">> Identified Gap: <span className="text-green-400">Advanced Prototyping</span></span>
+          <span className="text-foreground/90 text-sky-400 block">> Suggestion: Learn Figma for interactive designs.</span>
+          <span className="text-foreground/70 text-xs block">> Resource: <span className="underline">Figma Masterclass on Udemy</span></span>
         </pre>
       </div>
     )
   },
   {
     icon: <TrendingUp className="h-7 w-7 text-primary" />,
-    title: "Profile Power Meter",
-    description: "Visualize your career trajectory. Our dynamic tracker shows your profile's impact, guiding you to full potential.",
+    title: "Track Profile Strength",
+    description: "See how your profile performs. Our tracker helps you understand what makes your profile stand out and gives tips to attract employers.",
     visual: (
-      <div className="mt-6 space-y-3">
-        <div className="flex justify-between text-sm font-medium text-muted-foreground">
-          <span>Profile Impact Score</span>
-          <span className="text-primary font-bold">85%</span>
+      <div className="mt-4 space-y-3">
+        <div className="flex justify-between items-baseline text-sm font-medium text-muted-foreground">
+          <span>Profile Strength</span>
+          <span className="text-2xl text-accent font-bold animate-pulse">85%</span>
         </div>
-        <Progress value={85} aria-label="Profile Impact Score 85%" className="h-3 bg-primary/20 [&>div]:bg-gradient-to-r [&>div]:from-accent [&>div]:to-primary" />
-         <p className="text-xs text-muted-foreground text-center mt-1">Next Milestone: Amplify 'Projects' for peak visibility!</p>
+        <Progress value={85} aria-label="Profile Strength 85%" className="h-3.5 bg-primary/20 [&>div]:bg-gradient-to-r [&>div]:from-accent [&>div]:to-primary" />
+        <div className="text-xs text-muted-foreground space-y-1 text-left pt-1">
+            <p className="flex items-center"><Sparkles className="h-3.5 w-3.5 text-green-400 mr-1.5" />Views This Week: <strong className="ml-1 text-foreground/90">25</strong></p>
+            <p>Tip: <span className="text-sky-400 font-medium">Add recent project details to improve visibility.</span></p>
+        </div>
       </div>
     )
   }
@@ -78,7 +85,7 @@ export function JobSeekersSection() {
               isTitleVisible && "opacity-100 translate-y-0"
             )}
           >
-            For Future Shapers
+            For Ambitious Job Seekers
           </h2>
           <p 
             ref={subtitleRef}
@@ -88,7 +95,7 @@ export function JobSeekersSection() {
             )}
             style={{ transitionDelay: isSubtitleVisible ? '200ms' : '0ms' }}
           >
-            Architect Your Ascent, Intelligently
+            Land Your Dream Job, <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Smarter & Faster</span>
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
