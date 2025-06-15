@@ -68,7 +68,6 @@ export function HeroSection() {
             ref={phoneContainerRef}
             className={cn(
               "relative group opacity-0 transition-all duration-1000 ease-out",
-              "animate-subtle-float",
               isPhoneContainerVisible ? "opacity-100 scale-100 delay-300" : "scale-90",
               // Set base size for the container that holds the scaled MobileAppDemo
               // These dimensions are roughly MobileAppDemo's original * scale factor
@@ -101,7 +100,6 @@ export function HeroSection() {
             ref={dashboardImageContainerRef}
             className={cn(
               "relative w-full max-w-xl md:w-[500px] md:h-[350px] group mt-8 md:mt-0 opacity-0 transition-all duration-1000 ease-out",
-              "animate-subtle-float [animation-delay:-2.5s]",
                isDashboardImageVisible ? "opacity-100 scale-100 delay-500" : "scale-90"
             )}
             style={{ transitionDelay: isDashboardImageVisible ? '500ms' : '0ms' }}
