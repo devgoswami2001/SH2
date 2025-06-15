@@ -51,7 +51,7 @@ export function HeroSection() {
         >
           <Button 
             size="lg" 
-            className="w-full sm:w-auto group bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.02]"
+            className="w-full sm:w-auto group bg-gradient-to-r from-primaryy to-accentt hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.02]"
           >
             For Job Seekers
             <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -79,7 +79,7 @@ export function HeroSection() {
             }}
           >
             <div className={cn(
-                "absolute -inset-0.5 bg-gradient-to-r from-primary to-accent rounded-[48px] blur-md opacity-50 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-tilt",
+                "absolute -inset-0.5 bg-gradient-to-r from-primaryy to-accentt rounded-[48px] blur-md opacity-50 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-tilt",
                 "group-hover:animate-hover-glow-effect"
               )}></div>
             <div 
@@ -105,7 +105,7 @@ export function HeroSection() {
             style={{ transitionDelay: isDashboardImageVisible ? '500ms' : '0ms' }}
           >
             <div className={cn(
-              "absolute -inset-0.5 bg-gradient-to-r from-accent to-primary rounded-xl blur-md opacity-50 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-tilt-opposite",
+              "absolute -inset-0.5 bg-gradient-to-r from-accentt to-primaryy rounded-xl blur-md opacity-50 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-tilt-opposite",
               "group-hover:animate-hover-glow-effect"
             )}></div>
             <Image
