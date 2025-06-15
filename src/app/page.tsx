@@ -14,13 +14,11 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <AiBenefitsSection /> {/* Renamed from Features to AI Benefits */}
-      <JobSeekersSection />
-      <EmployersSection />
-      <SwipeToHireSection />
-      <PoweredByHyreSenseAiSection />
       <AiDemoSection />
       <HowItWorksSection />
+      <AiBenefitsSection /> {/* Renamed from Features to AI Benefits */}
+      <SwipeToHireSection />
+      <PoweredByHyreSenseAiSection />
       <TestimonialsSection />
       <CtaSection />
     </>
