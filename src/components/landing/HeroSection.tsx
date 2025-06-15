@@ -51,7 +51,7 @@ export function HeroSection() {
         >
           <Button 
             size="lg" 
-            className="w-full sm:w-auto group bg-gradient-to-r from-primaryy to-accentt hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.02]"
+            className="w-full sm:w-auto group bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.02]"
           >
             For Job Seekers
             <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
