@@ -62,14 +62,14 @@ export const metadata: Metadata = {
     description: 'Discover a new era of recruitment. HyreSense uses AI for smart job matching, skill analysis, and efficient talent acquisition.',
     url: siteUrl,
     siteName: 'HyreSense',
-    // images: [ // Add a default OG image if you have one
-    //   {
-    //     url: `${siteUrl}/og-image.png`, // Example: place an image in your public folder
-    //     width: 1200,
-    //     height: 630,
-    //     alt: 'HyreSense - AI Powered Hiring',
-    //   },
-    // ],
+    images: [
+      {
+        url: `${siteUrl}/hyresense-og-image.png`, // TODO: Replace with your actual OG image URL (e.g., 1200x630px)
+        width: 1200,
+        height: 630,
+        alt: 'HyreSense - AI Powered Job Matching and Smart Hiring Platform',
+      },
+    ],
     locale: 'en_US',
     type: 'website',
   },
@@ -77,14 +77,17 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'HyreSense: AI-Powered Job Matching & Smart Hiring',
     description: 'Leverage AI for your job search or hiring needs. Smart matching, skill insights, and faster results with HyreSense.',
-    // images: [`${siteUrl}/twitter-image.png`], // Example: specific Twitter image
-    // creator: '@HyreSense', // Example: Your Twitter handle
+    images: [`${siteUrl}/hyresense-twitter-image.png`], // TODO: Replace with your actual Twitter image URL (e.g., 1200x600px)
+    creator: '@HyreSense', // TODO: Replace with your actual Twitter handle
   },
-  icons: { // Add favicon information if you have icons
-    icon: '/favicon.ico',
-    // apple: '/apple-touch-icon.png',
+  icons: {
+    icon: '/logo.png', // Used for browser tab favicon
+    shortcut: '/logo.png', // Used for shortcuts
+    apple: '/logo.png', // Used for Apple touch icons
+    // You can add more specific sizes or types if needed, e.g.:
+    // { rel: 'apple-touch-icon', sizes: '180x180', url: '/apple-icon-180x180.png' },
   },
-  // manifest: `${siteUrl}/site.webmanifest`, // If you have a web app manifest
+  manifest: `${siteUrl}/site.webmanifest`, // TODO: Create a site.webmanifest file in your public folder for PWA features
 };
 
 export default function RootLayout({
