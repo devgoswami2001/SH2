@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Linkedin, Twitter, Instagram, Briefcase } from 'lucide-react';
@@ -23,7 +24,7 @@ export function Footer() {
             <div>
               <h3 className="text-sm font-semibold text-foreground tracking-wider uppercase">Quick Links</h3>
               <ul role="list" className="mt-4 space-y-2">
-                <li><Link href="/#section-features" className="text-sm text-muted-foreground hover:text-foreground">Features</Link></li>
+                <li><Link href="/features" className="text-sm text-muted-foreground hover:text-foreground">Features</Link></li>
                 <li><Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground">Pricing</Link></li>
                 <li><Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground">Blog</Link></li>
                 <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground">Contact</Link></li>

@@ -10,12 +10,11 @@ const ThreeParticleSystem: React.FC = () => {
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const particlesGroupRef = useRef<THREE.Group | null>(null);
-  const pointsRef = useRef<THREE.Points<THREE.BufferGeometry, THREE.PointsMaterial> | null>(null);
   const animationFrameIdRef = useRef<number | null>(null);
-
+  const logoTextureRef = useRef<THREE.Texture | null>(null);
 
   useEffect(() => {
-    if (!mountRef.current) return;
+    if (!mountRef.current || typeof window === 'undefined') return; // Ensure window is defined for window.location.origin
 
     const currentMount = mountRef.current;
 
@@ -35,93 +34,96 @@ const ThreeParticleSystem: React.FC = () => {
     currentMount.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Particles
+    // Particles Group
     const particles = new THREE.Group();
     particlesGroupRef.current = particles;
-    const particleCount = 100;
-    const positions = new Float32Array(particleCount * 3);
-    const colors = new Float32Array(particleCount * 3);
-
-    for (let i = 0; i < particleCount; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 100;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 100;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 100;
-      
-      // Theme-aligned colors: primary-like (Deep Blue) and accent-like (Teal)
-      const randomColor = Math.random();
-      let r, g, b;
-      if (randomColor > 0.5) { // Teal-like
-        r = 0 / 255; g = 188 / 255; b = 212 / 255; // #00BCD4
-      } else { // Deep Blue-like
-        r = 26 / 255; g = 35 / 255; b = 126 / 255; // #1A237E
-      }
-      colors[i * 3] = r;
-      colors[i * 3 + 1] = g;
-      colors[i * 3 + 2] = b;
-    }
-
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    const material = new THREE.PointsMaterial({ 
-        size: 2, 
-        vertexColors: true, 
-        transparent: true, 
-        opacity: 0.7,
-        sizeAttenuation: true // Points get smaller further away
-    });
-    const points = new THREE.Points(geometry, material);
-    pointsRef.current = points;
-    particles.add(points);
-
-    // Connections
-    const linePositions: number[] = [];
-    for (let i = 0; i < particleCount; i++) {
-      for (let j = i + 1; j < particleCount; j++) {
-        const p1 = new THREE.Vector3(positions[i*3], positions[i*3+1], positions[i*3+2]);
-        const p2 = new THREE.Vector3(positions[j*3], positions[j*3+1], positions[j*3+2]);
-        const dist = p1.distanceTo(p2);
-        
-        if (dist < 20) { // Connection distance threshold
-          linePositions.push(
-            positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2],
-            positions[j * 3], positions[j * 3 + 1], positions[j * 3 + 2]
-          );
-        }
-      }
-    }
-    if (linePositions.length > 0) {
-        const lineGeometry = new THREE.BufferGeometry();
-        lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
-        // Use a theme-aligned color for lines, e.g., a lighter shade of primary or accent
-        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x00BCD4, opacity: 0.15, transparent: true }); 
-        const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
-        particles.add(lines);
-    }
-    
     scene.add(particles);
+
+    const particleCount = 75;
+    const particlePositions = new Float32Array(particleCount * 3);
+
+    // Texture Loader
+    const textureLoader = new THREE.TextureLoader();
+    const logoUrl = new URL('/logo.png', window.location.origin).href;
+
+    textureLoader.load(
+      logoUrl,
+      (texture) => {
+        logoTextureRef.current = texture;
+        for (let i = 0; i < particleCount; i++) {
+          const spriteMaterial = new THREE.SpriteMaterial({
+            map: texture,
+            alphaTest: 0.5,
+            transparent: true,
+            color: 0xffffff,
+            opacity: 0.85,
+          });
+          const sprite = new THREE.Sprite(spriteMaterial);
+
+          const x = (Math.random() - 0.5) * 120;
+          const y = (Math.random() - 0.5) * 120;
+          const z = (Math.random() - 0.5) * 120;
+          sprite.position.set(x, y, z);
+
+          particlePositions[i * 3] = x;
+          particlePositions[i * 3 + 1] = y;
+          particlePositions[i * 3 + 2] = z;
+          
+          const baseScale = 2.5;
+          // Dynamically set particle scale based on loaded logo aspect ratio
+          if (texture.image && texture.image.width > 0 && texture.image.height > 0) {
+            sprite.scale.set(baseScale, baseScale * (texture.image.height / texture.image.width), 1);
+          } else {
+            // Fallback scale if image dimensions are not available (e.g. 1:1 aspect ratio)
+            sprite.scale.set(baseScale, baseScale, 1);
+          }
+          
+          particles.add(sprite);
+        }
+      },
+      undefined, 
+      (errEvent: ErrorEvent) => { 
+        let detailedMessage = `TextureLoader failed to load: ${logoUrl}`;
+        if (errEvent) {
+          detailedMessage += `\n  Event Type: ${errEvent.type}`;
+          if (errEvent.message) {
+            detailedMessage += `\n  Message: ${errEvent.message}`;
+          }
+          if (errEvent.error) {
+            detailedMessage += `\n  Underlying error: ${errEvent.error.toString ? errEvent.error.toString() : JSON.stringify(errEvent.error)}`;
+            if (errEvent.error instanceof Error && errEvent.error.stack) {
+                 detailedMessage += `\n  Underlying error stack: ${errEvent.error.stack}`;
+            }
+          }
+        }
+        console.error(detailedMessage, errEvent); 
+      }
+    );
 
     // Animation loop
     const animate = () => {
       animationFrameIdRef.current = requestAnimationFrame(animate);
       if (particlesGroupRef.current) {
-        particlesGroupRef.current.rotation.y += 0.0005; // Slower rotation
-      }
+        particlesGroupRef.current.rotation.y += 0.0003;
+        particlesGroupRef.current.rotation.x += 0.00015;
 
-      const time = Date.now() * 0.0005; // Slower particle movement
-      const currentPositions = (pointsRef.current?.geometry.attributes.position as THREE.BufferAttribute)?.array as Float32Array;
+        const time = Date.now() * 0.0003;
 
-      if (currentPositions) {
-        for (let i = 0; i < particleCount; i++) {
-            const i3 = i * 3;
-            // Subtle movement, can be adjusted
-            currentPositions[i3] += Math.sin(time + i * 0.3) * 0.005; 
-            currentPositions[i3 + 1] += Math.cos(time + i * 0.5) * 0.005;
-            // currentPositions[i3+2] remains static or moves less for a flatter effect if desired
-        }
-        if (pointsRef.current) {
-            pointsRef.current.geometry.attributes.position.needsUpdate = true;
-        }
+        particlesGroupRef.current.children.forEach((sprite, i) => {
+          if (sprite instanceof THREE.Sprite) {
+            sprite.position.x += Math.sin(time + i * 0.8) * 0.008;
+            sprite.position.y += Math.cos(time + i * 0.6) * 0.008;
+            sprite.position.z += Math.sin(time + i * 0.4) * 0.004;
+
+            const boundary = 70;
+            if (sprite.position.x > boundary) sprite.position.x = -boundary;
+            if (sprite.position.x < -boundary) sprite.position.x = boundary;
+            if (sprite.position.y > boundary) sprite.position.y = -boundary;
+            if (sprite.position.y < -boundary) sprite.position.y = boundary;
+            if (sprite.position.z > boundary) sprite.position.z = -boundary;
+            if (sprite.position.z < -boundary) sprite.position.z = boundary;
+          }
+        });
       }
       if (rendererRef.current && sceneRef.current && cameraRef.current) {
         rendererRef.current.render(sceneRef.current, cameraRef.current);
@@ -148,25 +150,27 @@ const ThreeParticleSystem: React.FC = () => {
       }
       window.removeEventListener('resize', handleResize);
       
-      // Dispose Three.js objects
-      scene.traverse(object => {
-        if (object instanceof THREE.Mesh || object instanceof THREE.LineSegments || object instanceof THREE.Points) {
-          if (object.geometry) object.geometry.dispose();
-          if (Array.isArray(object.material)) {
-            object.material.forEach(mat => {
-              if (mat.map) mat.map.dispose(); // Dispose textures if any
-              mat.dispose();
-            });
-          } else if (object.material) {
-            const mat = object.material as THREE.Material;
-            if ((mat as any).map) (mat as any).map.dispose();
-            mat.dispose();
-          }
+      if(logoTextureRef.current) {
+        logoTextureRef.current.dispose();
+      }
+
+      if (sceneRef.current) {
+        sceneRef.current.traverse(object => {
+            if (object instanceof THREE.Sprite) {
+            if (object.material.map) object.material.map.dispose();
+            object.material.dispose();
+            }
+        });
+      }
+      
+      if (particlesGroupRef.current) {
+        while(particlesGroupRef.current.children.length > 0){ 
+            particlesGroupRef.current.remove(particlesGroupRef.current.children[0]); 
         }
-      });
+      }
       
       if (rendererRef.current) {
-        rendererRef.current.dispose(); // Dispose renderer
+        rendererRef.current.dispose();
       }
 
       if (mountRef.current && rendererRef.current?.domElement) {
@@ -174,11 +178,11 @@ const ThreeParticleSystem: React.FC = () => {
             mountRef.current.removeChild(rendererRef.current.domElement);
         }
       }
-      rendererRef.current = null; // Clear refs
+      rendererRef.current = null; 
       cameraRef.current = null;
       sceneRef.current = null;
       particlesGroupRef.current = null;
-      pointsRef.current = null;
+      logoTextureRef.current = null;
     };
   }, []);
 

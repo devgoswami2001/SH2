@@ -5,16 +5,18 @@ import Image from 'next/image'
 import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
+import { Menu, LogIn, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { label: 'Features', href: '/features' }, // Changed from /#section-features
+  { label: 'Features', href: '/features' },
   { label: 'Job Seekers', href: '/job-seekers' },
   { label: 'Employers', href: '/employers' },
   { label: 'How It Works', href: '/how-it-works' },
-  { label: 'Investor Relations', href: '/investors' },
+  { label: 'About Us', href: '/about' },
+  { label: 'Investors', href: '/investors' },
+  { label: 'Contact', href: '/contact' },
 ];
 
 export function Header() {
@@ -50,10 +52,15 @@ export function Header() {
         </nav>
 
         <div className="hidden md:flex items-center space-x-2">
+          <Button variant="ghost" className="text-foreground/80 hover:text-foreground hover:bg-accent/10">
+            <LogIn className="mr-2 h-4 w-4" />
+            Sign In
+          </Button>
           <Button
-            className="shadow-md hover:shadow-lg hover:shadow-primary/30 transition-all duration-300 transform hover:-translate-y-px hover:scale-[1.02]"
+            className="bg-gradient-to-r from-primary to-accent hover:shadow-lg text-primary-foreground transition-all duration-300 ease-out hover:scale-105 hover:from-primary/90 hover:to-accent/90"
           >
-            Get Started
+            <UserPlus className="mr-2 h-4 w-4" />
+            Sign Up
           </Button>
         </div>
 
@@ -66,6 +73,7 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[320px] bg-background/95 backdrop-blur-md p-0 flex flex-col">
+              <SheetTitle className="sr-only">Main menu</SheetTitle>
               <div className="flex items-center justify-start p-4 border-b border-border/60">
                 <Link href="/" className="flex items-center gap-2 group transition-opacity hover:opacity-80" onClick={() => setIsMobileMenuOpen(false)}>
                   <Image src="/logo.png" alt="HyreSense Logo" width={35} height={28} className="transition-transform group-hover:scale-105" />
@@ -89,8 +97,17 @@ export function Header() {
                   </Link>
                 ))}
               </nav>
-              <div className="p-4 border-t border-border/60 space-y-2 bg-background">
-                <Button className="w-full text-base py-3 h-auto" size="lg">Get Started</Button>
+              <div className="p-4 border-t border-border/60 space-y-3 bg-background">
+                <Button variant="outline" className="w-full text-base py-3 h-auto">
+                  <LogIn className="mr-2 h-5 w-5" />
+                  Sign In
+                </Button>
+                <Button
+                  className="w-full text-base py-3 h-auto bg-gradient-to-r from-primary to-accent text-primary-foreground hover:from-primary/90 hover:to-accent/90"
+                >
+                  <UserPlus className="mr-2 h-5 w-5" />
+                  Sign Up
+                </Button>
               </div>
             </SheetContent>
           </Sheet>
