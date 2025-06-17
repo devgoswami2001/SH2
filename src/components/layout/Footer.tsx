@@ -7,24 +7,23 @@ export function Footer() {
 
   return (
     <footer className=" border-t border-border/40">
-      <div className="container py-12 px-4 sm:px-6 lg:px-8"> {/* Changed max-w-7xl to container */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="w-full py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <Link href="/" className="flex items-center gap-2 mb-4">
                <Image src="/logo.png" alt="Logo" width={50} height={32} />
-               {/* <Briefcase className="h-7 w-7 text-primary" /> */}
                 <span className="text-2xl font-bold text-foreground" style={{ fontSize: 25, paddingBottom: 8 , color: '#4670bf' }}>hyre<span style={{color:'#7a5fdb'}}>SENSE</span> </span>
             </Link>
             <p className="text-sm text-muted-foreground">
               Revolutionizing how you find and hire talent with AI-powered job matching.
             </p>
           </div>
-          
+
           <div className="md:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-8">
             <div>
               <h3 className="text-sm font-semibold text-foreground tracking-wider uppercase">Quick Links</h3>
               <ul role="list" className="mt-4 space-y-2">
-                <li><Link href="#features" className="text-sm text-muted-foreground hover:text-foreground">Features</Link></li>
+                <li><Link href="/#section-features" className="text-sm text-muted-foreground hover:text-foreground">Features</Link></li>
                 <li><Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground">Pricing</Link></li>
                 <li><Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground">Blog</Link></li>
                 <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground">Contact</Link></li>
@@ -48,7 +47,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 border-t border-border/60 pt-8 flex flex-col md:flex-row items-center justify-between">
+        <div className="max-w-7xl mx-auto mt-8 border-t border-border/60 pt-8 flex flex-col md:flex-row items-center justify-between">
           <p className="text-sm text-muted-foreground md:order-1">
             &copy; {currentYear} <span style={{ color: '#4670bf' }}>hyre<span style={{color:'#7a5fdb'}}>SENSE</span></span>. All rights reserved.
           </p>
