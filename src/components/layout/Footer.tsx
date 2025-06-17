@@ -25,8 +25,8 @@ export function Footer() {
               <h3 className="text-sm font-semibold text-foreground tracking-wider uppercase">Quick Links</h3>
               <ul role="list" className="mt-4 space-y-2">
                 <li><Link href="/features" className="text-sm text-muted-foreground hover:text-foreground">Features</Link></li>
-                <li><Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground">Pricing</Link></li>
-                <li><Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground">Blog</Link></li>
+                {/* <li><Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground">Pricing</Link></li>
+                <li><Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground">Blog</Link></li> */}
                 <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground">Contact</Link></li>
               </ul>
             </div>
@@ -34,8 +34,8 @@ export function Footer() {
               <h3 className="text-sm font-semibold text-foreground tracking-wider uppercase">Company</h3>
               <ul role="list" className="mt-4 space-y-2">
                 <li><Link href="/about" className="text-sm text-muted-foreground hover:text-foreground">About Us</Link></li>
-                <li><Link href="/careers" className="text-sm text-muted-foreground hover:text-foreground">Careers</Link></li>
-                <li><Link href="/press" className="text-sm text-muted-foreground hover:text-foreground">Press</Link></li>
+                {/* <li><Link href="/careers" className="text-sm text-muted-foreground hover:text-foreground">Careers</Link></li>
+                <li><Link href="/press" className="text-sm text-muted-foreground hover:text-foreground">Press</Link></li> */}
               </ul>
             </div>
              <div>
