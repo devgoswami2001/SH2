@@ -175,9 +175,6 @@ export default function EmployersPage() {
             )}
             style={{ transitionDelay: isHeroImageVisible ? '200ms' : '0ms' }}
           >
-            <div className={cn(
-              "absolute -inset-2 bg-gradient-to-r from-accent/30 to-primary/30 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition duration-1000 group-hover:duration-300 animate-pulse_slow"
-            )}></div>
              <div className="relative bg-card/80 backdrop-blur-md border-2 border-primary/20 rounded-xl shadow-2xl p-4 sm:p-6 w-full max-w-xl mx-auto min-h-[450px] flex flex-col justify-between">
                 <div>
                     <div className="flex justify-between items-start mb-4 sm:mb-6">
@@ -596,7 +593,7 @@ export default function EmployersPage() {
         .animate-pulse_fast {
           animation: pulse_fast 1.5s infinite ease-in-out;
         }
-        @keyframes pulse_slow { /* Added for the hero section element */
+        @keyframes pulse_slow { 
           0%, 100% { opacity: 0.5; transform: scale(1); }
           50% { opacity: 0.8; transform: scale(1.02); }
         }

@@ -106,7 +106,7 @@ export default function JobSeekersPage() {
   const [heroTitleRef, isHeroTitleVisible] = useScrollAnimation<HTMLHeadingElement>();
   const [heroSubtitleRef, isHeroSubtitleVisible] = useScrollAnimation<HTMLParagraphElement>();
   const [heroButtonRef, isHeroButtonVisible] = useScrollAnimation<HTMLDivElement>();
-  const [heroImageRef, isHeroImageVisible] = useScrollAnimation<HTMLDivElement>(); // Changed from HTMLImageElement
+  const [heroImageRef, isHeroImageVisible] = useScrollAnimation<HTMLDivElement>();
 
   const [whyTitleRef, isWhyTitleVisible] = useScrollAnimation<HTMLHeadingElement>();
   const [whySubtitleRef, isWhySubtitleVisible] = useScrollAnimation<HTMLParagraphElement>();
@@ -175,9 +175,6 @@ export default function JobSeekersPage() {
             )}
             style={{ transitionDelay: isHeroImageVisible ? '200ms' : '0ms' }}
           >
-             <div className={cn(
-              "absolute -inset-2 bg-gradient-to-r from-primary/30 to-accent/30 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition duration-1000 group-hover:duration-300 animate-pulse_slow"
-            )}></div>
             <div className="relative bg-card/80 backdrop-blur-md border-2 border-primary/20 rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-lg mx-auto min-h-[400px] flex flex-col justify-between">
               <div>
                 <div className="flex justify-between items-start mb-6">
