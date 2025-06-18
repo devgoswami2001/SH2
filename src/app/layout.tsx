@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/toaster";
 import ThreeParticleSystem from '@/components/effects/three-particle-system';
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggleButton } from '@/components/layout/ThemeToggleButton';
+import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper'; // New import
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -19,10 +20,10 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://hyresense.com'; // Define a base URL, ideally from an env variable
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://hyresense.com';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl), // Important for resolving relative Open Graph URLs
+  metadataBase: new URL(siteUrl),
   title: {
     default: 'HyreSense: AI-Powered Job Matching & Smart Hiring Platform',
     template: '%s | HyreSense',
@@ -64,7 +65,8 @@ export const metadata: Metadata = {
     siteName: 'HyreSense',
     images: [
       {
-        url: `${siteUrl}/hyresense-og-image.png`, // TODO: Replace with your actual OG image URL (e.g., 1200x630px)
+        // TODO: Replace with your actual OG image URL (e.g., 1200x630px in /public/hyresense-og-image.png)
+        url: `${siteUrl}/logo.png`,
         width: 1200,
         height: 630,
         alt: 'HyreSense - AI Powered Job Matching and Smart Hiring Platform',
@@ -77,18 +79,20 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'HyreSense: AI-Powered Job Matching & Smart Hiring',
     description: 'Leverage AI for your job search or hiring needs. Smart matching, skill insights, and faster results with HyreSense.',
-    images: [`${siteUrl}/hyresense-twitter-image.png`], // TODO: Replace with your actual Twitter image URL (e.g., 1200x600px)
-    creator: '@HyreSense', // TODO: Replace with your actual Twitter handle
+    // TODO: Replace with your actual Twitter image URL (e.g., 1200x600px in /public/hyresense-twitter-image.png)
+    images: [`${siteUrl}/hyresense-twitter-image.png`],
+    // TODO: Replace with your actual Twitter handle
+    creator: '@HyreSense',
   },
   icons: {
-    icon: '/logo.png', // Used for browser tab favicon
-    shortcut: '/logo.png', // Used for shortcuts
-    apple: '/logo.png', // Used for Apple touch icons
-    // You can add more specific sizes or types if needed, e.g.:
-    // { rel: 'apple-touch-icon', sizes: '180x180', url: '/apple-icon-180x180.png' },
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
   },
-  manifest: `${siteUrl}/site.webmanifest`, // TODO: Create a site.webmanifest file in your public folder for PWA features
+  // TODO: Create a site.webmanifest file in your public folder for PWA features
+  manifest: `${siteUrl}/site.webmanifest`,
 };
+
 
 export default function RootLayout({
   children,
@@ -107,13 +111,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ThreeParticleSystem />
-          <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            <Header />
-            <main className="flex-grow">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          <MainLayoutWrapper>
+            {children}
+          </MainLayoutWrapper>
           <Toaster />
           <div className="fixed bottom-6 right-6 z-50">
             <ThemeToggleButton />

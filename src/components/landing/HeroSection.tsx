@@ -2,8 +2,9 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { Briefcase, ArrowRight } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { cn } from '@/lib/utils';
 import { MobileAppDemo } from '@/components/landing/MobileAppDemo'; 
@@ -52,10 +53,13 @@ export function HeroSection() {
         >
           <Button
             size="lg"
+            asChild
             className="w-full sm:w-auto group bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.02]"
           >
-            For Job Seekers
-            <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            <Link href="/login">
+              For Job Seekers
+              <Briefcase className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </Button>
           <Button size="lg" variant="outline" className="w-full sm:w-auto">
             For Employers
@@ -158,7 +162,7 @@ export function HeroSection() {
                         <div className="h-2 sm:h-2.5 w-full bg-muted/70 dark:bg-slate-700/50 rounded-full overflow-hidden">
                           <div
                             className={cn("h-full rounded-full transition-all duration-500 ease-out", item.color)}
-                            style={{ width: `${isDashboardImageVisible ? item.value : 0}%` }} // Animate width on visibility
+                            style={{ width: `${isDashboardImageVisible ? item.value : 0}%` }} 
                           ></div>
                         </div>
                       </div>

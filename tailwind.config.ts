@@ -109,13 +109,17 @@ export default {
           '80%': { opacity: '1', transform: 'scale(1.1)' },
           '100%': { opacity: '0', transform: 'scale(0.8)' },
         },
-         pulse_slow: { /* Renamed from just 'pulse' to be more specific */
+         pulse_slow: {
           '0%, 100%': { opacity: '0.5', transform: 'scale(1)' },
-          '50%': { opacity: '0.8', transform: 'scale(1.05)' },
+          '50%': { opacity: '0.8', transform: 'scale(1.02)' }, 
         },
-        pulse_fast: { /* Added for faster pulse effect */
+        pulse_fast: {
           '0%, 100%': { opacity: '0.7', transform: 'scale(1)' },
           '50%': { opacity: '1', transform: 'scale(1.1)' },
+        },
+        pulse_slow_bg: { /* Added for background animation */
+          '0%, 100%': { 'background-position': '0% 50%' },
+          '50%': { 'background-position': '100% 50%' },
         }
   		},
   		animation: {
@@ -126,10 +130,12 @@ export default {
         'swipe-left': 'swipe-left 0.5s ease-in forwards',
         'swipe-right': 'swipe-right 0.5s ease-in forwards',
         'feedback-fade': 'feedback-fade 0.5s ease-in-out forwards',
-        'pulse_slow': 'pulse_slow 3s infinite ease-in-out',
+        'pulse_slow': 'pulse_slow 4s infinite ease-in-out',
         'pulse_fast': 'pulse_fast 1.5s infinite ease-in-out',
+        'pulse_slow_bg': 'pulse_slow_bg 15s ease infinite', /* Added for background animation */
   		}
   	}
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
+
