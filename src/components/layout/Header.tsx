@@ -88,15 +88,20 @@ export function Header() {
         </nav>
 
         <div className="hidden md:flex items-center space-x-2">
-          <Button variant="ghost" className="text-foreground/80 hover:text-foreground hover:bg-accent/10">
-            <LogIn className="mr-2 h-4 w-4" />
-            Sign In
+          <Button asChild variant="ghost" className="text-foreground/80 hover:text-foreground hover:bg-accent/10">
+            <Link href="/login">
+              <LogIn className="mr-2 h-4 w-4" />
+              Sign In
+            </Link>
           </Button>
           <Button
+            asChild
             className="bg-gradient-to-r from-primary to-accent hover:shadow-lg text-primary-foreground transition-all duration-300 ease-out hover:scale-105 hover:from-primary/90 hover:to-accent/90"
           >
-            <UserPlus className="mr-2 h-4 w-4" />
-            Sign Up
+            <Link href="/signup">
+              <UserPlus className="mr-2 h-4 w-4" />
+              Sign Up
+            </Link>
           </Button>
         </div>
 
@@ -185,15 +190,20 @@ export function Header() {
                   </Link>
               </nav>
               <div className="p-4 border-t border-border/60 space-y-3 bg-background">
-                <Button variant="outline" className="w-full text-base py-3 h-auto">
-                  <LogIn className="mr-2 h-5 w-5" />
-                  Sign In
+                <Button asChild variant="outline" className="w-full text-base py-3 h-auto">
+                  <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                    <LogIn className="mr-2 h-5 w-5" />
+                    Sign In
+                  </Link>
                 </Button>
                 <Button
+                  asChild
                   className="w-full text-base py-3 h-auto bg-gradient-to-r from-primary to-accent text-primary-foreground hover:from-primary/90 hover:to-accent/90"
                 >
-                  <UserPlus className="mr-2 h-5 w-5" />
-                  Sign Up
+                  <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                    <UserPlus className="mr-2 h-5 w-5" />
+                    Sign Up
+                  </Link>
                 </Button>
               </div>
             </SheetContent>
