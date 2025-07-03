@@ -133,29 +133,35 @@ export function SwipeToHireSection() {
                   "hover:shadow-[0_0_20px_3px_hsl(var(--primary)/0.3),_0_0_40px_3px_hsl(var(--accent)/0.25)]",
                   "transition-all duration-300 ease-out"
                 )}>
-                  <CardHeader className="p-0 relative">
-                    <Image 
-                      src={currentJob.image} 
-                      alt={currentJob.title} 
-                      width={400} 
-                      height={220} 
-                      data-ai-hint={currentJob.dataAiHint}
-                      className="object-cover w-full h-52 sm:h-56 group-hover/card:scale-105 transition-transform duration-300 ease-out"
-                    />
-                    <div className={cn(
-                      "absolute bottom-3 left-3 bg-primary/70 backdrop-blur-md text-primary-foreground",
-                      "text-xs font-mono font-bold px-3 py-1.5 rounded-md shadow-lg border border-primary-foreground/50"
-                    )}>
-                      {currentJob.matchPercentage}% Match
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-4 sm:p-5 space-y-2.5">
-                    <CardTitle className="text-xl sm:text-2xl font-bold text-foreground line-clamp-2">{currentJob.title}</CardTitle>
-                    <div className="text-xs sm:text-sm">
-                      <span className="font-medium text-primary">{currentJob.company}</span>
-                      <span className="text-muted-foreground"> - {currentJob.location}</span>
-                    </div>
-
+                  <CardContent className="p-4 sm:p-5 space-y-3">
+                     <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-start gap-3 flex-grow overflow-hidden">
+                           <div className="p-1 bg-white rounded-md shadow-sm w-12 h-12 flex items-center justify-center flex-shrink-0">
+                             <Image 
+                               src={currentJob.image} 
+                               alt={`${currentJob.company} logo`}
+                               width={40} 
+                               height={40} 
+                               data-ai-hint={currentJob.dataAiHint}
+                               className="object-contain w-full h-full"
+                             />
+                           </div>
+                           <div className="overflow-hidden">
+                              <CardTitle className="text-xl sm:text-2xl font-bold text-foreground line-clamp-2 leading-tight">{currentJob.title}</CardTitle>
+                              <div className="text-xs sm:text-sm mt-1">
+                                <span className="font-medium text-primary">{currentJob.company}</span>
+                                <span className="text-muted-foreground"> - {currentJob.location}</span>
+                              </div>
+                           </div>
+                        </div>
+                        <Badge
+                          variant="secondary"
+                          className="bg-primary/70 backdrop-blur-md text-primary-foreground text-xs font-mono font-bold px-3 py-1.5 rounded-md shadow-lg border border-primary-foreground/50 whitespace-nowrap ml-2"
+                        >
+                          {currentJob.matchPercentage}% Match
+                        </Badge>
+                     </div>
+                    
                     <div className="pt-1 space-y-1.5 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1.5">
                         <Briefcase className="h-3.5 w-3.5 text-primary/80" />
@@ -182,7 +188,7 @@ export function SwipeToHireSection() {
                       </div>
                     )}
                     
-                    <p className="text-xs text-muted-foreground line-clamp-2 h-8 sm:h-8">
+                    <p className="text-xs text-muted-foreground line-clamp-3 h-12 sm:h-12">
                         {currentJob.description}
                     </p>
                   </CardContent>
