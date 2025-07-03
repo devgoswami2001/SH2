@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, RotateCcw, Search, Sparkles, Send, Briefcase, CalendarDays, Workflow } from 'lucide-react';
+import { CheckCircle, XCircle, RotateCcw, Search, Sparkles, Send, Briefcase, CalendarDays } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { cn } from '@/lib/utils';
 import React, { useState } from 'react';
@@ -14,59 +14,45 @@ import { Separator } from '@/components/ui/separator';
 const initialJobs = [
   {
     id: 1,
-    title: "Senior Frontend Developer",
-    company: "Innovatech Solutions Ltd.",
-    location: "New York, NY (Hybrid)",
-    description: "Join our dynamic team to build next-gen web applications using React, Next.js, and TypeScript. Lead frontend projects and mentor junior developers.",
-    matchPercentage: 92,
-    image: "https://placehold.co/400x250.png",
-    dataAiHint: "software development team",
-    skills: ["React", "Next.js", "TypeScript", "Agile"],
-    experienceLevel: "Senior Level",
+    title: "Software Engineer",
+    company: "Microsoft",
+    location: "India (Up to 100% work from home)",
+    description: "Join Azure Cloud to build and optimize a world-class distributed file system. This role provides a unique opportunity to work on software and hardware optimizations at a massive scale, influencing the future of Azure Storage.",
+    matchPercentage: 94,
+    image: "https://uhf.microsoft.com/images/microsoft/RE1Mu3b.png",
+    dataAiHint: "microsoft office",
+    skills: ["C", "C++", "C#", "Java", "Python", "Distributed Systems"],
+    experienceLevel: "Entry-level",
     jobType: "Full-Time",
-    postedDate: "3 days ago",
+    postedDate: "Jul 03, 2025",
   },
   {
     id: 2,
-    title: "Digital Marketing Manager",
-    company: "ConnectSphere Inc.",
-    location: "San Francisco, CA (Remote)",
-    description: "Develop and execute innovative digital marketing campaigns across SEO, SEM, and social media. Analyze performance and optimize for ROI.",
-    matchPercentage: 88,
-    image: "https://placehold.co/400x250.png",
-    dataAiHint: "marketing analytics",
-    skills: ["SEO", "SEM", "Social Media Marketing", "Google Analytics"],
-    experienceLevel: "Manager",
+    title: "Software Engineer 2",
+    company: "Microsoft",
+    location: "India (Up to 50% work from home)",
+    description: "Join Microsoft Security to build cloud solutions that provide security, compliance, and data governance for Office 365. You will develop large-scale distributed services and ensure they are reliable, scalable, and secure.",
+    matchPercentage: 91,
+    image: "https://uhf.microsoft.com/images/microsoft/RE1Mu3b.png",
+    dataAiHint: "microsoft security",
+    skills: ["C#", "Java", "C++", "Azure", "AWS", "Google Cloud", "DevOps", "CI/CD"],
+    experienceLevel: "Mid-level (3+ years)",
     jobType: "Full-Time",
-    postedDate: "1 week ago",
+    postedDate: "Jul 03, 2025",
   },
   {
     id: 3,
-    title: "UX/UI Designer",
-    company: "PixelPerfect Studios",
-    location: "Austin, TX (On-site)",
-    description: "Craft intuitive and visually appealing user interfaces for mobile and web applications. Conduct user research and create wireframes and prototypes.",
-    matchPercentage: 95,
-    image: "https://placehold.co/400x250.png",
-    dataAiHint: "ui design wireframe",
-    skills: ["Figma", "Adobe XD", "User Research", "Prototyping"],
-    experienceLevel: "Mid-Senior Level",
+    title: "Business Analyst I, AOP",
+    company: "Amazon",
+    location: "Hyderabad, India",
+    description: "Join the Amazon Transportation team to define and analyze complex business problems. You will work with large datasets, build analytical frameworks, and liaise with operations teams to streamline processes and drive efficiency.",
+    matchPercentage: 89,
+    image: "https://static.vecteezy.com/system/resources/previews/014/018/563/non_2x/amazon-logo-on-transparent-background-free-vector.jpg",
+    dataAiHint: "amazon warehouse",
+    skills: ["Excel VBA", "SQL", "ETL", "Tableau", "Data Analysis"],
+    experienceLevel: "Analyst (1+ years)",
     jobType: "Full-Time",
-    postedDate: "5 days ago",
-  },
-  {
-    id: 4,
-    title: "Customer Success Manager",
-    company: "SupportFirst Co.",
-    location: "Chicago, IL (Hybrid)",
-    description: "Build strong relationships with key clients, ensuring their success and satisfaction with our SaaS platform. Drive adoption and identify upsell opportunities.",
-    matchPercentage: 90,
-    image: "https://placehold.co/400x250.png",
-    dataAiHint: "customer support meeting",
-    skills: ["Client Relations", "SaaS", "Problem Solving", "Communication"],
-    experienceLevel: "Manager",
-    jobType: "Full-Time",
-    postedDate: "2 days ago",
+    postedDate: "Jul 03, 2025",
   },
 ];
 
@@ -127,7 +113,7 @@ export function SwipeToHireSection() {
       ref={sectionRef}
       className="py-16 sm:py-24 bg-background"
     >
-      <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-2 gap-x-12 gap-y-16 items-center">
           <div 
             ref={interactiveAreaRef}
@@ -137,7 +123,7 @@ export function SwipeToHireSection() {
             )}
             style={{ transitionDelay: isInteractiveAreaVisible ? '300ms' : '0ms' }}
           >
-            {currentJob && (
+            {currentJob ? (
               <div key={cardKey} className={cn("absolute w-full group/card", cardAnimationClasses())}>
                 <Card className={cn(
                   "bg-gradient-to-br from-card/70 via-card/60 to-card/70 backdrop-blur-lg",
@@ -207,7 +193,7 @@ export function SwipeToHireSection() {
                       className="text-destructive hover:bg-destructive/15 dark:hover:bg-destructive/25 hover:shadow-[0_0_12px_2px_hsl(var(--destructive)/0.4)] font-semibold w-full mr-1.5 transition-all duration-200 ease-out transform hover:scale-[1.03] rounded-lg p-2.5 flex items-center justify-center gap-1.5 text-sm"
                       onClick={() => handleSwipe('left')}
                     >
-                      <XCircle className="mr-1 h-4 w-4 sm:h-5 sm:w-5" /> Decline
+                      <XCircle className="mr-1 h-4 w-4 sm:h-5 sm:w-5" /> Reject
                     </Button>
                     <Button 
                       variant="ghost" 
@@ -220,6 +206,13 @@ export function SwipeToHireSection() {
                   </CardFooter>
                 </Card>
               </div>
+            ) : (
+              <div className="text-center text-muted-foreground">
+                <p className="text-lg mb-4">No more jobs on this frequency for now!</p>
+                <Button onClick={() => { setCurrentIndex(0); setJobs(initialJobs); setCardKey(k => k + 1); }} variant="outline" className="hover:bg-primary/10">
+                  <RotateCcw className="mr-2 h-4 w-4" /> Rescan for Jobs
+                </Button>
+              </div>
             )}
             {feedback && (
               <div className={cn(
@@ -227,16 +220,16 @@ export function SwipeToHireSection() {
                 feedback === 'Applied' ? 'text-green-500' : 'text-red-500'
               )}>
                 <p className="text-5xl sm:text-6xl font-extrabold p-4 bg-background/80 rounded-xl shadow-2xl">
-                  {feedback === 'Applied' ? 'Applied!' : 'Declined'}
+                  {feedback === 'Applied' ? 'Applied!' : 'Rejected'}
                 </p>
               </div>
             )}
-            {!currentJob && (
-              <div className="text-center text-muted-foreground">
-                <p className="text-lg mb-4">No more jobs on this frequency for now!</p>
-                <Button onClick={() => { setCurrentIndex(0); setCardKey(k => k + 1); }} variant="outline" className="hover:bg-primary/10">
-                  <RotateCcw className="mr-2 h-4 w-4" /> Rescan for Jobs
-                </Button>
+            {!currentJob && jobs.length > 0 && ( // Show this if currentJob is null but jobs array isn't empty (means end of list)
+              <div className="text-center text-muted-foreground p-4">
+                  <p className="text-lg mb-4">You've reached the end of the job list!</p>
+                  <Button onClick={() => { setCurrentIndex(0); setJobs(initialJobs); setCardKey(k => k + 1); }} variant="outline" size="lg" className="hover:bg-primary/10">
+                      <RotateCcw className="mr-2 h-5 w-5" /> Restart Feed
+                  </Button>
               </div>
             )}
           </div>
@@ -293,4 +286,3 @@ export function SwipeToHireSection() {
     </section>
   );
 }
-

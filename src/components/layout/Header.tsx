@@ -1,4 +1,3 @@
-
 "use client";
 
 import Image from 'next/image'
@@ -6,18 +5,29 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
-import { Menu, LogIn, UserPlus } from 'lucide-react';
+import { Menu, LogIn, UserPlus, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const navItems = [
-  { label: 'Features', href: '/features' },
-  { label: 'Job Seekers', href: '/job-seekers' },
-  { label: 'Employers', href: '/employers' },
-  { label: 'How It Works', href: '/how-it-works' },
-  { label: 'About Us', href: '/about' },
-  { label: 'Investors', href: '/investors' },
-  { label: 'Contact', href: '/contact' },
-];
+// Import Dropdown for desktop
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+// Import Accordion for mobile
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+
+const navLinkClasses = "text-foreground/70 transition-all duration-300 hover:text-foreground relative group px-3 py-2 rounded-md text-sm font-medium hover:bg-accent/10";
+const navLinkUnderlineClasses = "absolute bottom-[6px] left-1/2 transform -translate-x-1/2 w-0 h-[2px] bg-primary transition-all duration-300 group-hover:w-2/3";
+const mobileNavLinkClasses = "text-lg font-medium text-foreground/80 transition-colors hover:text-foreground hover:bg-accent/20 px-3 py-2.5 rounded-md block";
+
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -35,20 +45,46 @@ export function Header() {
           </span>
         </Link>
 
+        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={cn(
-                "text-foreground/70 transition-all duration-300 hover:text-foreground relative group px-3 py-2 rounded-md text-sm font-medium",
-                "hover:bg-accent/10"
-              )}
-            >
-              <span>{item.label}</span>
-              <span className="absolute bottom-[6px] left-1/2 transform -translate-x-1/2 w-0 h-[2px] bg-primary transition-all duration-300 group-hover:w-2/3"></span>
-            </Link>
-          ))}
+          <Link href="/features" className={cn(navLinkClasses)}>
+            <span>Features</span>
+            <span className={navLinkUnderlineClasses}></span>
+          </Link>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className={cn(navLinkClasses, 'data-[state=open]:bg-accent/10')}>
+                <span>Product</span>
+                <ChevronDown className="h-4 w-4 ml-1 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56 mt-2">
+              <DropdownMenuItem asChild>
+                <Link href="/job-seekers" className="cursor-pointer">For Job Seekers</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/employers" className="cursor-pointer">For Employers</Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Link href="/how-it-works" className={cn(navLinkClasses)}>
+            <span>Our Process</span>
+            <span className={navLinkUnderlineClasses}></span>
+          </Link>
+          <Link href="/about" className={cn(navLinkClasses)}>
+            <span>About Us</span>
+            <span className={navLinkUnderlineClasses}></span>
+          </Link>
+          <Link href="/investors" className={cn(navLinkClasses)}>
+            <span>Investors</span>
+            <span className={navLinkUnderlineClasses}></span>
+          </Link>
+           <Link href="/contact" className={cn(navLinkClasses)}>
+            <span>Contact</span>
+            <span className={navLinkUnderlineClasses}></span>
+          </Link>
         </nav>
 
         <div className="hidden md:flex items-center space-x-2">
@@ -64,7 +100,8 @@ export function Header() {
           </Button>
         </div>
 
-        <div className="md:hidden">
+        {/* Mobile Navigation */}
+        <div className="md:hidden flex items-center gap-1">
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -86,16 +123,66 @@ export function Header() {
                 </Link>
               </div>
               <nav className="flex flex-col gap-1 p-4 mt-2 flex-grow">
-                {navItems.map((item) => (
                   <Link
-                    key={item.label}
-                    href={item.href}
-                    className="text-lg font-medium text-foreground/80 transition-colors hover:text-foreground hover:bg-accent/20 px-3 py-2.5 rounded-md"
+                    href="/features"
+                    className={mobileNavLinkClasses}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    {item.label}
+                    Features
                   </Link>
-                ))}
+
+                  <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="product-menu" className="border-b-0">
+                      <AccordionTrigger className="text-lg font-medium text-foreground/80 transition-colors hover:text-foreground hover:bg-accent/20 px-3 py-2.5 rounded-md hover:no-underline justify-between w-full">
+                        <span className="flex-1 text-left">Product</span>
+                      </AccordionTrigger>
+                      <AccordionContent className="pl-6 pt-1 pb-1 space-y-1">
+                         <Link
+                          href="/job-seekers"
+                          className={cn(mobileNavLinkClasses, "text-base py-2")}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          For Job Seekers
+                        </Link>
+                         <Link
+                          href="/employers"
+                          className={cn(mobileNavLinkClasses, "text-base py-2")}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          For Employers
+                        </Link>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                  
+                  <Link
+                    href="/how-it-works"
+                    className={mobileNavLinkClasses}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Our Process
+                  </Link>
+                   <Link
+                    href="/about"
+                    className={mobileNavLinkClasses}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    About Us
+                  </Link>
+                   <Link
+                    href="/investors"
+                    className={mobileNavLinkClasses}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Investors
+                  </Link>
+                   <Link
+                    href="/contact"
+                    className={mobileNavLinkClasses}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Contact
+                  </Link>
               </nav>
               <div className="p-4 border-t border-border/60 space-y-3 bg-background">
                 <Button variant="outline" className="w-full text-base py-3 h-auto">

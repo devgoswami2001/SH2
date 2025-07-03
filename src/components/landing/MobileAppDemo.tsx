@@ -113,45 +113,45 @@ interface ChatMessage {
 const initialJobsData: AppJob[] = [
   {
     id: 1,
-    title: "Senior Frontend Developer",
-    company: "Innovatech Solutions Ltd.",
-    location: "New York, NY (Hybrid)",
-    description: "Join our dynamic team to build next-gen web applications using React, Next.js, and TypeScript. You will be responsible for leading frontend projects, mentoring junior developers, and ensuring the technical feasibility of UI/UX designs. We're looking for someone passionate about creating seamless user experiences and high-quality code.",
-    matchPercentage: 92,
-    image: "https://placehold.co/300x180.png",
-    dataAiHint: "software development team",
-    skills: ["React", "Next.js", "TypeScript", "Agile", "REST APIs", "GraphQL", "Tailwind CSS"],
-    experienceLevel: "Senior Level",
+    title: "Software Engineer",
+    company: "Microsoft",
+    location: "India (Up to 100% work from home)",
+    description: "Join Azure Cloud to build and optimize a world-class distributed file system. This role provides a unique opportunity to work on software and hardware optimizations at a massive scale, influencing the future of Azure Storage.",
+    matchPercentage: 94,
+    image: "https://uhf.microsoft.com/images/microsoft/RE1Mu3b.png",
+    dataAiHint: "microsoft office",
+    skills: ["C", "C++", "C#", "Java", "Python", "Distributed Systems"],
+    experienceLevel: "Entry-level",
     jobType: "Full-Time",
-    postedDate: "3 days ago",
+    postedDate: "Jul 03, 2025",
   },
   {
     id: 2,
-    title: "Digital Marketing Manager",
-    company: "ConnectSphere Inc.",
-    location: "San Francisco, CA (Remote)",
-    description: "Develop and execute innovative digital marketing campaigns across SEO, SEM, and social media. Analyze performance and optimize for ROI. The ideal candidate will have a proven track record of growing online presence and driving engagement. Manage a small team of marketing specialists.",
-    matchPercentage: 88,
-    image: "https://placehold.co/300x180.png",
-    dataAiHint: "marketing analytics",
-    skills: ["SEO", "SEM", "Social Media", "Analytics", "Content Creation", "Email Marketing", "Google Ads"],
-    experienceLevel: "Manager",
+    title: "Software Engineer 2",
+    company: "Microsoft",
+    location: "India (Up to 50% work from home)",
+    description: "Join Microsoft Security to build cloud solutions that provide security, compliance, and data governance for Office 365. You will develop large-scale distributed services and ensure they are reliable, scalable, and secure.",
+    matchPercentage: 91,
+    image: "https://uhf.microsoft.com/images/microsoft/RE1Mu3b.png",
+    dataAiHint: "microsoft security",
+    skills: ["C#", "Java", "C++", "Azure", "AWS", "Google Cloud", "DevOps", "CI/CD"],
+    experienceLevel: "Mid-level (3+ years)",
     jobType: "Full-Time",
-    postedDate: "1 week ago",
+    postedDate: "Jul 03, 2025",
   },
   {
     id: 3,
-    title: "UX/UI Designer",
-    company: "PixelPerfect Studios",
-    location: "Austin, TX (On-site)",
-    description: "Craft intuitive and visually appealing user interfaces for mobile and web applications. Conduct user research, create wireframes, mockups, and prototypes. Collaborate closely with product managers and engineers to deliver user-centered design solutions.",
-    matchPercentage: 95,
-    image: "https://placehold.co/300x180.png",
-    dataAiHint: "ui design wireframe",
-    skills: ["Figma", "Adobe XD", "User Research", "Prototyping", "Wireframing", "Mobile Design", "User Testing"],
-    experienceLevel: "Mid-Senior Level",
+    title: "Business Analyst I, AOP",
+    company: "Amazon",
+    location: "Hyderabad, India",
+    description: "Join the Amazon Transportation team to define and analyze complex business problems. You will work with large datasets, build analytical frameworks, and liaise with operations teams to streamline processes and drive efficiency.",
+    matchPercentage: 89,
+    image: "https://static.vecteezy.com/system/resources/previews/014/018/563/non_2x/amazon-logo-on-transparent-background-free-vector.jpg",
+    dataAiHint: "amazon warehouse",
+    skills: ["Excel VBA", "SQL", "ETL", "Tableau", "Data Analysis"],
+    experienceLevel: "Analyst (1+ years)",
     jobType: "Full-Time",
-    postedDate: "5 days ago",
+    postedDate: "Jul 03, 2025",
   },
 ];
 
@@ -1059,6 +1059,24 @@ export function MobileAppDemo() {
     }
     setSelectedJobForDetails(null);
   };
+  
+  const handleBackNavigation = () => {
+    if (selectedJobForDetails) {
+        setSelectedJobForDetails(null);
+        if (previousViewMode) {
+            setViewMode(previousViewMode);
+            setPreviousViewMode(null);
+        } else {
+            setViewMode('swiping'); // Default fallback
+        }
+    } else if (previousViewMode) {
+        setViewMode(previousViewMode);
+        setPreviousViewMode(null);
+    } else {
+        setViewMode('swiping'); // Default fallback if no previous view is set
+    }
+  };
+
 
  useEffect(() => {
     if (viewMode === 'ai_assist') {
@@ -1068,16 +1086,6 @@ export function MobileAppDemo() {
     }
   }, [viewMode]);
 
-
-  const handleBackNavigation = () => {
-    if (previousViewMode && previousViewMode !== viewMode) {
-        setViewMode(previousViewMode);
-    } else {
-        setViewMode('swiping'); // Default back to swiping if no clear previous view or if it's the same.
-    }
-    setSelectedJobForDetails(null);
-    setPreviousViewMode(null);
-  };
 
   const renderHeaderContent = () => {
     if (viewMode === 'swiping') {
@@ -1117,8 +1125,7 @@ export function MobileAppDemo() {
   return (
     <div className="flex justify-center items-center p-4 bg-transparent">
       <div className="relative w-[375px] h-[780px] bg-slate-900 rounded-[48px] border-[10px] border-slate-950 shadow-2xl overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-slate-950 rounded-b-xl z-20"></div>
-
+        
         <div className="h-full w-full bg-card flex flex-col rounded-[38px] overflow-hidden">
           { (viewMode === 'swiping' || (viewMode === 'applied' && appliedJobs.length > 0)) && (
             <header className="p-3 border-b border-border/50 bg-background/80 backdrop-blur-sm flex items-center justify-between sticky top-0 z-10 min-h-[56px]">
@@ -1154,56 +1161,65 @@ export function MobileAppDemo() {
                       )}
                     >
                       <div onClick={(e) => { e.stopPropagation(); handleCardClick(currentJobToSwipe, 'swiping'); }}>
-                        <CardHeader className="p-0 relative">
-                          <Image
-                            src={currentJobToSwipe.image}
-                            alt={currentJobToSwipe.title}
-                            width={300}
-                            height={176}
-                            data-ai-hint={currentJobToSwipe.dataAiHint}
-                            className="object-cover w-full h-44"
-                          />
-                          <div className={cn(
-                            "absolute bottom-2 left-2 bg-primary/70 backdrop-blur-md text-primary-foreground",
-                            "text-xs font-mono font-bold px-2.5 py-1 rounded-md shadow-lg border border-primary-foreground/50"
-                          )}>
-                            {currentJobToSwipe.matchPercentage}% Match
-                          </div>
-                        </CardHeader>
-                        <CardContent className="p-3 space-y-2">
-                          <CardTitle className="text-lg font-bold text-foreground line-clamp-2">{currentJobToSwipe.title}</CardTitle>
-                          <div className="text-xs">
-                            <span className="font-medium text-primary">{currentJobToSwipe.company}</span>
-                            <span className="text-muted-foreground"> - {currentJobToSwipe.location}</span>
-                          </div>
-                          <div className="pt-0.5 space-y-1 text-xs text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <Briefcase className="h-3 w-3 text-primary/80" />
-                              <span>{currentJobToSwipe.jobType} &middot; {currentJobToSwipe.experienceLevel}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <CalendarDays className="h-3 w-3 text-primary/80" />
-                              <span>Posted: {currentJobToSwipe.postedDate}</span>
-                            </div>
-                          </div>
-                          <Separator className="my-1.5 border-primary/30" />
-                          {currentJobToSwipe.skills && currentJobToSwipe.skills.length > 0 && (
-                            <div className="pb-0.5">
-                              <h4 className="text-[11px] font-semibold text-primary mb-1">Key Skills:</h4>
-                              <div className="flex flex-wrap gap-1">
-                                {currentJobToSwipe.skills.slice(0, 5).map((skill, index) => (
-                                  <Badge key={index} variant="secondary" className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary/90 border-primary/30">
-                                    {skill}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          <p className="text-[11px] text-muted-foreground line-clamp-4 h-16">
-                              {currentJobToSwipe.description}
-                          </p>
-                        </CardContent>
-                      </div>
+                        <CardContent className="p-4 space-y-3">
+                           <div className="flex justify-between items-start mb-2">
+                             <div className="flex items-start gap-3 flex-grow overflow-hidden">
+                                <div className="p-1 bg-white rounded-md shadow-sm w-12 h-12 flex items-center justify-center flex-shrink-0">
+                                  <Image 
+                                    src={currentJobToSwipe.image} 
+                                    alt={`${currentJobToSwipe.company} logo`}
+                                    width={40} 
+                                    height={40} 
+                                    data-ai-hint={currentJobToSwipe.dataAiHint}
+                                    className="object-contain w-full h-full"
+                                  />
+                                </div>
+                                <div className="overflow-hidden">
+                                   <CardTitle className="text-xl font-bold text-foreground line-clamp-2 leading-tight">{currentJobToSwipe.title}</CardTitle>
+                                   <div className="text-sm mt-1">
+                                     <span className="font-medium text-primary">{currentJobToSwipe.company}</span>
+                                     <span className="text-muted-foreground"> - {currentJobToSwipe.location}</span>
+                                   </div>
+                                </div>
+                             </div>
+                             <Badge
+                               variant="secondary"
+                               className="bg-primary/70 backdrop-blur-md text-primary-foreground text-sm font-mono font-bold px-2.5 py-1 rounded-md shadow-lg border border-primary-foreground/50 whitespace-nowrap ml-2"
+                             >
+                               {currentJobToSwipe.matchPercentage}% Match
+                             </Badge>
+                           </div>
+                           
+                           <div className="pt-1 space-y-1.5 text-sm text-muted-foreground">
+                             <div className="flex items-center gap-1.5">
+                               <Briefcase className="h-4 w-4 text-primary/80" />
+                               <span>{currentJobToSwipe.jobType} &middot; {currentJobToSwipe.experienceLevel}</span>
+                             </div>
+                             <div className="flex items-center gap-1.5">
+                               <CalendarDays className="h-4 w-4 text-primary/80" />
+                               <span>Posted: {currentJobToSwipe.postedDate}</span>
+                             </div>
+                           </div>
+ 
+                           <Separator className="my-2 border-primary/30" />
+ 
+                           {currentJobToSwipe.skills && currentJobToSwipe.skills.length > 0 && (
+                             <div className="pb-1">
+                               <h4 className="text-xs font-semibold text-primary mb-1.5">Key Skills:</h4>
+                               <div className="flex flex-wrap gap-1.5">
+                                 {currentJobToSwipe.skills.slice(0, 5).map((skill, index) => (
+                                   <Badge key={index} variant="secondary" className="text-xs px-2 py-1 bg-primary/10 text-primary/90 border-primary/30">
+                                     {skill}
+                                   </Badge>
+                                 ))}
+                               </div>
+                             </div>
+                           )}
+                           <p className="text-xs text-muted-foreground line-clamp-5 h-32">
+                               {currentJobToSwipe.description}
+                           </p>
+                         </CardContent>
+                       </div>
                     </Card>
                   </div>
                 ) : (
