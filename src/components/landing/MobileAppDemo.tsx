@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle, XCircle, Compass, LayoutGrid, User, Brain, Briefcase, CalendarDays, Sparkles, ArrowLeft, ListChecks, Search, Heart, MessageCircle, Share2, ThumbsUp, PackageSearch, Edit3, FileText, UploadCloud, DownloadCloud, Award, GraduationCap, MapPin, Building, Star, Building2, Send } from 'lucide-react';
+import { CheckCircle, XCircle, Compass, LayoutGrid, User, Brain, Briefcase, CalendarDays, Sparkles, ArrowLeft, ListChecks, Search, Heart, MessageCircle, Share2, ThumbsUp, PackageSearch, Edit3, FileText, UploadCloud, Award, GraduationCap, MapPin, Building, Star, Building2, Send } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 

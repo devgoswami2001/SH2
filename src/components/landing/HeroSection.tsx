@@ -62,7 +62,9 @@ export function HeroSection() {
             </Link>
           </Button>
           <Button size="lg" variant="outline" asChild className="w-full sm:w-auto">
-            <a href="https://talent-flow-seven.vercel.app/" target="_blank" rel="noopener noreferrer">For Employers</a>
+            <Link href="https://talent-flow-seven.vercel.app/" target="_blank" rel="noopener noreferrer">
+              For Employers
+            </Link>
           </Button>
         </div>
       </div>
