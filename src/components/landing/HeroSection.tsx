@@ -61,8 +61,8 @@ export function HeroSection() {
               <Briefcase className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
           </Button>
-          <Button size="lg" variant="outline" className="w-full sm:w-auto">
-            For Employers
+          <Button size="lg" variant="outline" asChild className="w-full sm:w-auto">
+            <a href="https://talent-flow-seven.vercel.app/" target="_blank" rel="noopener noreferrer">For Employers</a>
           </Button>
         </div>
       </div>

@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from 'next/image'
@@ -64,7 +65,7 @@ export function Header() {
                 <Link href="/job-seekers" className="cursor-pointer">For Job Seekers</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/employers" className="cursor-pointer">For Employers</Link>
+                <a href="https://talent-flow-seven.vercel.app/" target="_blank" rel="noopener noreferrer" className="cursor-pointer">For Employers</a>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -149,13 +150,15 @@ export function Header() {
                         >
                           For Job Seekers
                         </Link>
-                         <Link
-                          href="/employers"
+                         <a
+                          href="https://talent-flow-seven.vercel.app/"
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className={cn(mobileNavLinkClasses, "text-base py-2")}
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           For Employers
-                        </Link>
+                        </a>
                       </AccordionContent>
                     </AccordionItem>
                   </Accordion>
