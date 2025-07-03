@@ -363,7 +363,7 @@ const JobDetailsView: React.FC<{ job: AppJob, onBack: () => void }> = ({ job, on
             <span className="text-base font-semibold text-foreground truncate px-2 flex-1 text-center">
                 {job.title}
             </span>
-            <Image src="/logo.png" alt="HyreSence Logo" width={28} height={20} className="rounded-sm ml-1"/>
+            <Image src="/logo.png" alt="HyreSense Logo" width={28} height={20} className="rounded-sm ml-1"/>
         </header>
         <ScrollArea className="flex-grow p-1">
             <div className="space-y-3 text-sm p-3">
@@ -502,7 +502,7 @@ const ExploreView: React.FC<{ posts: CompanyPost[], onBack: () => void }> = ({ p
             className="w-full h-9 pl-8 pr-2 text-xs rounded-md bg-muted border-border/50 focus:bg-background focus:border-primary/50"
             />
         </div>
-        <Image src="/logo.png" alt="HyreSence Logo" width={30} height={22} className="ml-1 rounded-sm" />
+        <Image src="/logo.png" alt="HyreSense Logo" width={30} height={22} className="ml-1 rounded-sm" />
       </header>
       <ScrollArea className="flex-grow p-2 bg-muted/30 dark:bg-slate-800/40">
         {posts.map(post => (
@@ -601,7 +601,7 @@ const ProfileView: React.FC<{ profile: ProfileData; onBack: () => void }> = ({ p
         <span className="text-base font-semibold text-foreground truncate px-2 flex-1 text-center">
           Profile
         </span>
-        <Image src="/logo.png" alt="HyreSence Logo" width={28} height={20} className="rounded-sm ml-1" />
+        <Image src="/logo.png" alt="HyreSense Logo" width={28} height={20} className="rounded-sm ml-1" />
       </header>
 
       <ScrollArea className="flex-grow bg-muted/30 dark:bg-slate-800/40">
@@ -742,7 +742,7 @@ const AiAssistView: React.FC<{ onBack: () => void; isActive: boolean }> = ({ onB
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'initial-ai',
-      text: "Hello! I'm HyreSence AI. How can I assist you with your career goals or job search today?",
+      text: "Hello! I'm HyreSense AI. How can I assist you with your career goals or job search today?",
       sender: 'ai',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       avatar: "/logo.png",
@@ -762,33 +762,24 @@ const AiAssistView: React.FC<{ onBack: () => void; isActive: boolean }> = ({ onB
   useEffect(scrollToBottom, [messages]);
 
   useEffect(() => {
-    let focusTimerId: NodeJS.Timeout;
-    let inputRenderTimerId: NodeJS.Timeout;
-
     if (isActive) {
       if (viewContainerRef.current) {
         viewContainerRef.current.focus({ preventScroll: true });
       }
-
-      inputRenderTimerId = setTimeout(() => {
-        setRenderInputArea(true);
-        focusTimerId = setTimeout(() => {
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          setRenderInputArea(true);
           if (textareaRef.current && document.activeElement === textareaRef.current) {
             textareaRef.current.blur();
           }
           if (viewContainerRef.current && document.activeElement !== viewContainerRef.current) {
-            viewContainerRef.current.focus({ preventScroll: true });
+             viewContainerRef.current.focus({ preventScroll: true });
           }
-        }, 0);
-      }, 50);
+        }, 50); 
+      });
     } else {
       setRenderInputArea(false);
     }
-
-    return () => {
-      clearTimeout(focusTimerId);
-      clearTimeout(inputRenderTimerId);
-    };
   }, [isActive]);
 
 
@@ -829,7 +820,7 @@ const AiAssistView: React.FC<{ onBack: () => void; isActive: boolean }> = ({ onB
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <span className="text-base font-semibold text-foreground truncate px-2 flex-1 text-center">AI Assistant</span>
-        <Image src="/logo.png" alt="HyreSence Logo" width={28} height={20} className="rounded-sm ml-1" />
+        <Image src="/logo.png" alt="HyreSense Logo" width={28} height={20} className="rounded-sm ml-1" />
       </header>
 
       <ScrollArea className="flex-grow">
@@ -914,7 +905,6 @@ const AiAssistView: React.FC<{ onBack: () => void; isActive: boolean }> = ({ onB
 export function MobileAppDemo() {
   const [jobsToSwipe, setJobsToSwipe] = useState(initialJobsData);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [feedback, setFeedback] = useState<'Applied' | 'Rejected' | null>(null);
   const [cardKey, setCardKey] = useState(0);
 
@@ -922,7 +912,6 @@ export function MobileAppDemo() {
   const [previousViewMode, setPreviousViewMode] = useState<ViewMode | null>(null);
   const [selectedJobForDetails, setSelectedJobForDetails] = useState<AppJob | null>(null);
   const scrollPositionRef = useRef<number>(0);
-
 
   const [appliedJobs, setAppliedJobs] = useState<AppJob[]>([
     { ...initialJobsData[0], applicationStatus: "Interview Scheduled" },
@@ -959,7 +948,88 @@ export function MobileAppDemo() {
     }
   ]);
 
+  // Swipe interaction state
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState(0);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+
   const currentJobToSwipe = jobsToSwipe[currentIndex];
+  
+  const SWIPE_THRESHOLD = 75;
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+      if (e.button !== 0 || swipeDirection) return;
+      setIsDragging(true);
+      e.currentTarget.setPointerCapture(e.pointerId);
+      setDragStart(e.clientX);
+      setDragOffset(0);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!isDragging) return;
+      const offset = e.clientX - dragStart;
+      setDragOffset(offset);
+  };
+
+  const handlePointerUp = () => {
+      if (!isDragging) return;
+      setIsDragging(false);
+
+      if (dragOffset > SWIPE_THRESHOLD) {
+          setSwipeDirection('right');
+      } else if (dragOffset < -SWIPE_THRESHOLD) {
+          setSwipeDirection('left');
+      } else {
+          setDragOffset(0);
+      }
+  };
+  
+  const handleTransitionEnd = () => {
+    if (swipeDirection) {
+        if (swipeDirection === 'right' && currentJobToSwipe) {
+            setAppliedJobs(prevAppliedJobs => {
+                const jobExists = prevAppliedJobs.find(job => job.id === currentJobToSwipe.id);
+                if (jobExists) { return prevAppliedJobs; }
+                return [{ ...currentJobToSwipe, applicationStatus: "Pending" }, ...prevAppliedJobs];
+            });
+        }
+        
+        setFeedback(swipeDirection === 'right' ? 'Applied' : 'Rejected');
+
+        const timer = setTimeout(() => {
+            setCurrentIndex(prevIndex => (prevIndex + 1) % jobsToSwipe.length);
+            setCardKey(prevKey => prevKey + 1);
+            
+            setFeedback(null);
+            setSwipeDirection(null);
+            setDragOffset(0);
+        }, 400);
+
+        return () => clearTimeout(timer);
+    }
+  };
+
+  const getTransformStyle = () => {
+      if (swipeDirection) {
+          const x = swipeDirection === 'right' ? '150%' : '-150%';
+          const rotate = swipeDirection === 'right' ? 15 : -15;
+          return `translateX(${x}) rotate(${rotate}deg)`;
+      }
+      if (isDragging) {
+          const rotate = dragOffset / 20;
+          return `translateX(${dragOffset}px) rotate(${rotate}deg)`;
+      }
+      return 'translateX(0px) rotate(0deg)';
+  };
+
+  const getTransitionStyle = () => {
+      if (isDragging) {
+          return 'none';
+      }
+      return 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+  };
+
 
   const navItems = [
     { label: "Explore", icon: Compass, view: 'explore' as ViewMode },
@@ -968,32 +1038,6 @@ export function MobileAppDemo() {
     { label: "Profile", icon: User, view: 'profile' as ViewMode },
     { label: "AI Assist", icon: Brain, view: 'ai_assist' as ViewMode },
   ];
-
-  const handleSwipe = (direction: 'left' | 'right') => {
-    setSwipeDirection(direction);
-    setFeedback(direction === 'right' ? 'Applied' : 'Rejected');
-
-    if (direction === 'right' && currentJobToSwipe) {
-        setAppliedJobs(prevAppliedJobs => {
-            const jobExists = prevAppliedJobs.find(job => job.id === currentJobToSwipe.id);
-            if (jobExists) {
-                return prevAppliedJobs.map(job =>
-                    job.id === currentJobToSwipe.id
-                    ? { ...job, applicationStatus: job.applicationStatus || "Pending" }
-                    : job
-                );
-            }
-            return [{ ...currentJobToSwipe, applicationStatus: "Pending" }, ...prevAppliedJobs];
-        });
-    }
-
-    setTimeout(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % jobsToSwipe.length);
-      setSwipeDirection(null);
-      setFeedback(null);
-      setCardKey(prevKey => prevKey + 1);
-    }, 500);
-  };
 
   const handleCardClick = (job: AppJob, fromView: ViewMode) => {
     setPreviousViewMode(fromView);
@@ -1018,11 +1062,9 @@ export function MobileAppDemo() {
 
  useEffect(() => {
     if (viewMode === 'ai_assist') {
-      requestAnimationFrame(() => { // First RAF ensures DOM updates are flushed
-        requestAnimationFrame(() => { // Second RAF tries to run after browser's own scroll/focus adjustments
-          window.scrollTo({ top: scrollPositionRef.current, behavior: 'instant' });
+        requestAnimationFrame(() => {
+             window.scrollTo({ top: scrollPositionRef.current, behavior: 'instant' });
         });
-      });
     }
   }, [viewMode]);
 
@@ -1037,18 +1079,12 @@ export function MobileAppDemo() {
     setPreviousViewMode(null);
   };
 
-  const cardAnimationClasses = () => {
-    if (swipeDirection === 'right') return 'animate-swipe-right';
-    if (swipeDirection === 'left') return 'animate-swipe-left';
-    return 'animate-card-enter';
-  };
-
   const renderHeaderContent = () => {
     if (viewMode === 'swiping') {
         return (
             <>
                 <div className="flex items-center gap-2">
-                    <Image src="/logo.png" alt="HyreSence Logo" width={28} height={20} className="rounded-sm"/>
+                    <Image src="/logo.png" alt="HyreSense Logo" width={28} height={20} className="rounded-sm"/>
                     <span className="text-lg font-bold text-primary">hyreSENSE</span>
                 </div>
                 <div className="text-center flex-1 px-2 truncate"></div>
@@ -1072,7 +1108,7 @@ export function MobileAppDemo() {
             <span className="text-base font-semibold text-foreground truncate px-2 flex-1 text-center capitalize">
                 {title}
             </span>
-             <Image src="/logo.png" alt="HyreSence Logo" width={28} height={20} className="rounded-sm ml-1"/>
+             <Image src="/logo.png" alt="HyreSense Logo" width={28} height={20} className="rounded-sm ml-1"/>
         </>
     );
   };
@@ -1084,9 +1120,8 @@ export function MobileAppDemo() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-slate-950 rounded-b-xl z-20"></div>
 
         <div className="h-full w-full bg-card flex flex-col rounded-[38px] overflow-hidden">
-          {/* Main dynamic header for swiping and applied views */}
-          { (viewMode === 'swiping' || viewMode === 'applied') && (
-            <header className="p-3 border-b border-border/50 bg-background/80 backdrop-blur-sm flex items-center justify-between sticky top-0 z-10 min-h-[56px] mt-5">
+          { (viewMode === 'swiping' || (viewMode === 'applied' && appliedJobs.length > 0)) && (
+            <header className="p-3 border-b border-border/50 bg-background/80 backdrop-blur-sm flex items-center justify-between sticky top-0 z-10 min-h-[56px]">
               {renderHeaderContent()}
             </header>
           )}
@@ -1095,14 +1130,27 @@ export function MobileAppDemo() {
             {viewMode === 'swiping' && (
               <div className="flex-grow flex items-center justify-center p-3 relative overflow-hidden bg-muted/20 dark:bg-slate-900/30">
                 {currentJobToSwipe ? (
-                  <div key={cardKey} className={cn("absolute w-[90%] max-w-xs group/card", cardAnimationClasses())}>
+                  <div
+                    key={cardKey}
+                    className="absolute w-[90%] max-w-xs group/card cursor-grab active:cursor-grabbing"
+                    onPointerDown={handlePointerDown}
+                    onPointerMove={handlePointerMove}
+                    onPointerUp={handlePointerUp}
+                    onPointerLeave={handlePointerUp}
+                    onTransitionEnd={handleTransitionEnd}
+                    style={{
+                        transform: getTransformStyle(),
+                        transition: getTransitionStyle(),
+                        touchAction: 'none',
+                    }}
+                  >
                     <Card
                       className={cn(
                         "bg-gradient-to-br from-card/80 via-card/70 to-card/80 backdrop-blur-lg",
                         "rounded-2xl overflow-hidden w-full",
                         "border border-primary/40",
                         "shadow-[0_0_15px_0px_hsl(var(--primary)/0.2),_0_0_25px_0px_hsl(var(--accent)/0.15)]",
-                        "transition-all duration-300 ease-out cursor-pointer"
+                        "transition-all duration-300 ease-out"
                       )}
                     >
                       <div onClick={(e) => { e.stopPropagation(); handleCardClick(currentJobToSwipe, 'swiping'); }}>
@@ -1156,24 +1204,6 @@ export function MobileAppDemo() {
                           </p>
                         </CardContent>
                       </div>
-                      <CardFooter className="p-2 flex justify-around border-t border-primary/30 bg-transparent">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-destructive hover:bg-destructive/15 font-semibold w-full mr-1 transition-all duration-200 ease-out transform hover:scale-[1.03] rounded-lg p-2 flex items-center justify-center gap-1 text-xs"
-                          onClick={(e) => { e.stopPropagation(); handleSwipe('left'); }}
-                        >
-                          <XCircle className="mr-1 h-4 w-4" /> Decline
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-primary hover:bg-primary/15 font-semibold w-full ml-1 transition-all duration-200 ease-out transform hover:scale-[1.03] rounded-lg p-2 flex items-center justify-center gap-1 text-xs"
-                          onClick={(e) => { e.stopPropagation(); handleSwipe('right'); }}
-                        >
-                          <CheckCircle className="mr-1 h-4 w-4" /> Apply
-                        </Button>
-                      </CardFooter>
                     </Card>
                   </div>
                 ) : (
@@ -1204,7 +1234,7 @@ export function MobileAppDemo() {
             )}
             {viewMode === 'applied' && (
                 <div className="h-full w-full flex flex-col">
-                    {/* No static header here - main dynamic header handles this view */}
+                    
                     <ScrollArea className="flex-grow p-3 bg-muted/20 dark:bg-slate-900/30">
                         {appliedJobs.length > 0 ? (
                             appliedJobs.map(job => (
@@ -1216,6 +1246,9 @@ export function MobileAppDemo() {
                             ))
                         ) : (
                             <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground py-10">
+                                 <header className="p-3 border-b border-border/50 bg-background/80 backdrop-blur-sm flex items-center justify-between sticky top-0 z-10 min-h-[56px] w-full mb-6">
+                                    {renderHeaderContent()}
+                                </header>
                                 <PackageSearch className="h-16 w-16 text-primary/30 mb-4" />
                                 <h3 className="text-lg font-semibold text-foreground mb-1">No Applied Jobs Yet</h3>
                                 <p className="text-sm">Start swiping in the Job Feed to apply for positions!</p>
@@ -1249,6 +1282,7 @@ export function MobileAppDemo() {
                   key={item.label}
                   variant="ghost"
                   onClick={() => handleNavClick(item.view)}
+                  disabled={item.view !== 'swiping'}
                   className={cn(
                     "flex flex-col items-center h-auto p-1.5 rounded-md w-1/5",
                     isActive ? "text-primary" : "text-muted-foreground hover:text-primary/80"
@@ -1265,4 +1299,3 @@ export function MobileAppDemo() {
     </div>
   );
 }
-
