@@ -356,7 +356,7 @@ const getDreamJobStatusBadgeClass = (status: DreamJob["status"]): string => {
 const JobDetailsView: React.FC<{ job: AppJob, onBack: () => void }> = ({ job, onBack }) => {
   return (
     <div className="h-full w-full flex flex-col">
-         <header className="p-3 border-b border-border/50 bg-background/80 backdrop-blur-sm flex items-center justify-between sticky top-0 z-10 min-h-[56px] mt-5">
+         <header className="p-3 border-b border-border/50 bg-background/80 backdrop-blur-sm flex items-center justify-between sticky top-0 z-10 min-h-[56px]">
             <Button variant="ghost" size="icon" className="text-primary -ml-2" onClick={onBack}>
                 <ArrowLeft className="h-5 w-5" />
             </Button>
@@ -490,7 +490,7 @@ const CompanyPostCard: React.FC<{ post: CompanyPost }> = ({ post }) => {
 const ExploreView: React.FC<{ posts: CompanyPost[], onBack: () => void }> = ({ posts, onBack }) => {
   return (
     <div className="h-full w-full flex flex-col">
-      <header className="p-3 border-b border-border/50 bg-background/80 backdrop-blur-sm flex items-center justify-between sticky top-0 z-10 min-h-[56px] mt-5">
+      <header className="p-3 border-b border-border/50 bg-background/80 backdrop-blur-sm flex items-center justify-between sticky top-0 z-10 min-h-[56px]">
         <Button variant="ghost" size="icon" className="text-primary -ml-2" onClick={onBack}>
             <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -594,7 +594,7 @@ const ProfileView: React.FC<{ profile: ProfileData; onBack: () => void }> = ({ p
 
   return (
     <div className="h-full w-full flex flex-col">
-      <header className="p-3 border-b border-border/50 bg-background/80 backdrop-blur-sm flex items-center justify-between sticky top-0 z-10 min-h-[56px] mt-5">
+      <header className="p-3 border-b border-border/50 bg-background/80 backdrop-blur-sm flex items-center justify-between sticky top-0 z-10 min-h-[56px]">
         <Button variant="ghost" size="icon" className="text-primary -ml-2" onClick={onBack}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -948,7 +948,6 @@ export function MobileAppDemo() {
     }
   ]);
 
-  // Swipe interaction state
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
@@ -977,14 +976,18 @@ export function MobileAppDemo() {
       setIsDragging(false);
 
       if (dragOffset > SWIPE_THRESHOLD) {
-          setSwipeDirection('right');
+          handleSwipeAction('right');
       } else if (dragOffset < -SWIPE_THRESHOLD) {
-          setSwipeDirection('left');
+          handleSwipeAction('left');
       } else {
           setDragOffset(0);
       }
   };
   
+  const handleSwipeAction = (direction: 'left' | 'right') => {
+      setSwipeDirection(direction);
+  }
+
   const handleTransitionEnd = () => {
     if (swipeDirection) {
         if (swipeDirection === 'right' && currentJobToSwipe) {
@@ -1100,7 +1103,6 @@ export function MobileAppDemo() {
             </>
         );
     }
-    // These views (details, explore, profile, ai_assist) render their own headers internally or don't need this main one.
     if (viewMode === 'details' || viewMode === 'explore' || viewMode === 'profile' || viewMode === 'ai_assist') {
         return null;
     }
@@ -1135,101 +1137,104 @@ export function MobileAppDemo() {
 
           <main className="flex-grow flex flex-col relative overflow-hidden">
             {viewMode === 'swiping' && (
-              <div className="flex-grow flex items-center justify-center p-3 relative overflow-hidden bg-muted/20 dark:bg-slate-900/30">
-                {currentJobToSwipe ? (
-                  <div
-                    key={cardKey}
-                    className="absolute w-[90%] max-w-xs group/card cursor-grab active:cursor-grabbing"
-                    onPointerDown={handlePointerDown}
-                    onPointerMove={handlePointerMove}
-                    onPointerUp={handlePointerUp}
-                    onPointerLeave={handlePointerUp}
-                    onTransitionEnd={handleTransitionEnd}
-                    style={{
-                        transform: getTransformStyle(),
-                        transition: getTransitionStyle(),
-                        touchAction: 'none',
-                    }}
-                  >
-                    <Card
-                      className={cn(
-                        "bg-gradient-to-br from-card/80 via-card/70 to-card/80 backdrop-blur-lg",
-                        "rounded-2xl overflow-hidden w-full",
-                        "border border-primary/40",
-                        "shadow-[0_0_15px_0px_hsl(var(--primary)/0.2),_0_0_25px_0px_hsl(var(--accent)/0.15)]",
-                        "transition-all duration-300 ease-out"
-                      )}
+              <div className="flex-grow flex flex-col items-center justify-center p-3 relative overflow-hidden bg-muted/20 dark:bg-slate-900/30">
+                <div className="flex-grow flex items-center justify-center relative w-full">
+                    {currentJobToSwipe ? (
+                    <div
+                        key={cardKey}
+                        className="absolute w-[90%] max-w-xs group/card cursor-grab active:cursor-grabbing"
+                        onPointerDown={handlePointerDown}
+                        onPointerMove={handlePointerMove}
+                        onPointerUp={handlePointerUp}
+                        onPointerLeave={handlePointerUp}
+                        onTransitionEnd={handleTransitionEnd}
+                        style={{
+                            transform: getTransformStyle(),
+                            transition: getTransitionStyle(),
+                            touchAction: 'none',
+                        }}
                     >
-                      <div onClick={(e) => { e.stopPropagation(); handleCardClick(currentJobToSwipe, 'swiping'); }}>
-                        <CardContent className="p-4 space-y-3">
-                           <div className="flex justify-between items-start mb-2">
-                             <div className="flex items-start gap-3 flex-grow overflow-hidden">
-                                <div className="p-1 bg-white rounded-md shadow-sm w-12 h-12 flex items-center justify-center flex-shrink-0">
-                                  <Image 
-                                    src={currentJobToSwipe.image} 
-                                    alt={`${currentJobToSwipe.company} logo`}
-                                    width={40} 
-                                    height={40} 
-                                    data-ai-hint={currentJobToSwipe.dataAiHint}
-                                    className="object-contain w-full h-full"
-                                  />
+                        <Card
+                        className={cn(
+                            "bg-gradient-to-br from-card/80 via-card/70 to-card/80 backdrop-blur-lg",
+                            "rounded-2xl overflow-hidden w-full",
+                            "border border-primary/40",
+                            "shadow-[0_0_15px_0px_hsl(var(--primary)/0.2),_0_0_25px_0px_hsl(var(--accent)/0.15)]",
+                            "transition-all duration-300 ease-out"
+                        )}
+                        >
+                        <div onClick={(e) => { e.stopPropagation(); handleCardClick(currentJobToSwipe, 'swiping'); }}>
+                            <CardContent className="p-4 space-y-3">
+                                <div className="flex items-start gap-3 mb-2">
+                                    <div className="flex flex-col items-center flex-shrink-0 gap-2">
+                                        <div className="p-1 bg-white rounded-md shadow-sm w-12 h-12 flex items-center justify-center">
+                                            <Image
+                                                src={currentJobToSwipe.image}
+                                                alt={`${currentJobToSwipe.company} logo`}
+                                                width={40}
+                                                height={40}
+                                                data-ai-hint={currentJobToSwipe.dataAiHint}
+                                                className="object-contain w-full h-full"
+                                            />
+                                        </div>
+                                        <Badge
+                                            variant="secondary"
+                                            className="bg-primary/70 backdrop-blur-md text-primary-foreground text-xs font-mono font-bold px-2 py-0.5 rounded-md shadow-lg border border-primary-foreground/50 whitespace-nowrap"
+                                        >
+                                            {currentJobToSwipe.matchPercentage}% Match
+                                        </Badge>
+                                    </div>
+                                    <div className="overflow-hidden flex-grow pt-1">
+                                        <CardTitle className="text-xl font-bold text-foreground line-clamp-2 leading-tight">{currentJobToSwipe.title}</CardTitle>
+                                        <div className="text-sm mt-1">
+                                            <span className="font-medium text-primary">{currentJobToSwipe.company}</span>
+                                            <span className="text-muted-foreground"> - {currentJobToSwipe.location}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="overflow-hidden">
-                                   <CardTitle className="text-xl font-bold text-foreground line-clamp-2 leading-tight">{currentJobToSwipe.title}</CardTitle>
-                                   <div className="text-sm mt-1">
-                                     <span className="font-medium text-primary">{currentJobToSwipe.company}</span>
-                                     <span className="text-muted-foreground"> - {currentJobToSwipe.location}</span>
-                                   </div>
+                            
+                                <div className="pt-1 space-y-1.5 text-sm text-muted-foreground">
+                                    <div className="flex items-center gap-1.5">
+                                    <Briefcase className="h-4 w-4 text-primary/80" />
+                                    <span>{currentJobToSwipe.jobType} &middot; {currentJobToSwipe.experienceLevel}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                    <CalendarDays className="h-4 w-4 text-primary/80" />
+                                    <span>Posted: {currentJobToSwipe.postedDate}</span>
+                                    </div>
                                 </div>
-                             </div>
-                             <Badge
-                               variant="secondary"
-                               className="bg-primary/70 backdrop-blur-md text-primary-foreground text-sm font-mono font-bold px-2.5 py-1 rounded-md shadow-lg border border-primary-foreground/50 whitespace-nowrap ml-2"
-                             >
-                               {currentJobToSwipe.matchPercentage}% Match
-                             </Badge>
-                           </div>
-                           
-                           <div className="pt-1 space-y-1.5 text-sm text-muted-foreground">
-                             <div className="flex items-center gap-1.5">
-                               <Briefcase className="h-4 w-4 text-primary/80" />
-                               <span>{currentJobToSwipe.jobType} &middot; {currentJobToSwipe.experienceLevel}</span>
-                             </div>
-                             <div className="flex items-center gap-1.5">
-                               <CalendarDays className="h-4 w-4 text-primary/80" />
-                               <span>Posted: {currentJobToSwipe.postedDate}</span>
-                             </div>
-                           </div>
- 
-                           <Separator className="my-2 border-primary/30" />
- 
-                           {currentJobToSwipe.skills && currentJobToSwipe.skills.length > 0 && (
-                             <div className="pb-1">
-                               <h4 className="text-xs font-semibold text-primary mb-1.5">Key Skills:</h4>
-                               <div className="flex flex-wrap gap-1.5">
-                                 {currentJobToSwipe.skills.slice(0, 5).map((skill, index) => (
-                                   <Badge key={index} variant="secondary" className="text-xs px-2 py-1 bg-primary/10 text-primary/90 border-primary/30">
-                                     {skill}
-                                   </Badge>
-                                 ))}
-                               </div>
-                             </div>
-                           )}
-                           <p className="text-xs text-muted-foreground line-clamp-5 h-32">
-                               {currentJobToSwipe.description}
-                           </p>
-                         </CardContent>
-                       </div>
-                    </Card>
-                  </div>
-                ) : (
-                    <div className="text-center text-muted-foreground p-4">
-                        <p className="text-sm mb-2">No more jobs right now!</p>
-                        <Button onClick={() => { setCurrentIndex(0); setJobsToSwipe(initialJobsData); setCardKey(k => k + 1); }} variant="outline" size="sm">
-                            Refresh Feed
-                        </Button>
+    
+                                <Separator className="my-2 border-primary/30" />
+    
+                                {currentJobToSwipe.skills && currentJobToSwipe.skills.length > 0 && (
+                                    <div className="pb-1">
+                                    <h4 className="text-xs font-semibold text-primary mb-1.5">Key Skills:</h4>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {currentJobToSwipe.skills.slice(0, 5).map((skill, index) => (
+                                        <Badge key={index} variant="secondary" className="text-xs px-2 py-1 bg-primary/10 text-primary/90 border-primary/30">
+                                            {skill}
+                                        </Badge>
+                                        ))}
+                                    </div>
+                                    </div>
+                                )}
+                                <p className="text-xs text-muted-foreground line-clamp-5 h-[100px]">
+                                    {currentJobToSwipe.description}
+                                </p>
+                            </CardContent>
+                            </div>
+                        </Card>
                     </div>
-                )}
+                    ) : (
+                        <div className="text-center text-muted-foreground p-4">
+                            <p className="text-sm mb-2">No more jobs right now!</p>
+                            <Button onClick={() => { setCurrentIndex(0); setJobsToSwipe(initialJobsData); setCardKey(k => k + 1); }} variant="outline" size="sm">
+                                Refresh Feed
+                            </Button>
+                        </div>
+                    )}
+                </div>
+
                 {feedback && (
                   <div className={cn(
                     "absolute inset-0 flex items-center justify-center transition-opacity duration-300 ease-in-out animate-feedback-fade z-10",
@@ -1240,6 +1245,7 @@ export function MobileAppDemo() {
                     </p>
                   </div>
                 )}
+                
               </div>
             )}
             {viewMode === 'details' && selectedJobForDetails && (

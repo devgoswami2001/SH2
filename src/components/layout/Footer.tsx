@@ -1,7 +1,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Linkedin, Twitter, Instagram, Briefcase } from 'lucide-react';
+import { Linkedin, Youtube, Instagram, Briefcase } from 'lucide-react';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -25,8 +25,6 @@ export function Footer() {
               <h3 className="text-sm font-semibold text-foreground tracking-wider uppercase">Quick Links</h3>
               <ul role="list" className="mt-4 space-y-2">
                 <li><Link href="/features" className="text-sm text-muted-foreground hover:text-foreground">Features</Link></li>
-                {/* <li><Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground">Pricing</Link></li>
-                <li><Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground">Blog</Link></li> */}
                 <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground">Contact</Link></li>
               </ul>
             </div>
@@ -34,8 +32,7 @@ export function Footer() {
               <h3 className="text-sm font-semibold text-foreground tracking-wider uppercase">Company</h3>
               <ul role="list" className="mt-4 space-y-2">
                 <li><Link href="/about" className="text-sm text-muted-foreground hover:text-foreground">About Us</Link></li>
-                {/* <li><Link href="/careers" className="text-sm text-muted-foreground hover:text-foreground">Careers</Link></li>
-                <li><Link href="/press" className="text-sm text-muted-foreground hover:text-foreground">Press</Link></li> */}
+                <li><Link href="/investors" className="text-sm text-muted-foreground hover:text-foreground">Investors</Link></li>
               </ul>
             </div>
              <div>
@@ -53,13 +50,13 @@ export function Footer() {
             &copy; {currentYear} <span style={{ color: '#4670bf' }}>hyre<span style={{color:'#7a5fdb'}}>SENSE</span></span>. All rights reserved.
           </p>
           <div className="flex space-x-6 md:order-2 mt-4 md:mt-0">
-            <Link href="#" className="text-muted-foreground hover:text-foreground">
+            <Link href="https://www.linkedin.com/company/hyresense/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground">
               <span className="sr-only">LinkedIn</span>
               <Linkedin className="h-6 w-6" />
             </Link>
             <Link href="#" className="text-muted-foreground hover:text-foreground">
-              <span className="sr-only">Twitter</span>
-              <Twitter className="h-6 w-6" />
+              <span className="sr-only">YouTube</span>
+              <Youtube className="h-6 w-6" />
             </Link>
             <Link href="#" className="text-muted-foreground hover:text-foreground">
               <span className="sr-only">Instagram</span>

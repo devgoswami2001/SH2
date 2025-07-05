@@ -9,7 +9,7 @@ import type React from 'react';
 export function MainLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const fullscreenPages = [
-    '/login', // Re-added login to fullscreen if it was meant to be, or can be removed if not
+    '/login', 
     '/create-resume', 
     '/signup', 
     '/build-resume', 
@@ -18,7 +18,8 @@ export function MainLayoutWrapper({ children }: { children: React.ReactNode }) {
     '/applied',
     '/profile',
     '/ai-assistant',
-    '/mobile-contact' // Added new mobile contact page
+    '/mobile-contact',
+    '/edit-profile' 
   ];
   const isFullscreenPage = fullscreenPages.includes(pathname) || pathname.startsWith('/job-details/');
 
@@ -39,4 +40,3 @@ export function MainLayoutWrapper({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-

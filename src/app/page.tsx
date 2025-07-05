@@ -14,7 +14,7 @@ export default function HomePage() {
       <HeroSection />
       <AiDemoSection />
       <HowItWorksSection />
-      <AiBenefitsSection /> {/* Renamed from Features to AI Benefits */}
+      <AiBenefitsSection />
       <SwipeToHireSection />
       <PoweredByHyreSenseAiSection />
       <TestimonialsSection />
