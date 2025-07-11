@@ -64,8 +64,8 @@ export function Header() {
               <DropdownMenuItem asChild>
                 <Link href="/job-seekers" className="cursor-pointer">For Job Seekers</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => window.open('https://talent-flow-seven.vercel.app/', '_blank')}>
-                For Employers
+              <DropdownMenuItem asChild>
+                <Link href="/employers" className="cursor-pointer">For Employers</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -151,9 +151,7 @@ export function Header() {
                           For Job Seekers
                         </Link>
                          <a
-                           href="https://talent-flow-seven.vercel.app/"
-                           target="_blank"
-                           rel="noopener noreferrer"
+                           href="/employers"
                            className={cn(mobileNavLinkClasses, "text-base py-2")}
                            onClick={() => setIsMobileMenuOpen(false)}
                          >

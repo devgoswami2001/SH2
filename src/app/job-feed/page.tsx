@@ -11,7 +11,7 @@ import { Briefcase, CalendarDays, ArrowLeft, XCircle, CheckCircle } from 'lucide
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { MobileAppLayout } from '@/components/layout/MobileAppLayout';
-import { DesktopSidebar } from '@/components/layout/DesktopSidebar';
+import { AppHeader } from '@/components/layout/AppHeader';
 
 // --- Data Structures ---
 export type JobStatus = "Pending" | "Interview Scheduled" | "Offer Received" | "Hired" | "Rejected";
@@ -84,7 +84,7 @@ const initialJobsData: AppJob[] = [
 export const JobDetailsView: React.FC<{ job: AppJob; onBack?: () => void, isDesktop?: boolean }> = ({ job, onBack, isDesktop }) => {
   return (
     <div className="h-full w-full flex flex-col bg-card md:bg-transparent">
-        {!isDesktop && (
+        {/* {!isDesktop && (
             <header className="p-3 border-b border-border/50 bg-background/80 backdrop-blur-sm flex items-center justify-between sticky top-0 z-10 min-h-[56px]">
                 <Button variant="ghost" size="icon" className="text-primary -ml-2" onClick={onBack}>
                     <ArrowLeft className="h-5 w-5" />
@@ -94,7 +94,7 @@ export const JobDetailsView: React.FC<{ job: AppJob; onBack?: () => void, isDesk
                 </span>
                 <Image src="/logo.png" alt="HyreSense Logo" width={28} height={20} className="rounded-sm ml-1"/>
             </header>
-        )}
+        )} */}
         <ScrollArea className="flex-grow">
             <div className={cn("space-y-4 p-4", isDesktop && "p-8")}>
                 <div className="flex flex-col md:flex-row gap-6">
@@ -406,8 +406,8 @@ export default function JobFeedPage() {
       </div>
 
       {/* Desktop View */}
-      <div className="hidden md:flex h-screen bg-muted/40">
-        <DesktopSidebar />
+      <div className="hidden md:flex flex-col h-screen bg-gradient-animated">
+        <AppHeader />
         <main className="flex-1 flex flex-col items-center justify-center p-6 relative overflow-hidden">
             {currentJobToSwipe ? (
                 <div
@@ -434,6 +434,17 @@ export default function JobFeedPage() {
             )}
         </main>
       </div>
+      <style jsx global>{`
+        @keyframes pulse_slow_bg {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        .bg-gradient-animated {
+          background: linear-gradient(-45deg, hsl(var(--background)) 30%, hsl(var(--primary)/0.05) 50%, hsl(var(--accent)/0.05) 70%, hsl(var(--background)) 90%);
+          background-size: 400% 400%;
+          animation: pulse_slow_bg 15s ease infinite;
+        }
+      `}</style>
     </>
   );
 }

@@ -1304,7 +1304,6 @@ export function MobileAppDemo() {
                   key={item.label}
                   variant="ghost"
                   onClick={() => handleNavClick(item.view)}
-                  disabled={item.view !== 'swiping'}
                   className={cn(
                     "flex flex-col items-center h-auto p-1.5 rounded-md w-1/5",
                     isActive ? "text-primary" : "text-muted-foreground hover:text-primary/80"

@@ -10,7 +10,7 @@ import { CalendarDays, PackageSearch } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { MobileAppLayout } from '@/components/layout/MobileAppLayout'; 
-import { DesktopSidebar } from '@/components/layout/DesktopSidebar';
+import { AppHeader } from '@/components/layout/AppHeader';
 import { JobDetailsView } from '@/app/job-feed/page';
 import type { AppJob, JobStatus } from '@/app/job-feed/page'; 
 
@@ -101,8 +101,8 @@ const AppliedJobCard: React.FC<{ job: AppJob; onClick: () => void, isSelected?: 
         <Card
             className={cn(
                 "bg-card/80 backdrop-blur-md shadow-lg overflow-hidden border border-border/30 mb-3 rounded-xl cursor-pointer hover:border-primary/50 transition-all duration-200 hover:shadow-primary/20 dark:bg-slate-800/60",
-                "md:bg-card md:shadow-md md:hover:bg-accent/10 md:dark:hover:bg-accent/10",
-                isSelected && "md:bg-accent/10 md:border-primary/60 md:dark:bg-accent/10"
+                "md:bg-card md:shadow-md md:hover:bg-accent/10 md:dark:hover:bg-slate-800/80",
+                isSelected && "md:bg-primary/10 md:border-primary/60 md:dark:bg-primary/10"
             )}
             onClick={onClick}
         >
@@ -170,12 +170,12 @@ export default function AppliedJobsPage() {
       </div>
 
       {/* Desktop View */}
-      <div className="hidden md:flex h-screen bg-background">
-        <DesktopSidebar />
+      <div className="hidden md:flex flex-col h-screen bg-background">
+        <AppHeader />
         <main className="flex-1 grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-0 overflow-hidden">
           {/* Jobs List Panel */}
-          <div className="lg:col-span-1 xl:col-span-1 border-r border-border flex flex-col">
-            <header className="p-4 border-b border-border bg-card/90 backdrop-blur-sm sticky top-0 z-10">
+          <div className="lg:col-span-1 xl:col-span-1 border-r border-border flex flex-col bg-card">
+            <header className="p-4 border-b border-border sticky top-0 z-10">
               <h1 className="text-xl font-semibold text-foreground">Applied Jobs ({appliedJobs.length})</h1>
             </header>
             <ScrollArea className="flex-grow">
@@ -197,9 +197,9 @@ export default function AppliedJobsPage() {
           </div>
 
           {/* Job Details Panel */}
-          <div className="lg:col-span-2 xl:col-span-3 overflow-y-auto">
+          <div className="lg:col-span-2 xl:col-span-3 overflow-y-auto bg-muted/30">
             {selectedJob ? (
-                <JobDetailsView job={selectedJob} onBack={() => setSelectedJob(null)} />
+                <JobDetailsView job={selectedJob} onBack={() => setSelectedJob(null)} isDesktop={true} />
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground p-10">
                 <PackageSearch className="h-20 w-20 text-primary/20 mb-5" />

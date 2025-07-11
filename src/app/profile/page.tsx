@@ -11,7 +11,7 @@ import { Edit3, FileText, UploadCloud, Briefcase, GraduationCap, Award, Star, Bu
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { MobileAppLayout } from '@/components/layout/MobileAppLayout'; 
-import { DesktopSidebar } from '@/components/layout/DesktopSidebar';
+import { AppHeader } from '@/components/layout/AppHeader';
 import { useRouter } from 'next/navigation'; 
 
 // --- Data Structures ---
@@ -182,16 +182,16 @@ const getDreamJobStatusBadgeClass = (status: DreamJob["status"]): string => {
 const SectionCard: React.FC<{ title: string; icon: React.ElementType; children: React.ReactNode; className?: string; headerAction?: React.ReactNode; }> =
 ({ title, icon: Icon, children, className, headerAction }) => (
   <Card className={cn("shadow-xl border-border/40 rounded-xl bg-card/80 backdrop-blur-md overflow-hidden", className)}>
-    <CardHeader className="p-3.5 pb-2 flex flex-row items-center justify-between md:p-4">
-      <CardTitle className="text-md font-semibold text-foreground flex items-center gap-2.5 md:text-lg">
-        <span className="p-1.5 bg-gradient-to-br from-primary/15 to-accent/15 rounded-full text-primary shadow-inner">
-          <Icon className="h-4 w-4" />
+    <CardHeader className="p-3.5 pb-2 flex flex-row items-center justify-between md:p-6 md:pb-4">
+      <CardTitle className="text-md font-semibold text-foreground flex items-center gap-2.5 md:text-xl">
+        <span className="p-1.5 md:p-2 bg-gradient-to-br from-primary/15 to-accent/15 rounded-lg text-primary shadow-inner">
+          <Icon className="h-4 w-4 md:h-5 md:w-5" />
         </span>
         {title}
       </CardTitle>
       {headerAction && <div className="ml-auto pl-2">{headerAction}</div>}
     </CardHeader>
-    <CardContent className="p-3.5 pt-1 space-y-3 md:p-4 md:pt-2">
+    <CardContent className="p-3.5 pt-1 space-y-3 md:p-6 md:pt-2">
       {children}
     </CardContent>
   </Card>
@@ -218,7 +218,7 @@ const ProfileListItem: React.FC<{avatarUrl?: string; dataAiHintAvatar?: string; 
               </div>
               {badge && <div className="ml-2 shrink-0">{badge}</div>}
           </div>
-          {children && <div className="mt-1.5 text-xs text-muted-foreground/90 space-y-0.5">{children}</div>}
+          {children && <div className="mt-1.5 text-xs text-muted-foreground/90 space-y-0.5 md:text-sm">{children}</div>}
       </div>
       {actionButton && <div className="ml-2 shrink-0 self-center">{actionButton}</div>}
   </div>
@@ -230,9 +230,9 @@ export default function ProfilePage() {
   const handleEditProfile = () => router.push('/edit-profile');
 
   const DesktopProfileContent = () => (
-    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 p-6">
-      <div className="xl:col-span-1 space-y-6">
-        <Card className="shadow-lg">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
+      <div className="lg:col-span-1 space-y-6">
+        <Card className="shadow-2xl border-border/30 rounded-xl overflow-hidden bg-gradient-to-br from-primary/20 via-card/90 to-accent/20 dark:from-primary/30 dark:via-slate-800/80 dark:to-accent/30">
           <CardContent className="p-6 text-center">
             <Avatar className="h-32 w-32 mx-auto mb-4 border-4 border-background ring-2 ring-primary shadow-lg">
                 <AvatarImage src={userProfileData.avatarUrl} alt={userProfileData.name} data-ai-hint={userProfileData.dataAiHintAvatar} />
@@ -241,33 +241,15 @@ export default function ProfilePage() {
             <h2 className="text-2xl font-bold text-foreground">{userProfileData.name}</h2>
             <p className="text-base text-primary font-medium">{userProfileData.title}</p>
             <p className="text-sm text-muted-foreground mt-1 flex items-center justify-center gap-1.5"><MapPin className="h-4 w-4"/> {userProfileData.location}</p>
-            <p className="text-sm text-muted-foreground mt-3 leading-relaxed">{userProfileData.bio}</p>
+            <p className="text-sm text-muted-foreground mt-3 leading-relaxed max-w-xs mx-auto">{userProfileData.bio}</p>
             <Button className="w-full mt-6" onClick={handleEditProfile}><Edit3 className="mr-2 h-4 w-4" /> Edit Profile</Button>
           </CardContent>
         </Card>
         
-        <SectionCard title="Career Toolkit" icon={Briefcase}>
-          <div>
-            <div className="flex justify-between items-center mb-1.5">
-              <span className="text-sm font-medium text-muted-foreground">Profile Completion</span>
-              <span className="text-base font-semibold text-primary">{userProfileData.profileCompletion}%</span>
-            </div>
-            <Progress value={userProfileData.profileCompletion} className="h-2.5 [&>div]:bg-gradient-to-r [&>div]:from-accent [&>div]:to-primary shadow-inner" />
-          </div>
-          <div className="grid grid-cols-2 gap-2.5 pt-2">
-            <Button variant="outline" size="sm" className="hover:border-primary/60 hover:bg-primary/5 border-border/50 h-10" onClick={() => placeholderAction('View Resume')}>
-              <FileText className="mr-1.5 h-4 w-4" /> View Resume
-            </Button>
-            <Button variant="outline" size="sm" className="hover:border-primary/60 hover:bg-primary/5 border-border/50 h-10" onClick={() => placeholderAction('Upload New')}>
-              <UploadCloud className="mr-1.5 h-4 w-4" /> Upload New
-            </Button>
-          </div>
-        </SectionCard>
-        
         <SectionCard title="Skills & Expertise" icon={Award}>
           <div className="flex flex-wrap gap-2">
             {userProfileData.skills.map(skill => (
-              <Badge key={skill} variant="secondary" className="text-xs px-2.5 py-1 bg-primary/10 text-primary/90 border-primary/30 hover:bg-primary/20 transition-colors shadow-sm">
+              <Badge key={skill} variant="secondary" className="text-sm px-3 py-1 bg-primary/10 text-primary/90 border-primary/30 hover:bg-primary/20 transition-colors shadow-sm">
                 {skill}
               </Badge>
             ))}
@@ -275,7 +257,27 @@ export default function ProfilePage() {
         </SectionCard>
       </div>
 
-      <div className="xl:col-span-2 space-y-6">
+      <div className="lg:col-span-2 space-y-6">
+        <SectionCard title="Career Toolkit" icon={Briefcase}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                <div>
+                    <div className="flex justify-between items-center mb-1.5">
+                    <span className="text-sm font-medium text-muted-foreground">Profile Completion</span>
+                    <span className="text-base font-semibold text-primary">{userProfileData.profileCompletion}%</span>
+                    </div>
+                    <Progress value={userProfileData.profileCompletion} className="h-2.5 [&>div]:bg-gradient-to-r [&>div]:from-accent [&>div]:to-primary shadow-inner" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                    <Button variant="outline" size="sm" className="hover:border-primary/60 hover:bg-primary/5 border-border/50 h-10" onClick={() => placeholderAction('View Resume')}>
+                    <FileText className="mr-1.5 h-4 w-4" /> View Resume
+                    </Button>
+                    <Button variant="outline" size="sm" className="hover:border-primary/60 hover:bg-primary/5 border-border/50 h-10" onClick={() => placeholderAction('Upload New')}>
+                    <UploadCloud className="mr-1.5 h-4 w-4" /> Upload New
+                    </Button>
+                </div>
+            </div>
+        </SectionCard>
+        
         <SectionCard title="Experience" icon={Briefcase}>
             {userProfileData.experiences.map(exp => (
                 <ProfileListItem key={exp.id} avatarUrl={exp.logoUrl} dataAiHintAvatar={exp.dataAiHintLogo} fallbackText={exp.company} title={exp.role} subtitle={exp.company} subtitleSecondary={`${exp.duration} · ${exp.location}`}>
@@ -287,6 +289,7 @@ export default function ProfilePage() {
                 </ProfileListItem>
             ))}
         </SectionCard>
+
         <SectionCard title="Education" icon={GraduationCap}>
             {userProfileData.education.map(edu => (
                 <ProfileListItem key={edu.id} avatarUrl={edu.logoUrl} dataAiHintAvatar={edu.dataAiHintLogo} fallbackText={edu.institution} title={edu.degree} subtitle={edu.institution} subtitleSecondary={edu.duration} />
@@ -372,12 +375,9 @@ export default function ProfilePage() {
       </div>
 
       {/* Desktop View */}
-      <div className="hidden md:flex h-screen bg-muted/40">
-        <DesktopSidebar />
+      <div className="hidden md:flex flex-col h-screen bg-muted/30 dark:bg-slate-900/50">
+        <AppHeader />
         <main className="flex-1 overflow-y-auto">
-          <header className="p-4 border-b border-border/50 bg-card/90 backdrop-blur-sm flex items-center justify-between sticky top-0 z-20 min-h-[60px]">
-            <h1 className="text-xl font-semibold text-foreground">My Profile</h1>
-          </header>
           <DesktopProfileContent />
         </main>
       </div>

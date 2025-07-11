@@ -11,7 +11,7 @@ import { Search, ThumbsUp, MessageCircle, Share2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { MobileAppLayout } from '@/components/layout/MobileAppLayout';
-import { DesktopSidebar } from '@/components/layout/DesktopSidebar';
+import { AppHeader } from '@/components/layout/AppHeader';
 
 interface CompanyPost {
   id: string;
@@ -84,7 +84,7 @@ const CompanyPostCard: React.FC<{ post: CompanyPost, isDesktop?: boolean }> = ({
   return (
     <Card className={cn(
         "bg-card/90 backdrop-blur-md shadow-lg overflow-hidden border border-border/30 rounded-xl dark:bg-slate-800/60",
-        isDesktop ? "max-w-2xl mx-auto" : "mb-3.5"
+        isDesktop ? "max-w-xl mx-auto" : "mb-3.5"
     )}>
       <CardHeader className="flex flex-row items-center gap-3 p-3 md:p-4">
         <Avatar className="h-10 w-10 border-2 border-primary/40">
@@ -192,8 +192,8 @@ export default function ExplorePage() {
       </div>
 
       {/* Desktop View */}
-      <div className="hidden md:flex h-screen bg-background">
-        <DesktopSidebar />
+      <div className="hidden md:flex flex-col h-screen bg-background">
+        <AppHeader />
         <main className="flex-1 overflow-y-auto">
           <ExploreContent isDesktop={true} />
         </main>

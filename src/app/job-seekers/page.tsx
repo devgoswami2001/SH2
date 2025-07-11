@@ -12,6 +12,7 @@ import Image from 'next/image';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { MobileAppDemo } from '@/components/landing/MobileAppDemo';
 
 const whyHyreSenseFeatures = [
   {
@@ -170,71 +171,12 @@ export default function JobSeekersPage() {
           <div 
             ref={heroImageRef}
             className={cn(
-              "relative group opacity-0 transition-all duration-1000 ease-out",
+              "flex items-center justify-center opacity-0 transition-all duration-1000 ease-out",
               isHeroImageVisible ? "opacity-100 scale-100 delay-200" : "scale-90"
             )}
             style={{ transitionDelay: isHeroImageVisible ? '200ms' : '0ms' }}
           >
-            <div className="relative bg-card/80 backdrop-blur-md border-2 border-primary/20 rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-lg mx-auto min-h-[400px] flex flex-col justify-between">
-              <div>
-                <div className="flex justify-between items-start mb-6">
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-bold text-primary">Your Career Snapshot</h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground">AI-Powered Insights by HyreSense</p>
-                  </div>
-                  <Brain className="h-8 w-8 text-accent opacity-80"/>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-                  <div className="flex flex-col items-center justify-center p-4 bg-muted/50 dark:bg-slate-800/50 rounded-lg shadow-md group-hover:bg-muted/70 transition-colors">
-                    <div className="relative w-28 h-28 sm:w-32 sm:h-32">
-                      <svg className="w-full h-full" viewBox="0 0 36 36">
-                        <path
-                          className="text-primary/20 dark:text-primary/30"
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                          fill="none"
-                          strokeWidth="3"
-                        />
-                        <path
-                          className="text-accent"
-                          strokeDasharray={`${isHeroImageVisible ? 92 : 0}, 100`} 
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                          fill="none"
-                          strokeWidth="3.5"
-                          strokeLinecap="round"
-                          style={{transition: 'stroke-dasharray 0.8s ease-out 0.3s'}}
-                        />
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-3xl sm:text-4xl font-bold text-accent">92%</span>
-                      </div>
-                    </div>
-                    <p className="text-xs sm:text-sm mt-2 text-muted-foreground text-center font-medium">Profile Strength</p>
-                  </div>
-
-                  <div className="p-4 bg-muted/50 dark:bg-slate-800/50 rounded-lg shadow-md group-hover:bg-muted/70 transition-colors">
-                    <h4 className="text-sm sm:text-base font-semibold text-foreground mb-2 sm:mb-3">Top AI Skill Matches</h4>
-                    <div className="space-y-1.5">
-                      {['React', 'UX Design', 'Agile Methodology', 'Data Analysis'].slice(0,3).map(skill => (
-                        <Badge key={skill} variant="secondary" className="text-xs px-2 py-0.5 bg-primary/10 text-primary/90 border-primary/30 block text-center sm:inline-block sm:text-left truncate">
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-auto p-3 bg-gradient-to-r from-primary/10 to-accent/10 dark:from-primary/20 dark:to-accent/20 rounded-lg shadow-inner">
-                <div className="flex items-center gap-2">
-                  <ZapIcon className="h-5 w-5 text-primary flex-shrink-0"/>
-                  <div>
-                    <p className="text-xs sm:text-sm font-semibold text-primary">AI Growth Tip:</p>
-                    <p className="text-[11px] sm:text-xs text-muted-foreground">Showcase your latest 'Project X' to highlight advanced 'React Hook' usage!</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+             <MobileAppDemo />
           </div>
         </div>
       </section>

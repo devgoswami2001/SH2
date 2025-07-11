@@ -10,7 +10,7 @@ import { Brain, Send } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { MobileAppLayout } from '@/components/layout/MobileAppLayout';
-import { DesktopSidebar } from '@/components/layout/DesktopSidebar';
+import { AppHeader } from '@/components/layout/AppHeader';
 
 // --- Data Structures ---
 interface ChatMessage {
@@ -164,14 +164,11 @@ export default function AiAssistantPage() {
       </div>
 
       {/* Desktop View */}
-      <div className="hidden md:flex h-screen bg-background">
-        <DesktopSidebar />
+      <div className="hidden md:flex flex-col h-screen bg-background">
+        <AppHeader />
         <main className="flex-1 flex flex-col overflow-y-auto">
-          <header className="p-4 border-b border-border/50 bg-card/90 backdrop-blur-sm flex items-center justify-between sticky top-0 z-20 min-h-[60px]">
-            <h1 className="text-xl font-semibold text-foreground">AI Assistant</h1>
-          </header>
-          <div className="flex-grow">
-            <AiChatInterface className="bg-transparent dark:bg-transparent" />
+          <div className="flex-grow p-6">
+            <AiChatInterface className="bg-card rounded-xl border border-border/40 shadow-xl" />
           </div>
         </main>
       </div>
