@@ -372,7 +372,7 @@ export default function InvestorRelationsPage() {
               For investment inquiries, please reach out to:
             </p>
             <a href="mailto:investors@hyresence.com" className="text-xl font-semibold hover:underline">
-              contact@hyresense.com
+              connect@hyresense.com
             </a>
             <p className="mt-6 text-sm opacity-80">
               We look forward to discussing how we can build the future of work, together.

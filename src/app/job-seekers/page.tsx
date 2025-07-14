@@ -4,7 +4,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { CheckCircle, Lightbulb, BarChart3, Search, Sparkles, UserPlus, Target, Smartphone, TrendingUp, Compass, MessageSquare, ShieldCheck, ArrowRight, Briefcase, Zap, Brain, CheckCircle2, Palette, Server, Code2, BriefcaseBusiness, ZapIcon, GraduationCap } from 'lucide-react';
 import Link from 'next/link';
@@ -13,6 +13,7 @@ import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { MobileAppDemo } from '@/components/landing/MobileAppDemo';
+import { UserIcon } from '@heroicons/react/24/solid';
 
 const whyHyreSenseFeatures = [
   {
@@ -63,24 +64,18 @@ const howItWorksSteps = [
 const testimonials = [
   {
     quote: "HyreSense's AI matching was incredibly accurate. I found a role that perfectly matched my niche skills in just two weeks!",
-    name: "Jessica M.",
+    name: "Priya Sharma",
     role: "Data Scientist",
-    avatar: "https://placehold.co/80x80.png?text=JM",
-    dataAiHint: "profile woman"
   },
   {
     quote: "The skill gap analysis feature is a game-changer. It showed me exactly what I needed to learn to land my dream tech job.",
-    name: "David K.",
+    name: "Rohan Patel",
     role: "Aspiring Cloud Engineer",
-    avatar: "https://placehold.co/80x80.png?text=DK",
-    dataAiHint: "profile man"
   },
   {
     quote: "I loved the swipe interface! It made job searching feel less like a chore and more like an exciting discovery process.",
-    name: "Aisha B.",
+    name: "Ananya Gupta",
     role: "Marketing Specialist",
-    avatar: "https://placehold.co/80x80.png?text=AB",
-    dataAiHint: "profile person"
   }
 ];
 
@@ -164,7 +159,7 @@ export default function JobSeekersPage() {
               style={{ transitionDelay: isHeroButtonVisible ? '400ms' : '0ms' }}
             >
               <Button size="lg" asChild className="shadow-lg hover:shadow-xl transition-shadow transform hover:scale-105">
-                <Link href="#cta-job-seeker">Get Started Now <ArrowRight className="ml-2 h-5 w-5" /></Link>
+                <Link href="/signup">Get Started Now <ArrowRight className="ml-2 h-5 w-5" /></Link>
               </Button>
             </div>
           </div>
@@ -398,9 +393,8 @@ export default function JobSeekersPage() {
                     <CardContent className="p-6 flex-grow flex flex-col">
                       <blockquote className="text-muted-foreground italic flex-grow text-sm">"{testimonial.quote}"</blockquote>
                       <div className="mt-6 flex items-center">
-                        <Avatar className="h-12 w-12 border-2 border-primary">
-                          <AvatarImage src={testimonial.avatar} alt={testimonial.name} data-ai-hint={testimonial.dataAiHint}/>
-                          <AvatarFallback>{testimonial.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                        <Avatar className="h-12 w-12 border-2 border-primary bg-muted">
+                          <UserIcon className="h-8 w-8 text-primary/70 m-auto" />
                         </Avatar>
                         <div className="ml-4">
                           <p className="font-semibold text-foreground">{testimonial.name}</p>
@@ -495,7 +489,7 @@ export default function JobSeekersPage() {
             style={{ transitionDelay: isCtaButtonVisible ? '400ms' : '0ms' }}
           >
             <Button size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg hover:shadow-xl transition-shadow transform hover:scale-105" asChild>
-              <Link href="/">Sign Up & Find Your Future <ArrowRight className="ml-2 h-5 w-5" /></Link>
+              <Link href="/signup">Sign Up & Find Your Future <ArrowRight className="ml-2 h-5 w-5" /></Link>
             </Button>
              <p className="mt-6 text-sm opacity-80">
               Already have an account? <Link href="/login" className="font-semibold underline hover:opacity-90">Log In</Link>

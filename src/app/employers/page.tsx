@@ -62,23 +62,23 @@ const howItWorksSteps = [
 const testimonials = [
   {
     quote: "HyreSense revolutionized how we find talent. The AI matching is incredibly accurate and has saved us countless hours.",
-    name: "Michael P.",
+    name: "Vikram Singh",
     role: "Director of Talent Acquisition, Innovate Corp",
-    avatar: "https://placehold.co/80x80.png?text=MP",
+    avatar: "https://placehold.co/80x80.png?text=VS",
     dataAiHint: "profile manager"
   },
   {
     quote: "The AI candidate ranking from HyreSense is a game-changer. We're making better hiring decisions faster than ever before.",
-    name: "Linda K.",
+    name: "Sunita Sharma",
     role: "HR Manager, TechGeniuses",
-    avatar: "https://placehold.co/80x80.png?text=LK",
+    avatar: "https://placehold.co/80x80.png?text=SS",
     dataAiHint: "profile woman hr"
   },
   {
     quote: "Thanks to HyreSense, our time-to-hire has decreased by 40%, and the quality of candidates is significantly higher.",
-    name: "David R.",
+    name: "Arjun Mehta",
     role: "CEO, StartupFast",
-    avatar: "https://placehold.co/80x80.png?text=DR",
+    avatar: "https://placehold.co/80x80.png?text=AM",
     dataAiHint: "profile ceo"
   }
 ];

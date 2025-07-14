@@ -10,21 +10,21 @@ import { cn } from '@/lib/utils';
 const testimonials = [
   {
     quote: "HyreSense made my job search so much more engaging and efficient. The AI suggestions were spot on!",
-    name: "Sarah L.",
+    name: "Priya Singh",
     role: "Software Engineer",
-    avatar: "https://placehold.co/80x80.png?text=SL"
+    avatar: "https://placehold.co/80x80.png?text=PS"
   },
   {
     quote: "As an HR manager, finding the right talent used to be a chore. HyreSense's AI candidate ranking is a game-changer for us.",
-    name: "John B.",
+    name: "Amit Kumar",
     role: "HR Manager, Tech Solutions Inc.",
-    avatar: "https://placehold.co/80x80.png?text=JB"
+    avatar: "https://placehold.co/80x80.png?text=AK"
   },
   {
     quote: "I love the profile tracker! It motivated me to complete my profile and I landed interviews much faster.",
-    name: "Maria G.",
+    name: "Sneha Reddy",
     role: "Marketing Specialist",
-    avatar: "https://placehold.co/80x80.png?text=MG"
+    avatar: "https://placehold.co/80x80.png?text=SR"
   }
 ];
 

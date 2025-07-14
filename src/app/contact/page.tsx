@@ -11,7 +11,7 @@ import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from '@/hooks/use-toast';
-import { Mail, MapPin, Phone, Send, Linkedin, Twitter, Instagram, MessageSquare, Building, Info } from 'lucide-react';
+import { Mail, MapPin, Phone, Send, Linkedin, Twitter, Instagram, MessageSquare, Building, Info, Youtube } from 'lucide-react';
 import Link from 'next/link';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { cn } from '@/lib/utils';
@@ -162,7 +162,7 @@ export default function ContactUsPage() {
                     <div className="flex space-x-4">
                       {[
                         { href: "#", icon: <Linkedin className="h-6 w-6" />, label: "LinkedIn", delay:400 },
-                        { href: "#", icon: <Twitter className="h-6 w-6" />, label: "Twitter", delay: 500 },
+                        { href: "#", icon: <Youtube className="h-6 w-6" />, label: "Youtube", delay: 500 },
                         { href: "#", icon: <Instagram className="h-6 w-6" />, label: "Instagram", delay: 600 },
                       ].map(social => {
                          const [socialRef, isSocialVisible] = useScrollAnimation<HTMLAnchorElement>({ threshold: 0.2, triggerOnce: true });

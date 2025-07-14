@@ -282,7 +282,9 @@ export default function AboutUsPage() {
             )}
             style={{ transitionDelay: isCtaTitleRefVisible ? '400ms' : '0ms' }}
           >
-            Ready to experience a smarter way to find jobs or hire talent? Explore HyreSense and see the difference AI can make.
+            Ready to experience a smarter way to find jobs or hire talent?
+Explore HyreSense and see the difference AI can make —
+An AI-driven platform by Mokshdan Solutions.
           </p>
           <div 
             ref={ctaButtonRef}
