@@ -10,9 +10,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Mail, Lock, Eye, EyeOff, User, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, User, ArrowRight, AlertCircle } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { cn } from '@/lib/utils';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5 mr-2">
@@ -41,10 +42,64 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = React.useState(false);
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Placeholder for actual signup logic. For now, redirect to the create resume page.
-    router.push('/create-resume');
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      // Step 1: Register the user
+      const registerResponse = await fetch('https://backend.hyresense.com/api/v1/register/jobseeker', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username,
+          email: email,
+          password: password,
+          first_name: firstName,
+          last_name: lastName,
+        }),
+      });
+
+      if (!registerResponse.ok) {
+        const errorData = await registerResponse.json();
+        throw new Error(errorData.detail || 'Failed to register.');
+      }
+
+      // Step 2: Generate OTP
+      const otpResponse = await fetch('https://backend.hyresense.com/api/v1/otp/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+        }),
+      });
+      
+      if (!otpResponse.ok) {
+         const errorData = await otpResponse.json();
+        throw new Error(errorData.detail || 'Failed to generate OTP.');
+      }
+
+      // Step 3: Redirect to OTP verification page
+      router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
+
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -68,16 +123,55 @@ export default function SignupPage() {
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-6 px-6 sm:px-8">
-               <div className="space-y-2 relative">
-                <Label htmlFor="fullName" className="text-sm font-medium flex items-center gap-1.5">
-                  <User className="h-4 w-4 text-primary/80" /> Full Name
+            <CardContent className="space-y-4 px-6 sm:px-8">
+               {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Registration Failed</AlertTitle>
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+               <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2 relative">
+                    <Label htmlFor="firstName" className="text-sm font-medium flex items-center gap-1.5">
+                      <User className="h-4 w-4 text-primary/80" /> First Name
+                    </Label>
+                    <Input
+                      id="firstName"
+                      type="text"
+                      placeholder="John"
+                      required
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70 h-11 text-base pl-4 pr-2"
+                    />
+                  </div>
+                  <div className="space-y-2 relative">
+                    <Label htmlFor="lastName" className="text-sm font-medium flex items-center gap-1.5">
+                       Last Name
+                    </Label>
+                    <Input
+                      id="lastName"
+                      type="text"
+                      placeholder="Doe"
+                      required
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70 h-11 text-base pl-4 pr-2"
+                    />
+                  </div>
+               </div>
+                <div className="space-y-2 relative">
+                <Label htmlFor="username" className="text-sm font-medium flex items-center gap-1.5">
+                  <User className="h-4 w-4 text-primary/80" /> Username
                 </Label>
                 <Input
-                  id="fullName"
+                  id="username"
                   type="text"
-                  placeholder="Jane Doe"
+                  placeholder="johndoe"
                   required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70 h-11 text-base pl-4 pr-2"
                 />
               </div>
@@ -90,6 +184,8 @@ export default function SignupPage() {
                   type="email"
                   placeholder="you@example.com"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70 h-11 text-base pl-4 pr-2"
                 />
               </div>
@@ -103,6 +199,8 @@ export default function SignupPage() {
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70 h-11 text-base pl-4 pr-10"
                   />
                   <Button
@@ -119,8 +217,9 @@ export default function SignupPage() {
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-6 px-6 sm:px-8 pb-6 sm:pb-8">
-              <Button type="submit" className="w-full h-12 text-base font-semibold group bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/30 transition-all duration-300 transform hover:scale-[1.02]">
-                Create Account <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              <Button type="submit" className="w-full h-12 text-base font-semibold group bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/30 transition-all duration-300 transform hover:scale-[1.02]" disabled={isLoading}>
+                {isLoading ? 'Creating Account...' : 'Create Account'}
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Separator className="my-1" />
               <div className="space-y-3 w-full">

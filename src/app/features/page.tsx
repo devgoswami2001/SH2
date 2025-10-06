@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { ArrowRight, Brain, Zap, Target, Users, LineChart, Layers, Search, SlidersHorizontal, Sparkles, Telescope, BarChart3, TrendingUp, Shuffle, Network, Palette, Database, Filter, ChevronRight, Users2, FileText, ZapIcon } from 'lucide-react';
+import { ArrowRight, Brain, Zap, Target, Users, LineChart, Layers, Search, SlidersHorizontal, Sparkles, Telescope, BarChart3, TrendingUp, Shuffle, Network, Palette, Database, Filter, ChevronRight, Users2, FileText, ZapIcon, GraduationCap } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -49,6 +49,30 @@ const featureHighlights = [
                 <Progress value={20} className="h-2.5 [&>div]:bg-accent" />
             </div>
             <p className="text-xs font-mono text-accent mt-1.5">PATHWAY IDENTIFIED</p>
+        </div>
+    )
+  },
+    {
+    icon: <GraduationCap className="h-10 w-10 text-accent" />,
+    title: "Hybrid Mock Interviews",
+    description: "Experience the best of both worlds. Sharpen skills with an AI coach providing instant feedback, then refine your strategy with personalized insights from seasoned industry professionals.",
+    tags: ["Interview Prep", "AI Coaching", "Expert Feedback"],
+    visual: (
+        <div className="p-4 bg-foreground/5 dark:bg-foreground/10 border border-accent/20 rounded-lg aspect-video flex flex-col justify-center items-center space-y-3">
+        <div className="flex items-center space-x-4">
+            <div className="flex flex-col items-center space-y-2 text-center">
+            <Brain className="h-10 w-10 text-primary" />
+            <p className="text-xs font-semibold text-primary">AI Coach</p>
+            <Badge variant="secondary" className="bg-primary/10 text-primary/90 border-primary/20">Instant Feedback</Badge>
+            </div>
+            <Zap className="h-8 w-8 text-accent animate-pulse_fast shrink-0" />
+            <div className="flex flex-col items-center space-y-2 text-center">
+            <Users className="h-10 w-10 text-green-500" />
+            <p className="text-xs font-semibold text-green-500">Human Expert</p>
+            <Badge variant="secondary" className="bg-green-500/10 text-green-600 border-green-500/20">In-depth Review</Badge>
+            </div>
+        </div>
+        <p className="text-xs font-mono text-accent pt-4">PREPARE TO SUCCEED</p>
         </div>
     )
   },

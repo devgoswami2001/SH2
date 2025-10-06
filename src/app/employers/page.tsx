@@ -1,604 +1,447 @@
 
 'use client';
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Users, Target, BarChartHorizontalBig, Filter, Clock, Zap, Brain, UserCheck, LineChart, Building, Briefcase, Users2, ArrowRight, ThumbsUp, ZapIcon, Gauge, PackageSearch } from 'lucide-react';
-import Link from 'next/link';
+import React, { useState, type ChangeEvent } from 'react';
 import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { ArrowLeft, Briefcase, BookOpen, Sparkles, Link as LinkIcon, Award, Save, PlusCircle, Trash2, Target, MapPin, DollarSign } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
+import { useRouter } from 'next/navigation';
 
-const whyHyreSenseFeatures = [
-  {
-    icon: <UserCheck className="h-10 w-10 text-primary" />,
-    title: "AI-Powered Candidate Sourcing",
-    description: "Access a diverse pool of qualified candidates matched by our intelligent algorithms, significantly reducing manual screening time."
-  },
-  {
-    icon: <Clock className="h-10 w-10 text-primary" />,
-    title: "Reduced Time-to-Hire",
-    description: "Streamline your recruitment pipeline with smart automation and efficient workflows, filling critical roles faster."
-  },
-  {
-    icon: <LineChart className="h-10 w-10 text-primary" />,
-    title: "Data-Driven Hiring Decisions",
-    description: "Leverage comprehensive analytics and insights on candidates and market trends to make informed, strategic hiring choices."
-  },
-  {
-    icon: <Building className="h-10 w-10 text-primary" />,
-    title: "Improved Quality of Hire",
-    description: "Identify top performers with a higher likelihood of success and long-term retention through deeper skill and culture-fit analysis."
-  }
-];
+interface ExperienceEntry {
+  id: string;
+  jobTitle: string;
+  company: string;
+  jobLocation: string;
+  jobStartDate: string;
+  jobEndDate: string;
+  jobResponsibilities: string;
+}
 
-const howItWorksSteps = [
-  {
-    icon: <Briefcase className="h-12 w-12 text-accent" />,
-    title: "1. Post Your Job & Define Needs",
-    description: "Easily create detailed job postings. Specify skills, experience, and company culture to attract the right talent."
-  },
-  {
-    icon: <Brain className="h-12 w-12 text-accent" />,
-    title: "2. AI-Curated Candidate Pool",
-    description: "Our AI instantly scans and ranks candidates, presenting you with a shortlist of the most qualified and best-fit individuals."
-  },
-  {
-    icon: <Filter className="h-12 w-12 text-accent" />,
-    title: "3. Review & Engage Top Talent",
-    description: "Utilize advanced filters and detailed profiles to review top candidates. Initiate contact and schedule interviews seamlessly."
-  },
-  {
-    icon: <Users2 className="h-12 w-12 text-accent" />,
-    title: "4. Hire with Confidence",
-    description: "Make data-backed hiring decisions. Onboard your next great employee and track hiring success through our platform."
-  }
-];
+interface EducationEntry {
+  id: string;
+  degree: string;
+  institution: string;
+  eduLocation: string;
+  gradDate: string;
+  eduDetails: string;
+}
 
-const testimonials = [
-  {
-    quote: "HyreSense revolutionized how we find talent. The AI matching is incredibly accurate and has saved us countless hours.",
-    name: "Vikram Singh",
-    role: "Director of Talent Acquisition, Innovate Corp",
-    avatar: "https://placehold.co/80x80.png?text=VS",
-    dataAiHint: "profile manager"
-  },
-  {
-    quote: "The AI candidate ranking from HyreSense is a game-changer. We're making better hiring decisions faster than ever before.",
-    name: "Sunita Sharma",
-    role: "HR Manager, TechGeniuses",
-    avatar: "https://placehold.co/80x80.png?text=SS",
-    dataAiHint: "profile woman hr"
-  },
-  {
-    quote: "Thanks to HyreSense, our time-to-hire has decreased by 40%, and the quality of candidates is significantly higher.",
-    name: "Arjun Mehta",
-    role: "CEO, StartupFast",
-    avatar: "https://placehold.co/80x80.png?text=AM",
-    dataAiHint: "profile ceo"
-  }
-];
+interface ProjectEntry {
+  id: string;
+  projectTitle: string;
+  projectDescription: string;
+  projectLink: string;
+}
 
-const faqItems = [
-  {
-    question: "How does HyreSense help employers find qualified candidates?",
-    answer: "HyreSense's AI algorithms analyze job requirements and company culture, then match them against a vast database of job seeker profiles. We go beyond keywords to assess skills, experience, and potential cultural fit, providing you with a ranked list of top prospects."
-  },
-  {
-    question: "Can HyreSense integrate with our existing ATS?",
-    answer: "We are continuously working on expanding our integration capabilities. Please contact our sales team to discuss your specific ATS and integration needs. Our platform is also designed to be highly effective as a standalone solution."
-  },
-  {
-    question: "What kind of analytics does HyreSense provide to employers?",
-    answer: "HyreSense offers insights into candidate demographics, skill distributions, time-to-hire metrics, and the effectiveness of your job postings. These analytics help you refine your hiring strategy and make data-driven decisions."
-  },
-  {
-    question: "Is HyreSense suitable for small businesses and startups?",
-    answer: "Yes! HyreSense is designed to be scalable and affordable for businesses of all sizes. We offer flexible plans that cater to the unique needs of startups, SMBs, and large enterprises, helping you compete for top talent effectively."
-  }
-];
+const SectionWrapper: React.FC<{ title: string; icon: React.ReactNode; children: React.ReactNode }> = ({ title, icon, children }) => (
+  <Card className="bg-card/80 backdrop-blur-md shadow-lg border border-border/30 rounded-xl mb-6 last:mb-0">
+    <CardHeader>
+      <CardTitle className="text-xl md:text-2xl font-semibold text-primary flex items-center">
+        {icon}
+        <span className="ml-3">{title}</span>
+      </CardTitle>
+    </CardHeader>
+    <CardContent className="space-y-4 md:space-y-6">
+      {children}
+    </CardContent>
+  </Card>
+);
 
-export default function EmployersPage() {
-  const [heroTitleRef, isHeroTitleVisible] = useScrollAnimation<HTMLHeadingElement>();
-  const [heroSubtitleRef, isHeroSubtitleVisible] = useScrollAnimation<HTMLParagraphElement>();
-  const [heroButtonRef, isHeroButtonVisible] = useScrollAnimation<HTMLDivElement>();
-  const [heroImageRef, isHeroImageVisible] = useScrollAnimation<HTMLDivElement>();
+const SectionWrapperMobile: React.FC<{ title: string; icon: React.ReactNode; children: React.ReactNode }> = ({ title, icon, children }) => (
+  <Card className="bg-card/80 backdrop-blur-md shadow-lg border border-border/30 rounded-xl mb-[10px]">
+    <CardHeader className="pb-3 pt-4 px-4">
+      <CardTitle className="text-base font-semibold text-primary flex items-center">
+        {icon}
+        <span className="ml-2">{title}</span>
+      </CardTitle>
+    </CardHeader>
+    <CardContent className="px-4 pb-4 space-y-3">
+      {children}
+    </CardContent>
+  </Card>
+);
 
-  const [whyTitleRef, isWhyTitleVisible] = useScrollAnimation<HTMLHeadingElement>();
-  const [whySubtitleRef, isWhySubtitleVisible] = useScrollAnimation<HTMLParagraphElement>();
 
-  const [howTitleRef, isHowTitleVisible] = useScrollAnimation<HTMLHeadingElement>();
-  const [howSubtitleRef, isHowSubtitleVisible] = useScrollAnimation<HTMLParagraphElement>();
+export default function EditProfilePage() {
+  const [pageContainerRef, isPageContainerVisible] = useScrollAnimation<HTMLDivElement>({ threshold: 0.1, triggerOnce: true });
+  const router = useRouter();
+
+  // TODO: In a real app, these would be pre-filled with existing profile data
+  const [professionalSummary, setProfessionalSummary] = useState('');
+  const [skills, setSkills] = useState('');
+
+  const [experiences, setExperiences] = useState<ExperienceEntry[]>([
+    { id: 'exp-initial-1', jobTitle: '', company: '', jobLocation: '', jobStartDate: '', jobEndDate: '', jobResponsibilities: '' }
+  ]);
+
+  const [educations, setEducations] = useState<EducationEntry[]>([
+    { id: 'edu-initial-1', degree: '', institution: '', eduLocation: '', gradDate: '', eduDetails: ''}
+  ]);
+
+  const [projects, setProjects] = useState<ProjectEntry[]>([
+    { id: 'proj-initial-1', projectTitle: '', projectDescription: '', projectLink: ''}
+  ]);
   
-  const [aiActionTitleRef, isAiActionTitleVisible] = useScrollAnimation<HTMLHeadingElement>();
-  const [aiActionSubtitleRef, isAiActionSubtitleVisible] = useScrollAnimation<HTMLParagraphElement>();
-  const [aiActionShowcaseRef, isAiActionShowcaseVisible] = useScrollAnimation<HTMLDivElement>();
+  const [links, setLinks] = useState({ portfolioLink: '', linkedinLink: '', githubLink: '' });
 
-  const [testimonialsTitleRef, isTestimonialsTitleVisible] = useScrollAnimation<HTMLHeadingElement>();
-  const [testimonialsSubtitleRef, isTestimonialsSubtitleVisible] = useScrollAnimation<HTMLParagraphElement>();
+  const [preferredRole, setPreferredRole] = useState('');
+  const [preferredLocation, setPreferredLocation] = useState('');
+  const [expectedSalary, setExpectedSalary] = useState('');
+
+
+  const handleInputChange = (setter: React.Dispatch<React.SetStateAction<any>>, field?: string) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (field) {
+      setter((prev: any) => ({ ...prev, [field]: e.target.value }));
+    } else {
+      setter(e.target.value);
+    }
+  };
+
+  // Experience Handlers
+  const handleExperienceChange = (index: number, field: keyof ExperienceEntry, value: string) => {
+    setExperiences(prev =>
+      prev.map((exp, i) => (i === index ? { ...exp, [field]: value } : exp))
+    );
+  };
+
+  const addExperience = () => {
+    setExperiences(prev => [...prev, { id: `exp-${Date.now()}`, jobTitle: '', company: '', jobLocation: '', jobStartDate: '', jobEndDate: '', jobResponsibilities: '' }]);
+  };
+
+  const removeExperience = (id: string) => {
+    setExperiences(prev => prev.filter(exp => exp.id !== id));
+  };
   
-  const [faqTitleRef, isFaqTitleVisible] = useScrollAnimation<HTMLHeadingElement>();
-  const [faqSubtitleRef, isFaqSubtitleVisible] = useScrollAnimation<HTMLParagraphElement>();
-  const [faqAccordionRef, isFaqAccordionVisible] = useScrollAnimation<HTMLDivElement>();
+  // Education Handlers
+  const handleEducationChange = (index: number, field: keyof EducationEntry, value: string) => {
+    setEducations(prev =>
+      prev.map((edu, i) => (i === index ? { ...edu, [field]: value } : edu))
+    );
+  };
 
-  const [ctaTitleRef, isCtaTitleVisible] = useScrollAnimation<HTMLHeadingElement>();
-  const [ctaSubtitleRef, isCtaSubtitleVisible] = useScrollAnimation<HTMLParagraphElement>();
-  const [ctaButtonRef, isCtaButtonVisible] = useScrollAnimation<HTMLDivElement>();
+  const addEducation = () => {
+    setEducations(prev => [...prev, { id: `edu-${Date.now()}`, degree: '', institution: '', eduLocation: '', gradDate: '', eduDetails: '' }]);
+  };
+
+  const removeEducation = (id: string) => {
+    setEducations(prev => prev.filter(edu => edu.id !== id));
+  };
+
+  // Project Handlers
+  const handleProjectChange = (index: number, field: keyof ProjectEntry, value: string) => {
+    setProjects(prev =>
+      prev.map((proj, i) => (i === index ? { ...proj, [field]: value } : proj))
+    );
+  };
+
+  const addProject = () => {
+    setProjects(prev => [...prev, { id: `proj-${Date.now()}`, projectTitle: '', projectDescription: '', projectLink: '' }]);
+  };
+
+  const removeProject = (id: string) => {
+    setProjects(prev => prev.filter(proj => proj.id !== id));
+  };
+
+
+  const handleSaveResume = (e: React.FormEvent) => {
+    e.preventDefault();
+    const resumeData = {
+      professionalSummary,
+      experiences,
+      educations,
+      skills,
+      projects,
+      links,
+      preferredRole,
+      preferredLocation,
+      expectedSalary,
+    };
+    console.log("Resume Data Updated:", resumeData);
+    router.push('/profile'); 
+  };
 
   return (
-    <div className="text-foreground bg-background">
-      {/* Hero Section */}
-      <section className="py-20 md:py-32 bg-gradient-to-br from-primary/10 via-transparent to-transparent">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-12 items-center">
-          <div className="text-center md:text-left">
-            <h1
-              ref={heroTitleRef}
-              className={cn(
-                "text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isHeroTitleVisible && "opacity-100 translate-y-0"
-              )}
-            >
-              Build Your <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Dream Team</span>, Smarter.
-            </h1>
-            <p
-              ref={heroSubtitleRef}
-              className={cn(
-                "mt-6 text-lg text-muted-foreground sm:text-xl opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isHeroSubtitleVisible && "opacity-100 translate-y-0 delay-200"
-              )}
-              style={{ transitionDelay: isHeroSubtitleVisible ? '200ms' : '0ms' }}
-            >
-              Unlock a new era of talent acquisition. HyreSense empowers you with AI-driven insights to find, attract, and hire the perfect candidates, faster than ever.
-            </p>
-            <div
-              ref={heroButtonRef}
-              className={cn(
-                "mt-10 opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isHeroButtonVisible && "opacity-100 translate-y-0 delay-400"
-              )}
-              style={{ transitionDelay: isHeroButtonVisible ? '400ms' : '0ms' }}
-            >
-              <Button size="lg" asChild className="shadow-lg hover:shadow-xl transition-shadow transform hover:scale-105">
-                <Link href="#cta-employer">Request a Demo <ArrowRight className="ml-2 h-5 w-5" /></Link>
-              </Button>
-            </div>
-          </div>
-          <div 
-            ref={heroImageRef}
-            className={cn(
-              "relative group opacity-0 transition-all duration-1000 ease-out",
-              isHeroImageVisible ? "opacity-100 scale-100 delay-200" : "scale-90"
-            )}
-            style={{ transitionDelay: isHeroImageVisible ? '200ms' : '0ms' }}
-          >
-             <div className="relative bg-card/80 backdrop-blur-md border-2 border-primary/20 rounded-xl shadow-2xl p-4 sm:p-6 w-full max-w-xl mx-auto min-h-[450px] flex flex-col justify-between">
-                <div>
-                    <div className="flex justify-between items-start mb-4 sm:mb-6">
-                        <div>
-                            <h3 className="text-xl sm:text-2xl font-bold text-primary">AI Hiring Command Center</h3>
-                            <p className="text-xs sm:text-sm text-muted-foreground">Powered by HyreSense Intelligence</p>
-                        </div>
-                        <Brain className="h-8 w-8 text-accent opacity-80"/>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 sm:gap-6 mb-4 sm:mb-6">
-                        <div className="sm:col-span-2 flex flex-col items-center justify-center p-3 sm:p-4 bg-muted/50 dark:bg-slate-800/50 rounded-lg shadow-md group-hover:bg-muted/70 transition-colors">
-                            <p className="text-xs sm:text-sm text-muted-foreground mb-1 sm:mb-1.5 text-center font-medium">Top Candidate Match</p>
-                            <div className="relative w-28 h-28 sm:w-32 sm:h-32">
-                                <svg className="w-full h-full" viewBox="0 0 36 36">
-                                    <path
-                                    className="text-primary/20 dark:text-primary/30"
-                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                    fill="none"
-                                    strokeWidth="3"
-                                    />
-                                    <path
-                                    className="text-accent"
-                                    strokeDasharray={`${isHeroImageVisible ? 94 : 0}, 100`} 
-                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                    fill="none"
-                                    strokeWidth="3.5"
-                                    strokeLinecap="round"
-                                    style={{transition: 'stroke-dasharray 0.8s ease-out 0.3s'}}
-                                    />
-                                </svg>
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="text-3xl sm:text-4xl font-bold text-accent">94%</span>
-                                </div>
-                            </div>
-                            <p className="text-xs sm:text-sm mt-1.5 sm:mt-2 text-foreground text-center font-semibold">Sarah Miller</p>
-                            <p className="text-[10px] sm:text-xs text-muted-foreground text-center">Sr. Software Engineer</p>
-                        </div>
-
-                        <div className="sm:col-span-3 p-3 sm:p-4 bg-muted/50 dark:bg-slate-800/50 rounded-lg shadow-md group-hover:bg-muted/70 transition-colors">
-                            <h4 className="text-sm sm:text-base font-semibold text-foreground mb-2 sm:mb-3">Active Roles Overview</h4>
-                            <div className="space-y-2 sm:space-y-3">
-                                {[
-                                    { role: "Frontend Developer", matches: "5 High-Potential", icon: <Users className="h-4 w-4 text-green-500"/>, skills: ["React", "Vue.js"] },
-                                    { role: "Marketing Lead", matches: "3 Strong Fits", icon: <Users className="h-4 w-4 text-blue-500"/>, skills: ["SEO", "Strategy"] },
-                                    { role: "Data Analyst", matches: "Ready for Review", icon: <PackageSearch className="h-4 w-4 text-yellow-500"/>, skills: ["SQL", "Python"] }
-                                ].map(item => (
-                                    <div key={item.role} className="pb-1.5 border-b border-border/30 last:border-b-0">
-                                        <div className="flex justify-between items-center">
-                                          <p className="text-xs sm:text-sm font-medium text-foreground">{item.role}</p>
-                                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                            {item.icon} <span>{item.matches}</span>
-                                          </div>
-                                        </div>
-                                        <div className="mt-1 flex flex-wrap gap-1">
-                                            {item.skills.map(skill => <Badge key={skill} variant="secondary" className="text-[10px] px-1.5 py-0.5">{skill}</Badge>)}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div className="mt-auto p-2.5 sm:p-3 bg-gradient-to-r from-primary/10 to-accent/10 dark:from-primary/20 dark:to-accent/20 rounded-lg shadow-inner">
-                    <div className="flex items-center gap-2">
-                    <ZapIcon className="h-5 w-5 text-primary flex-shrink-0"/>
-                    <div>
-                        <p className="text-xs sm:text-sm font-semibold text-primary">AI Hiring Insight:</p>
-                        <p className="text-[11px] sm:text-xs text-muted-foreground">Prioritize candidates demonstrating strong 'Agile' experience for faster project integration.</p>
-                    </div>
-                    </div>
-                </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Why HyreSense Section */}
-      <section className="py-16 sm:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
-          <div className="text-center mb-16">
-            <h2
-              ref={whyTitleRef}
-              className={cn(
-                "text-3xl lg:text-4xl font-extrabold tracking-tight opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isWhyTitleVisible && "opacity-100 translate-y-0"
-              )}
-            >
-              Why HyreSense is Your Strategic Hiring Ally
-            </h2>
-            <p
-              ref={whySubtitleRef}
-              className={cn(
-                "mt-4 text-lg text-muted-foreground max-w-3xl mx-auto opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isWhySubtitleVisible && "opacity-100 translate-y-0 delay-200"
-              )}
-              style={{ transitionDelay: isWhySubtitleVisible ? '200ms' : '0ms' }}
-            >
-              We provide intelligent solutions that transform your recruitment process from a challenge into a competitive advantage, ensuring you secure the best talent efficiently.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-            {whyHyreSenseFeatures.map((feature, index) => {
-              const [cardRef, isCardVisible] = useScrollAnimation<HTMLDivElement>({ threshold: 0.1, triggerOnce: true });
-              return (
-                <div
-                  key={feature.title}
-                  ref={cardRef}
-                  className={cn(
-                    "opacity-0 translate-y-10 transition-all duration-500 ease-out",
-                    isCardVisible && "opacity-100 translate-y-0"
-                  )}
-                  style={{ transitionDelay: isCardVisible ? `${index * 150}ms` : '0ms' }}
-                >
-                  <Card className="shadow-xl hover:shadow-2xl transition-shadow duration-300 h-full border-l-4 border-primary hover:border-accent group">
-                    <CardHeader className="pb-4">
-                      <div className="flex items-center gap-4">
-                        <span className="p-3 bg-primary/10 rounded-full group-hover:bg-accent/10 transition-colors">
-                           {React.cloneElement(feature.icon, { className: cn(feature.icon.props.className, "group-hover:text-accent transition-colors") })}
-                        </span>
-                        <CardTitle className="text-2xl group-hover:text-accent transition-colors">{feature.title}</CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground text-base">{feature.description}</p>
-                    </CardContent>
-                  </Card>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="py-16 sm:py-24 bg-secondary/30 dark:bg-slate-800/50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
-          <div className="text-center mb-16">
-            <h2
-              ref={howTitleRef}
-              className={cn(
-                "text-3xl lg:text-4xl font-extrabold tracking-tight opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isHowTitleVisible && "opacity-100 translate-y-0"
-              )}
-            >
-              Your Streamlined Path to <span className="text-primary">Exceptional Hires</span>
-            </h2>
-            <p
-              ref={howSubtitleRef}
-              className={cn(
-                "mt-4 text-lg text-muted-foreground max-w-2xl mx-auto opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isHowSubtitleVisible && "opacity-100 translate-y-0 delay-200"
-              )}
-              style={{ transitionDelay: isHowSubtitleVisible ? '200ms' : '0ms' }}
-            >
-              Our intuitive platform simplifies every step of the hiring journey, powered by intelligent automation.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {howItWorksSteps.map((step, index) => {
-              const [stepRef, isStepVisible] = useScrollAnimation<HTMLDivElement>({ threshold: 0.1, triggerOnce: true });
-              return (
-                <div
-                  key={step.title}
-                  ref={stepRef}
-                  className={cn(
-                    "opacity-0 translate-y-10 transition-all duration-500 ease-out",
-                    isStepVisible && "opacity-100 translate-y-0"
-                  )}
-                  style={{ transitionDelay: isStepVisible ? `${index * 150}ms` : '0ms' }}
-                >
-                  <Card className="text-center shadow-lg hover:shadow-xl transition-shadow duration-300 h-full bg-card hover:border-accent border-2 border-transparent">
-                    <CardHeader className="items-center">
-                      <div className="p-4 bg-accent/10 rounded-full inline-block mb-3">
-                        {step.icon}
-                      </div>
-                      <CardTitle className="text-xl">{step.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground">{step.description}</p>
-                    </CardContent>
-                  </Card>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* AI in Action Section - Employer Focus */}
-      <section className="py-16 sm:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-          <div className="text-center mb-12">
-            <h2 
-              ref={aiActionTitleRef}
-              className={cn(
-                "text-3xl lg:text-4xl font-extrabold tracking-tight opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isAiActionTitleVisible && "opacity-100 translate-y-0"
-              )}
-            >
-              See HyreSense AI in Action: Candidate Ranker
-            </h2>
-            <p 
-              ref={aiActionSubtitleRef}
-              className={cn(
-                "mt-4 text-lg text-muted-foreground max-w-2xl mx-auto opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isAiActionSubtitleVisible && "opacity-100 translate-y-0 delay-200"
-              )}
-              style={{ transitionDelay: isAiActionSubtitleVisible ? '200ms' : '0ms' }}
-            >
-              Instantly identify top prospects with our AI-powered candidate ranking. Focus on the best fits, effortlessly.
-            </p>
-          </div>
-          <div 
-            ref={aiActionShowcaseRef}
-            className={cn(
-              "opacity-0 scale-90 transition-all duration-1000 ease-out",
-              isAiActionShowcaseVisible && "opacity-100 scale-100 delay-200"
-            )}
-            style={{ transitionDelay: isAiActionShowcaseVisible ? '200ms' : '0ms' }}
-          >
-            <Card className="max-w-3xl mx-auto shadow-2xl overflow-hidden border-2 border-primary/30 bg-gradient-to-br from-card to-muted/50">
-              <CardHeader className="bg-primary/5 p-4">
-                <CardTitle className="text-primary text-lg">AI Candidate Shortlist: Senior Marketing Role</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-3">
-                {[
-                  { name: "Anita Sharma", role: "Marketing Lead", match: 96, avatarHint: "professional woman", skills: ["Leadership", "SEO", "Content Strategy"]},
-                  { name: "David Lee", role: "Digital Strategist", match: 91, avatarHint: "professional man", skills: ["PPC", "Analytics", "Social Media"] },
-                  { name: "Chen Zhao", role: "Growth Hacker", match: 88, avatarHint: "professional person", skills: ["A/B Testing", "CRO", "Data Analysis"] }
-                ].map(candidate => (
-                  <Card key={candidate.name} className="shadow-sm hover:shadow-md transition-shadow bg-background group hover:border-primary/40 border border-transparent">
-                    <CardContent className="p-3 flex flex-col sm:flex-row items-center gap-3">
-                        <Avatar className="h-12 w-12 border-2 border-primary/30 group-hover:border-accent transition-colors">
-                          <AvatarImage src={`https://placehold.co/48x48.png?text=${candidate.name.split(' ').map(n=>n[0]).join('')}`} alt={candidate.name} data-ai-hint={candidate.avatarHint}/>
-                          <AvatarFallback className="text-lg bg-muted group-hover:bg-accent/10 group-hover:text-accent transition-colors">{candidate.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-grow text-center sm:text-left">
-                          <p className="font-semibold text-foreground group-hover:text-primary transition-colors">{candidate.name}</p>
-                          <p className="text-xs text-muted-foreground">{candidate.role}</p>
-                          <div className="mt-1.5 flex flex-wrap gap-1 justify-center sm:justify-start">
-                            {candidate.skills.map(skill => <Badge key={skill} variant="secondary" className="text-[10px] px-1.5 py-0.5">{skill}</Badge>)}
-                          </div>
-                        </div>
-                        <div className="text-center sm:text-right mt-2 sm:mt-0 sm:ml-auto">
-                            <p className="font-bold text-green-500 text-2xl group-hover:text-green-400 transition-colors">{candidate.match}%</p>
-                            <p className="text-xs text-muted-foreground">AI Match</p>
-                        </div>
-                        <Button variant="outline" size="sm" className="ml-0 sm:ml-auto text-xs mt-2 sm:mt-0 w-full sm:w-auto group-hover:bg-primary/10 group-hover:border-primary group-hover:text-primary transition-colors">
-                          View Profile <ArrowRight className="ml-1 h-3 w-3"/>
-                        </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-                 <div className="text-center mt-4">
-                    <Button variant="default" className="group">See Full Ranking <ThumbsUp className="ml-2 h-4 w-4 group-hover:animate-pulse_fast"/></Button>
-                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="py-16 sm:py-24 bg-muted/30 dark:bg-slate-800/30">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-          <div className="text-center mb-16">
-            <h2 
-              ref={testimonialsTitleRef}
-              className={cn(
-                "text-3xl lg:text-4xl font-extrabold tracking-tight opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isTestimonialsTitleVisible && "opacity-100 translate-y-0"
-              )}
-            >
-              Hear from Companies Who Transformed Their Hiring with HyreSense
-            </h2>
-            <p 
-              ref={testimonialsSubtitleRef}
-              className={cn(
-                "mt-4 text-lg text-muted-foreground max-w-2xl mx-auto opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isTestimonialsSubtitleVisible && "opacity-100 translate-y-0 delay-200"
-              )}
-              style={{ transitionDelay: isTestimonialsSubtitleVisible ? '200ms' : '0ms' }}
-            >
-              Discover how businesses like yours are building stronger teams and achieving hiring goals faster.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => {
-              const [cardRef, isCardVisible] = useScrollAnimation<HTMLDivElement>({ threshold: 0.1, triggerOnce: true });
-              return (
-                <div
-                  key={testimonial.name}
-                  ref={cardRef}
-                  className={cn(
-                    "opacity-0 translate-y-10 transition-all duration-500 ease-out",
-                    isCardVisible && "opacity-100 translate-y-0"
-                  )}
-                  style={{ transitionDelay: isCardVisible ? `${index * 150}ms` : '0ms' }}
-                >
-                  <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col h-full bg-card">
-                    <CardContent className="p-6 flex-grow flex flex-col">
-                      <blockquote className="text-muted-foreground italic flex-grow text-sm">"{testimonial.quote}"</blockquote>
-                      <div className="mt-6 flex items-center">
-                        <Avatar className="h-12 w-12 border-2 border-primary">
-                           <AvatarImage src={testimonial.avatar} alt={testimonial.name} data-ai-hint={testimonial.dataAiHint}/>
-                          <AvatarFallback>{testimonial.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                        </Avatar>
-                        <div className="ml-4">
-                          <p className="font-semibold text-foreground">{testimonial.name}</p>
-                          <p className="text-xs text-muted-foreground">{testimonial.role}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className="py-16 sm:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
-          <div className="text-center mb-12">
-            <h2 
-              ref={faqTitleRef}
-              className={cn(
-                "text-3xl lg:text-4xl font-extrabold tracking-tight opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isFaqTitleVisible && "opacity-100 translate-y-0"
-              )}
-            >
-              Your Questions, <span className="text-primary">Answered</span>
-            </h2>
-            <p 
-              ref={faqSubtitleRef}
-              className={cn(
-                "mt-4 text-lg text-muted-foreground max-w-xl mx-auto opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isFaqSubtitleVisible && "opacity-100 translate-y-0 delay-200"
-              )}
-              style={{ transitionDelay: isFaqSubtitleVisible ? '200ms' : '0ms' }}
-            >
-              Find answers to common inquiries about leveraging HyreSense for your hiring needs.
-            </p>
-          </div>
-          <div
-            ref={faqAccordionRef}
-            className={cn(
-              "opacity-0 translate-y-10 transition-all duration-700 ease-out",
-              isFaqAccordionVisible && "opacity-100 translate-y-0 delay-300"
-            )}
-            style={{ transitionDelay: isFaqAccordionVisible ? '300ms' : '0ms' }}
-          >
-            <Accordion type="single" collapsible className="w-full space-y-3">
-              {faqItems.map((item, index) => (
-                <AccordionItem value={`item-${index + 1}`} key={index} className="bg-card shadow-md hover:shadow-lg transition-shadow rounded-lg border border-border data-[state=open]:border-primary">
-                  <AccordionTrigger className="p-4 text-left font-medium text-base hover:no-underline data-[state=open]:text-primary data-[state=open]:font-semibold">
-                    {item.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="p-4 pt-0 text-muted-foreground text-sm">
-                    {item.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </div>
-        </div>
-      </section>
-
-      {/* Call to Action Section */}
-      <section id="cta-employer" className="py-16 sm:py-24 bg-gradient-to-r from-primary to-accent text-primary-foreground">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl text-center">
-          <h2 
-            ref={ctaTitleRef}
-            className={cn(
-              "text-3xl lg:text-4xl font-extrabold tracking-tight opacity-0 translate-y-10 transition-all duration-700 ease-out",
-              isCtaTitleVisible && "opacity-100 translate-y-0"
-            )}
-          >
-            Ready to Supercharge Your Hiring?
-          </h2>
-          <p 
-            ref={ctaSubtitleRef}
-            className={cn(
-              "mt-4 text-lg opacity-90 max-w-xl mx-auto opacity-0 translate-y-10 transition-all duration-700 ease-out",
-              isCtaSubtitleVisible && "opacity-100 translate-y-0 delay-200"
-            )}
-            style={{ transitionDelay: isCtaSubtitleVisible ? '200ms' : '0ms' }}
-          >
-            Discover how HyreSense can help you find top talent, reduce hiring time, and build a winning team.
-          </p>
-          <div 
-            ref={ctaButtonRef}
-            className={cn(
-              "mt-10 opacity-0 translate-y-10 transition-all duration-700 ease-out",
-              isCtaButtonVisible && "opacity-100 translate-y-0 delay-400"
-            )}
-            style={{ transitionDelay: isCtaButtonVisible ? '400ms' : '0ms' }}
-          >
-            <Button size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg hover:shadow-xl transition-shadow transform hover:scale-105" asChild>
-              <Link href="/">Request a Demo <ArrowRight className="ml-2 h-5 w-5" /></Link>
+    <div
+      ref={pageContainerRef}
+      className={cn(
+        "min-h-screen flex flex-col items-center justify-center bg-gradient-animated p-4 overflow-hidden opacity-0 translate-y-10 transition-all duration-1000 ease-out",
+        isPageContainerVisible && "opacity-100 translate-y-0"
+      )}
+    >
+      <div className="absolute inset-0 opacity-20 dark:opacity-15"></div>
+      
+      {/* Mobile View */}
+      <div className="md:hidden relative w-[375px] h-[780px] bg-slate-900 rounded-[48px] border-[10px] border-slate-950 shadow-2xl overflow-hidden z-10">
+        <div className="h-full w-full bg-muted/30 dark:bg-slate-900/40 flex flex-col rounded-[38px] overflow-hidden">
+          <header className="p-4 border-b border-border/50 bg-card/90 backdrop-blur-sm flex items-center justify-between sticky top-0 z-20 min-h-[60px]">
+            <Button variant="ghost" size="icon" className="text-primary" onClick={() => router.back()}>
+              <ArrowLeft className="h-6 w-6" />
             </Button>
-             <p className="mt-6 text-sm opacity-80">
-              Questions? <Link href="/contact" className="font-semibold underline hover:opacity-90">Contact our team</Link>
-            </p>
-          </div>
+            <div className="flex flex-col items-center">
+              <Award className="h-5 w-5 text-primary mb-0.5 opacity-80" />
+              <h1 className="text-md font-semibold text-foreground -mt-0.5">Edit Profile</h1>
+            </div>
+            <Image src="/logo.png" alt="HyreSense Logo" width={30} height={22} className="rounded-sm" />
+          </header>
+
+          <ScrollArea className="flex-grow">
+            <form onSubmit={handleSaveResume} className="p-4 space-y-0">
+              <SectionWrapperMobile title="Professional Summary" icon={<Sparkles className="h-5 w-5" />}>
+                <Textarea
+                  id="summary-mobile"
+                  placeholder="Write a brief summary of your career, skills, and goals..."
+                  rows={4}
+                  value={professionalSummary}
+                  onChange={handleInputChange(setProfessionalSummary)}
+                  className="text-xs resize-none bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70"
+                />
+              </SectionWrapperMobile>
+
+              <SectionWrapperMobile title="Work Experience" icon={<Briefcase className="h-5 w-5" />}>
+                {experiences.map((exp, index) => (
+                  <div key={exp.id} className="space-y-3 border-b border-border/30 pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0">
+                    {experiences.length > 1 && (
+                       <div className="flex justify-between items-center">
+                         <Label className="text-xs font-semibold text-muted-foreground">Experience #{index + 1}</Label>
+                         <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-destructive/70 hover:bg-destructive/10 hover:text-destructive"
+                            onClick={() => removeExperience(exp.id)}
+                         >
+                            <Trash2 className="h-4 w-4" />
+                         </Button>
+                       </div>
+                    )}
+                    <div className="space-y-2">
+                      <Label htmlFor={`jobTitle-mobile-${exp.id}`} className="text-xs">Job Title</Label>
+                      <Input id={`jobTitle-mobile-${exp.id}`} placeholder="e.g., Senior Software Engineer" value={exp.jobTitle} onChange={(e) => handleExperienceChange(index, 'jobTitle', e.target.value)} className="text-xs h-9 bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
+                    </div>
+                    {/* ... other mobile fields */}
+                  </div>
+                ))}
+                <Button type="button" variant="outline" size="sm" className="w-full mt-2 text-xs h-8 border-dashed border-primary/50 text-primary hover:bg-primary/10" onClick={addExperience}>
+                  <PlusCircle className="h-4 w-4 mr-1.5" /> Add Another Experience
+                </Button>
+              </SectionWrapperMobile>
+              
+               <div className="pt-3 pb-1">
+                <Button type="submit" className="w-full h-11 text-sm font-semibold group bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/30">
+                  <Save className="mr-2 h-4 w-4" /> Save Changes
+                </Button>
+              </div>
+            </form>
+          </ScrollArea>
         </div>
-      </section>
-       <style jsx global>{`
-        @keyframes pulse_fast {
-          0%, 100% { opacity: 0.7; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.1); }
+      </div>
+      
+       {/* Desktop View */}
+      <div className="hidden md:flex flex-col items-center justify-center w-full max-w-4xl z-10 py-12">
+        <form onSubmit={handleSaveResume} className="w-full">
+            <header className="flex justify-between items-center mb-8">
+                <div>
+                  <h1 className="text-4xl font-bold text-foreground">Edit Your Profile</h1>
+                  <p className="text-muted-foreground mt-1">Keep your information up-to-date to attract the best opportunities.</p>
+                </div>
+                <Button type="submit" size="lg" className="h-11 text-base font-semibold group bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/30">
+                    <Save className="mr-2 h-4 w-4" /> Save Changes
+                </Button>
+            </header>
+
+            <SectionWrapper title="Professional Summary" icon={<Sparkles className="h-6 w-6" />}>
+                <Textarea
+                  id="summary-desktop-edit"
+                  placeholder="Write a brief, compelling summary of your career, skills, and goals to catch the eye of employers..."
+                  rows={4}
+                  value={professionalSummary}
+                  onChange={handleInputChange(setProfessionalSummary)}
+                  className="text-base"
+                />
+            </SectionWrapper>
+
+             <SectionWrapper title="Work Experience" icon={<Briefcase className="h-6 w-6" />}>
+                {experiences.map((exp, index) => (
+                  <div key={exp.id} className="space-y-4 border-b border-border/30 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0">
+                    {experiences.length > 1 && (
+                       <div className="flex justify-between items-center">
+                         <Label className="font-semibold text-muted-foreground">Experience #{index + 1}</Label>
+                         <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive/70 hover:bg-destructive/10 hover:text-destructive" onClick={() => removeExperience(exp.id)}>
+                            <Trash2 className="h-4 w-4" />
+                         </Button>
+                       </div>
+                    )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <Label htmlFor={`jobTitle-desktop-edit-${exp.id}`}>Job Title</Label>
+                            <Input id={`jobTitle-desktop-edit-${exp.id}`} placeholder="e.g., Senior Software Engineer" value={exp.jobTitle} onChange={(e) => handleExperienceChange(index, 'jobTitle', e.target.value)} />
+                        </div>
+                        <div>
+                            <Label htmlFor={`company-desktop-edit-${exp.id}`}>Company</Label>
+                            <Input id={`company-desktop-edit-${exp.id}`} placeholder="e.g., Tech Solutions Inc." value={exp.company} onChange={(e) => handleExperienceChange(index, 'company', e.target.value)} />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <Label htmlFor={`jobLocation-desktop-edit-${exp.id}`}>Location</Label>
+                            <Input id={`jobLocation-desktop-edit-${exp.id}`} placeholder="e.g., New York, NY" value={exp.jobLocation} onChange={(e) => handleExperienceChange(index, 'jobLocation', e.target.value)} />
+                        </div>
+                         <div>
+                            <Label htmlFor={`jobStartDate-desktop-edit-${exp.id}`}>Start Date</Label>
+                            <Input id={`jobStartDate-desktop-edit-${exp.id}`} type="text" placeholder="MM/YYYY" value={exp.jobStartDate} onChange={(e) => handleExperienceChange(index, 'jobStartDate', e.target.value)} />
+                        </div>
+                        <div>
+                            <Label htmlFor={`jobEndDate-desktop-edit-${exp.id}`}>End Date</Label>
+                            <Input id={`jobEndDate-desktop-edit-${exp.id}`} type="text" placeholder="MM/YYYY or Present" value={exp.jobEndDate} onChange={(e) => handleExperienceChange(index, 'jobEndDate', e.target.value)} />
+                        </div>
+                    </div>
+                    <div>
+                        <Label htmlFor={`jobResponsibilities-desktop-edit-${exp.id}`}>Responsibilities / Achievements</Label>
+                        <Textarea id={`jobResponsibilities-desktop-edit-${exp.id}`} placeholder="Describe your key tasks, accomplishments, and impact. Use bullet points for clarity." rows={3} value={exp.jobResponsibilities} onChange={(e) => handleExperienceChange(index, 'jobResponsibilities', e.target.value)} />
+                    </div>
+                  </div>
+                ))}
+                <Button type="button" variant="outline" className="w-full mt-2 h-10 border-dashed border-primary/50 text-primary hover:bg-primary/10" onClick={addExperience}>
+                  <PlusCircle className="h-4 w-4 mr-1.5" /> Add Another Experience
+                </Button>
+            </SectionWrapper>
+
+            <SectionWrapper title="Education" icon={<BookOpen className="h-6 w-6" />}>
+              {educations.map((edu, index) => (
+                <div key={edu.id} className="space-y-4 border-b border-border/30 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0">
+                  {educations.length > 1 && (
+                     <div className="flex justify-between items-center">
+                       <Label className="font-semibold text-muted-foreground">Education #{index + 1}</Label>
+                       <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive/70 hover:bg-destructive/10 hover:text-destructive" onClick={() => removeEducation(edu.id)}>
+                          <Trash2 className="h-4 w-4" />
+                       </Button>
+                     </div>
+                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                          <Label htmlFor={`degree-desktop-edit-${edu.id}`}>Degree / Certificate</Label>
+                          <Input id={`degree-desktop-edit-${edu.id}`} placeholder="e.g., B.S. in Computer Science" value={edu.degree} onChange={(e) => handleEducationChange(index, 'degree', e.target.value)} />
+                      </div>
+                      <div>
+                          <Label htmlFor={`institution-desktop-edit-${edu.id}`}>Institution</Label>
+                          <Input id={`institution-desktop-edit-${edu.id}`} placeholder="e.g., State University" value={edu.institution} onChange={(e) => handleEducationChange(index, 'institution', e.target.value)} />
+                      </div>
+                  </div>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <Label htmlFor={`eduLocation-desktop-edit-${edu.id}`}>Location</Label>
+                            <Input id={`eduLocation-desktop-edit-${edu.id}`} placeholder="e.g., City, State" value={edu.eduLocation} onChange={(e) => handleEducationChange(index, 'eduLocation', e.target.value)} />
+                        </div>
+                        <div>
+                            <Label htmlFor={`gradDate-desktop-edit-${edu.id}`}>Graduation Date</Label>
+                            <Input id={`gradDate-desktop-edit-${edu.id}`} type="text" placeholder="MM/YYYY or Expected" value={edu.gradDate} onChange={(e) => handleEducationChange(index, 'gradDate', e.target.value)} />
+                        </div>
+                    </div>
+                  <div>
+                      <Label htmlFor={`eduDetails-desktop-edit-${edu.id}`}>Relevant Coursework / Honors (Optional)</Label>
+                      <Textarea id={`eduDetails-desktop-edit-${edu.id}`} placeholder="e.g., Dean's List, Capstone Project..." rows={2} value={edu.eduDetails} onChange={(e) => handleEducationChange(index, 'eduDetails', e.target.value)} />
+                  </div>
+                </div>
+              ))}
+              <Button type="button" variant="outline" className="w-full mt-2 h-10 border-dashed border-primary/50 text-primary hover:bg-primary/10" onClick={addEducation}>
+                <PlusCircle className="h-4 w-4 mr-1.5" /> Add Another Education
+              </Button>
+            </SectionWrapper>
+            
+            <SectionWrapper title="Skills" icon={<Award className="h-6 w-6" />}>
+              <Textarea
+                id="skills-desktop-edit"
+                placeholder="e.g., JavaScript, React, Project Management, Figma (comma-separated)"
+                rows={3}
+                value={skills}
+                onChange={handleInputChange(setSkills)}
+                className="text-base"
+              />
+            </SectionWrapper>
+
+            <SectionWrapper title="Projects (Optional)" icon={<Briefcase className="h-6 w-6 opacity-70" />}>
+              {projects.map((proj, index) => (
+                <div key={proj.id} className="space-y-4 border-b border-border/30 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0">
+                  {projects.length > 1 && (
+                     <div className="flex justify-between items-center">
+                       <Label className="font-semibold text-muted-foreground">Project #{index + 1}</Label>
+                       <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive/70 hover:bg-destructive/10 hover:text-destructive" onClick={() => removeProject(proj.id)}>
+                          <Trash2 className="h-4 w-4" />
+                       </Button>
+                     </div>
+                  )}
+                  <div>
+                    <Label htmlFor={`projectTitle-desktop-edit-${proj.id}`}>Project Title</Label>
+                    <Input id={`projectTitle-desktop-edit-${proj.id}`} placeholder="e.g., Personal Portfolio Website" value={proj.projectTitle} onChange={(e) => handleProjectChange(index, 'projectTitle', e.target.value)} />
+                  </div>
+                  <div>
+                    <Label htmlFor={`projectDescription-desktop-edit-${proj.id}`}>Description</Label>
+                    <Textarea id={`projectDescription-desktop-edit-${proj.id}`} placeholder="Briefly describe your project..." rows={2} value={proj.projectDescription} onChange={(e) => handleProjectChange(index, 'projectDescription', e.target.value)} />
+                  </div>
+                   <div>
+                    <Label htmlFor={`projectLink-desktop-edit-${proj.id}`}>Project Link</Label>
+                    <Input id={`projectLink-desktop-edit-${proj.id}`} placeholder="https://github.com/yourproject" value={proj.projectLink} onChange={(e) => handleProjectChange(index, 'projectLink', e.target.value)} />
+                  </div>
+                </div>
+              ))}
+              <Button type="button" variant="outline" className="w-full mt-2 h-10 border-dashed border-primary/50 text-primary hover:bg-primary/10" onClick={addProject}>
+                <PlusCircle className="h-4 w-4 mr-1.5" /> Add Another Project
+              </Button>
+            </SectionWrapper>
+
+            <SectionWrapper title="Links" icon={<LinkIcon className="h-6 w-6" />}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="portfolioLink-desktop-edit">Portfolio Website</Label>
+                  <Input id="portfolioLink-desktop-edit" placeholder="https://yourportfolio.com" value={links.portfolioLink} onChange={handleInputChange(setLinks, 'portfolioLink')} />
+                </div>
+                <div>
+                  <Label htmlFor="linkedinLink-desktop-edit">LinkedIn Profile</Label>
+                  <Input id="linkedinLink-desktop-edit" placeholder="https://linkedin.com/in/yourprofile" value={links.linkedinLink} onChange={handleInputChange(setLinks, 'linkedinLink')} />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="githubLink-desktop-edit">GitHub Profile</Label>
+                <Input id="githubLink-desktop-edit" placeholder="https://github.com/yourusername" value={links.githubLink} onChange={handleInputChange(setLinks, 'githubLink')} />
+              </div>
+            </SectionWrapper>
+
+            <SectionWrapper title="Job Preferences" icon={<Target className="h-6 w-6" />}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="preferredRole-desktop-edit">Preferred Role(s)</Label>
+                  <Input id="preferredRole-desktop-edit" placeholder="e.g., Senior Software Engineer" value={preferredRole} onChange={handleInputChange(setPreferredRole)} />
+                </div>
+                <div>
+                  <Label htmlFor="preferredLocation-desktop-edit">Preferred Location(s)</Label>
+                  <Input id="preferredLocation-desktop-edit" placeholder="e.g., New York, NY; Remote" value={preferredLocation} onChange={handleInputChange(setPreferredLocation)} />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="expectedSalary-desktop-edit">Expected Salary (Optional)</Label>
+                <Input id="expectedSalary-desktop-edit" placeholder="e.g., $120,000 per year" value={expectedSalary} onChange={handleInputChange(setExpectedSalary)} />
+              </div>
+            </SectionWrapper>
+        </form>
+      </div>
+
+
+      <style jsx global>{`
+        @keyframes pulse_slow_bg {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
         }
-        .animate-pulse_fast {
-          animation: pulse_fast 1.5s infinite ease-in-out;
-        }
-        @keyframes pulse_slow { 
-          0%, 100% { opacity: 0.5; transform: scale(1); }
-          50% { opacity: 0.8; transform: scale(1.02); }
-        }
-        .animate-pulse_slow {
-          animation: pulse_slow 4s infinite ease-in-out;
+        .bg-gradient-animated {
+          background: linear-gradient(-45deg, hsl(var(--background)) 30%, hsl(var(--primary)/0.05) 50%, hsl(var(--accent)/0.05) 70%, hsl(var(--background)) 90%);
+          background-size: 400% 400%;
+          animation: pulse_slow_bg 15s ease infinite;
         }
       `}</style>
     </div>

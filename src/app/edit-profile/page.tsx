@@ -1,68 +1,117 @@
 
 'use client';
 
-import React, { useState, type ChangeEvent } from 'react';
+import React, { useState, useEffect, type ChangeEvent } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Briefcase, BookOpen, Sparkles, Link as LinkIcon, Award, Save, PlusCircle, Trash2, Target, MapPin, DollarSign } from 'lucide-react';
+import { ArrowLeft, Briefcase, BookOpen, Sparkles, Link as LinkIcon, Award, Save, PlusCircle, Trash2, Target, MapPin, DollarSign, Languages, Check, AlertCircle, FileText, FileSignature, Loader2 } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
 
-interface ExperienceEntry {
-  id: string;
-  jobTitle: string;
-  company: string;
-  jobLocation: string;
-  jobStartDate: string;
-  jobEndDate: string;
-  jobResponsibilities: string;
-}
 
+// Data structure interfaces based on API payload
 interface EducationEntry {
-  id: string;
+  id?: string | number;
   degree: string;
   institution: string;
-  eduLocation: string;
-  gradDate: string;
-  eduDetails: string;
+  start_date?: string;
+  end_date?: string;
+  cgpa?: string;
 }
-
+interface WorkExperienceEntry {
+  id?: string | number;
+  company: string;
+  job_title: string;
+  location?: string;
+  start_date: string;
+  end_date: string | null;
+  responsibilities: string; // Stored as a single string in state, joined by newline
+}
+interface SkillEntry {
+  id?: string | number;
+  category: string;
+  skills: string; // Stored as comma-separated string in state
+}
+interface CertificationEntry {
+    id?: string | number;
+    certification: string;
+    year: number | string;
+}
 interface ProjectEntry {
-  id: string;
-  projectTitle: string;
-  projectDescription: string;
-  projectLink: string;
+    id?: string | number;
+    project_name: string;
+    description: string;
+    url?: string;
+}
+interface LanguageEntry {
+    id?: string | number;
+    language: string;
+    proficiency: string;
+}
+interface AchievementEntry {
+    id?: string | number;
+    description: string;
+}
+interface Resume {
+    id: number;
+    title: string;
+    is_default: boolean;
+    is_active: boolean;
+    experience_level: string;
+    total_experience_years: number;
+    total_experience_months: number;
+    current_company: string;
+    current_designation: string;
+    notice_period: string;
+    current_salary: number;
+    education_data: {
+        degree: string;
+        institution: string;
+        start_date?: string;
+        end_date?: string;
+        cgpa?: string;
+    }[];
+    work_experience_data: {
+        company: string;
+        job_title: string;
+        location?: string;
+        start_date: string;
+        end_date: string | null;
+        responsibilities: string[];
+    }[];
+    skills_data: { [key: string]: string[] };
+    certifications_data: { certification: string; year: number }[];
+    projects_data: { project_name: string, description: string, url?: string }[];
+    languages_data: { language: string, proficiency: string }[];
+    achievements_data: string[];
+    keywords: string[];
 }
 
-const SectionWrapper: React.FC<{ title: string; icon: React.ReactNode; children: React.ReactNode }> = ({ title, icon, children }) => (
+
+const SectionWrapper: React.FC<{ title: string; icon: React.ReactNode; children: React.ReactNode; onAdd?: () => void; }> = ({ title, icon, onAdd, children }) => (
   <Card className="bg-card/80 backdrop-blur-md shadow-lg border border-border/30 rounded-xl mb-6 last:mb-0">
-    <CardHeader>
+    <CardHeader className="flex flex-row items-center justify-between">
       <CardTitle className="text-xl md:text-2xl font-semibold text-primary flex items-center">
         {icon}
         <span className="ml-3">{title}</span>
       </CardTitle>
+      {onAdd && (
+        <Button type="button" size="sm" variant="outline" onClick={onAdd} className="h-8 border-dashed border-primary/50 text-primary hover:bg-primary/10">
+          <PlusCircle className="h-4 w-4 mr-1.5" /> Add
+        </Button>
+      )}
     </CardHeader>
     <CardContent className="space-y-4 md:space-y-6">
-      {children}
-    </CardContent>
-  </Card>
-);
-
-const SectionWrapperMobile: React.FC<{ title: string; icon: React.ReactNode; children: React.ReactNode }> = ({ title, icon, children }) => (
-  <Card className="bg-card/80 backdrop-blur-md shadow-lg border border-border/30 rounded-xl mb-[10px]">
-    <CardHeader className="pb-3 pt-4 px-4">
-      <CardTitle className="text-base font-semibold text-primary flex items-center">
-        {icon}
-        <span className="ml-2">{title}</span>
-      </CardTitle>
-    </CardHeader>
-    <CardContent className="px-4 pb-4 space-y-3">
       {children}
     </CardContent>
   </Card>
@@ -72,100 +121,198 @@ const SectionWrapperMobile: React.FC<{ title: string; icon: React.ReactNode; chi
 export default function EditProfilePage() {
   const [pageContainerRef, isPageContainerVisible] = useScrollAnimation<HTMLDivElement>({ threshold: 0.1, triggerOnce: true });
   const router = useRouter();
+  const { toast } = useToast();
 
-  // TODO: In a real app, these would be pre-filled with existing profile data
-  const [professionalSummary, setProfessionalSummary] = useState('');
-  const [skills, setSkills] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [resumeId, setResumeId] = useState<number | string | null>(null);
 
-  const [experiences, setExperiences] = useState<ExperienceEntry[]>([
-    { id: 'exp-initial-1', jobTitle: '', company: '', jobLocation: '', jobStartDate: '', jobEndDate: '', jobResponsibilities: '' }
-  ]);
-
-  const [educations, setEducations] = useState<EducationEntry[]>([
-    { id: 'edu-initial-1', degree: '', institution: '', eduLocation: '', gradDate: '', eduDetails: ''}
-  ]);
-
-  const [projects, setProjects] = useState<ProjectEntry[]>([
-    { id: 'proj-initial-1', projectTitle: '', projectDescription: '', projectLink: ''}
-  ]);
+  // Resume State
+  const [title, setTitle] = useState('');
+  const [isDefault, setIsDefault] = useState(true);
+  const [isActive, setIsActive] = useState(true);
+  const [experienceLevel, setExperienceLevel] = useState('');
+  const [totalExperienceYears, setTotalExperienceYears] = useState<number | string>('');
+  const [totalExperienceMonths, setTotalExperienceMonths] = useState<number | string>('');
+  const [currentCompany, setCurrentCompany] = useState('');
+  const [currentDesignation, setCurrentDesignation] = useState('');
+  const [currentSalary, setCurrentSalary] = useState<number | string>('');
+  const [noticePeriod, setNoticePeriod] = useState('');
   
-  const [links, setLinks] = useState({ portfolioLink: '', linkedinLink: '', githubLink: '' });
+  const [education, setEducation] = useState<EducationEntry[]>([{ id: `new-${Date.now()}`, degree: '', institution: '', cgpa: '' }]);
+  const [workExperience, setWorkExperience] = useState<WorkExperienceEntry[]>([{ id: `new-${Date.now()}`, company: '', job_title: '', start_date: '', end_date: '', responsibilities: '' }]);
+  const [skills, setSkills] = useState<SkillEntry[]>([{ id: `new-${Date.now()}`, category: 'technical', skills: '' }]);
+  const [certifications, setCertifications] = useState<CertificationEntry[]>([{ id: `new-${Date.now()}`, certification: '', year: '' }]);
+  const [projects, setProjects] = useState<ProjectEntry[]>([{ id: `new-${Date.now()}`, project_name: '', description: '', url: '' }]);
+  const [languages, setLanguages] = useState<LanguageEntry[]>([{ id: `new-${Date.now()}`, language: '', proficiency: 'native' }]);
+  const [achievements, setAchievements] = useState<AchievementEntry[]>([{ id: `new-${Date.now()}`, description: '' }]);
+  const [keywords, setKeywords] = useState('');
+  
+  useEffect(() => {
+    const fetchResume = async () => {
+        const accessToken = localStorage.getItem('accessToken');
+        if (!accessToken) {
+            toast({ title: "Unauthorized", description: "Please log in to continue.", variant: "destructive" });
+            router.push('/login');
+            return;
+        }
 
-  const [preferredRole, setPreferredRole] = useState('');
-  const [preferredLocation, setPreferredLocation] = useState('');
-  const [expectedSalary, setExpectedSalary] = useState('');
+        setIsFetching(true);
+        try {
+            const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/resumes/', {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const defaultResume: Resume | undefined = data.results?.find((r: Resume) => r.is_default) || data.results?.[0];
+
+                if (defaultResume) {
+                    setResumeId(defaultResume.id);
+                    setTitle(defaultResume.title || '');
+                    setIsDefault(defaultResume.is_default);
+                    setIsActive(defaultResume.is_active);
+                    setExperienceLevel(defaultResume.experience_level || '');
+                    setTotalExperienceYears(defaultResume.total_experience_years || '');
+                    setTotalExperienceMonths(defaultResume.total_experience_months || '');
+                    setCurrentCompany(defaultResume.current_company || '');
+                    setCurrentDesignation(defaultResume.current_designation || '');
+                    setCurrentSalary(defaultResume.current_salary || '');
+                    setNoticePeriod(defaultResume.notice_period || '');
+                    setKeywords((defaultResume.keywords || []).join(', '));
+                    
+                    setEducation(defaultResume.education_data.length > 0 ? defaultResume.education_data.map((edu, i) => ({ ...edu, id: `edu-${i}` })) : [{ id: `new-${Date.now()}`, degree: '', institution: '', cgpa: '' }]);
+                    setWorkExperience(defaultResume.work_experience_data.length > 0 ? defaultResume.work_experience_data.map((exp, i) => ({ ...exp, id: `exp-${i}`, responsibilities: (exp.responsibilities || []).join('\n') })) : [{ id: `new-${Date.now()}`, company: '', job_title: '', start_date: '', end_date: '', responsibilities: '' }]);
+                    
+                    const skillsData = defaultResume.skills_data || {};
+                    const formattedSkills = Object.entries(skillsData).map(([category, skillsList], i) => ({
+                        id: `skillcat-${i}`,
+                        category,
+                        skills: (skillsList || []).join(', ')
+                    }));
+                    setSkills(formattedSkills.length > 0 ? formattedSkills : [{ id: `new-${Date.now()}`, category: 'technical', skills: '' }]);
+
+                    setCertifications(defaultResume.certifications_data.length > 0 ? defaultResume.certifications_data.map((cert, i) => ({ ...cert, id: `cert-${i}` })) : [{ id: `new-${Date.now()}`, certification: '', year: '' }]);
+                    setProjects(defaultResume.projects_data.length > 0 ? defaultResume.projects_data.map((proj, i) => ({ ...proj, id: `proj-${i}` })) : [{ id: `new-${Date.now()}`, project_name: '', description: '', url: '' }]);
+                    setLanguages(defaultResume.languages_data.length > 0 ? defaultResume.languages_data.map((lang, i) => ({ ...lang, id: `lang-${i}` })) : [{ id: `new-${Date.now()}`, language: '', proficiency: 'native' }]);
+                    setAchievements(defaultResume.achievements_data.length > 0 ? defaultResume.achievements_data.map((desc, i) => ({ id: `ach-${i}`, description: desc })) : [{ id: `new-${Date.now()}`, description: '' }]);
+                }
+            } else if (response.status === 404) {
+                 toast({ title: "No Resume Found", description: "Create your new resume below."});
+            } else {
+                 const errorData = await response.json();
+                 throw new Error(errorData.detail || "Failed to fetch resume.");
+            }
+
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setIsFetching(false);
+        }
+    };
+    fetchResume();
+  }, [router, toast]);
 
 
-  const handleInputChange = (setter: React.Dispatch<React.SetStateAction<any>>, field?: string) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    if (field) {
-      setter((prev: any) => ({ ...prev, [field]: e.target.value }));
-    } else {
-      setter(e.target.value);
+  const handleDynamicChange = <T extends { id?: string | number }>(setState: React.Dispatch<React.SetStateAction<T[]>>, id: string | number, field: keyof Omit<T, 'id'>, value: any) => {
+    setState(prev => {
+        return prev.map(item =>
+            item.id === id ? { ...item, [field]: value } : item
+        );
+    });
+  };
+
+  const addDynamicEntry = <T extends { id?: string | number }>(setState: React.Dispatch<React.SetStateAction<T[]>>, newEntry: T) => {
+    setState(prev => [...prev, newEntry]);
+  };
+  
+  const removeDynamicEntry = <T extends {id?: string | number}>(setState: React.Dispatch<React.SetStateAction<T[]>>, id?: string | number) => {
+    if (!id) return;
+    setState(prev => prev.filter(item => item.id !== id));
+  };
+
+
+  const handleSaveResume = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
+        toast({ title: "Authentication Error", description: "You are not logged in.", variant: "destructive" });
+        setIsLoading(false);
+        return;
+    }
+    
+    const skills_data = skills.reduce((acc, curr) => {
+        const skillsList = curr.skills.split(',').map(s => s.trim()).filter(Boolean);
+        if (curr.category && skillsList.length > 0) {
+            acc[curr.category] = skillsList;
+        }
+        return acc;
+    }, {} as { [key: string]: string[] });
+
+    const payload = {
+        title,
+        is_default: isDefault,
+        is_active: isActive,
+        experience_level: experienceLevel,
+        total_experience_years: Number(totalExperienceYears) || 0,
+        total_experience_months: Number(totalExperienceMonths) || 0,
+        current_company: currentCompany,
+        current_designation: currentDesignation,
+        current_salary: Number(currentSalary) || 0,
+        notice_period: noticePeriod,
+        education_data: education.map(({ id, ...rest }) => rest).filter(e => e.degree && e.institution),
+        work_experience_data: workExperience.map(({ id, responsibilities, ...rest }) => ({...rest, responsibilities: responsibilities.split('\n').filter(Boolean) })).filter(e => e.company && e.job_title),
+        skills_data: skills_data,
+        certifications_data: certifications.map(({ id, ...rest }) => ({...rest, year: Number(rest.year) || null })).filter(c => c.certification),
+        projects_data: projects.map(({ id, ...rest }) => rest).filter(p => p.project_name),
+        languages_data: languages.map(({ id, ...rest }) => rest).filter(l => l.language && l.proficiency),
+        achievements_data: achievements.map(a => a.description).filter(Boolean),
+        keywords: keywords.split(',').map(k => k.trim()).filter(Boolean),
+    };
+
+    const url = resumeId 
+        ? `https://backend.hyresense.com/api/v1/jobseeker/resumes/${resumeId}/`
+        : 'https://backend.hyresense.com/api/v1/jobseeker/resumes/';
+    
+    const method = resumeId ? 'PATCH' : 'POST';
+
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            const errorMessage = Object.entries(errorData).map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`).join('; ');
+            throw new Error(errorMessage || 'Failed to save resume. Please check your inputs.');
+        }
+
+        toast({ title: "Success!", description: "Your resume has been saved successfully." });
+        router.push('/profile');
+
+    } catch (err: any) {
+        setError(err.message);
+    } finally {
+        setIsLoading(false);
     }
   };
 
-  // Experience Handlers
-  const handleExperienceChange = (index: number, field: keyof ExperienceEntry, value: string) => {
-    setExperiences(prev =>
-      prev.map((exp, i) => (i === index ? { ...exp, [field]: value } : exp))
-    );
-  };
-
-  const addExperience = () => {
-    setExperiences(prev => [...prev, { id: `exp-${Date.now()}`, jobTitle: '', company: '', jobLocation: '', jobStartDate: '', jobEndDate: '', jobResponsibilities: '' }]);
-  };
-
-  const removeExperience = (id: string) => {
-    setExperiences(prev => prev.filter(exp => exp.id !== id));
-  };
-  
-  // Education Handlers
-  const handleEducationChange = (index: number, field: keyof EducationEntry, value: string) => {
-    setEducations(prev =>
-      prev.map((edu, i) => (i === index ? { ...edu, [field]: value } : edu))
-    );
-  };
-
-  const addEducation = () => {
-    setEducations(prev => [...prev, { id: `edu-${Date.now()}`, degree: '', institution: '', eduLocation: '', gradDate: '', eduDetails: '' }]);
-  };
-
-  const removeEducation = (id: string) => {
-    setEducations(prev => prev.filter(edu => edu.id !== id));
-  };
-
-  // Project Handlers
-  const handleProjectChange = (index: number, field: keyof ProjectEntry, value: string) => {
-    setProjects(prev =>
-      prev.map((proj, i) => (i === index ? { ...proj, [field]: value } : proj))
-    );
-  };
-
-  const addProject = () => {
-    setProjects(prev => [...prev, { id: `proj-${Date.now()}`, projectTitle: '', projectDescription: '', projectLink: '' }]);
-  };
-
-  const removeProject = (id: string) => {
-    setProjects(prev => prev.filter(proj => proj.id !== id));
-  };
-
-
-  const handleSaveResume = (e: React.FormEvent) => {
-    e.preventDefault();
-    const resumeData = {
-      professionalSummary,
-      experiences,
-      educations,
-      skills,
-      projects,
-      links,
-      preferredRole,
-      preferredLocation,
-      expectedSalary,
-    };
-    console.log("Resume Data Updated:", resumeData);
-    router.push('/profile'); 
-  };
+  if (isFetching) {
+      return (
+          <div className="min-h-screen flex items-center justify-center bg-gradient-animated">
+              <Loader2 className="h-16 w-16 text-primary animate-spin" />
+          </div>
+      );
+  }
 
   return (
     <div
@@ -177,261 +324,221 @@ export default function EditProfilePage() {
     >
       <div className="absolute inset-0 opacity-20 dark:opacity-15"></div>
       
-      {/* Mobile View */}
-      <div className="md:hidden relative w-[375px] h-[780px] bg-slate-900 rounded-[48px] border-[10px] border-slate-950 shadow-2xl overflow-hidden z-10">
-        <div className="h-full w-full bg-muted/30 dark:bg-slate-900/40 flex flex-col rounded-[38px] overflow-hidden">
-          <header className="p-4 border-b border-border/50 bg-card/90 backdrop-blur-sm flex items-center justify-between sticky top-0 z-20 min-h-[60px]">
-            <Button variant="ghost" size="icon" className="text-primary" onClick={() => router.back()}>
-              <ArrowLeft className="h-6 w-6" />
-            </Button>
-            <div className="flex flex-col items-center">
-              <Award className="h-5 w-5 text-primary mb-0.5 opacity-80" />
-              <h1 className="text-md font-semibold text-foreground -mt-0.5">Edit Profile</h1>
-            </div>
-            <Image src="/logo.png" alt="HyreSense Logo" width={30} height={22} className="rounded-sm" />
-          </header>
-
-          <ScrollArea className="flex-grow">
-            <form onSubmit={handleSaveResume} className="p-4 space-y-0">
-              <SectionWrapperMobile title="Professional Summary" icon={<Sparkles className="h-5 w-5" />}>
-                <Textarea
-                  id="summary-mobile"
-                  placeholder="Write a brief summary of your career, skills, and goals..."
-                  rows={4}
-                  value={professionalSummary}
-                  onChange={handleInputChange(setProfessionalSummary)}
-                  className="text-xs resize-none bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70"
-                />
-              </SectionWrapperMobile>
-
-              <SectionWrapperMobile title="Work Experience" icon={<Briefcase className="h-5 w-5" />}>
-                {experiences.map((exp, index) => (
-                  <div key={exp.id} className="space-y-3 border-b border-border/30 pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0">
-                    {experiences.length > 1 && (
-                       <div className="flex justify-between items-center">
-                         <Label className="text-xs font-semibold text-muted-foreground">Experience #{index + 1}</Label>
-                         <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-destructive/70 hover:bg-destructive/10 hover:text-destructive"
-                            onClick={() => removeExperience(exp.id)}
-                         >
-                            <Trash2 className="h-4 w-4" />
-                         </Button>
-                       </div>
-                    )}
-                    <div className="space-y-2">
-                      <Label htmlFor={`jobTitle-mobile-${exp.id}`} className="text-xs">Job Title</Label>
-                      <Input id={`jobTitle-mobile-${exp.id}`} placeholder="e.g., Senior Software Engineer" value={exp.jobTitle} onChange={(e) => handleExperienceChange(index, 'jobTitle', e.target.value)} className="text-xs h-9 bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                    </div>
-                    {/* ... other mobile fields */}
-                  </div>
-                ))}
-                <Button type="button" variant="outline" size="sm" className="w-full mt-2 text-xs h-8 border-dashed border-primary/50 text-primary hover:bg-primary/10" onClick={addExperience}>
-                  <PlusCircle className="h-4 w-4 mr-1.5" /> Add Another Experience
-                </Button>
-              </SectionWrapperMobile>
-              
-               <div className="pt-3 pb-1">
-                <Button type="submit" className="w-full h-11 text-sm font-semibold group bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/30">
-                  <Save className="mr-2 h-4 w-4" /> Save Changes
-                </Button>
-              </div>
-            </form>
-          </ScrollArea>
-        </div>
-      </div>
-      
        {/* Desktop View */}
-      <div className="hidden md:flex flex-col items-center justify-center w-full max-w-4xl z-10 py-12">
+      <div className="w-full max-w-4xl z-10 py-12">
         <form onSubmit={handleSaveResume} className="w-full">
             <header className="flex justify-between items-center mb-8">
                 <div>
-                  <h1 className="text-4xl font-bold text-foreground">Edit Your Profile</h1>
-                  <p className="text-muted-foreground mt-1">Keep your information up-to-date to attract the best opportunities.</p>
+                  <h1 className="text-4xl font-bold text-foreground">{resumeId ? 'Edit Your Resume' : 'Create Your Resume'}</h1>
+                  <p className="text-muted-foreground mt-1">This information will be visible to potential employers.</p>
                 </div>
-                <Button type="submit" size="lg" className="h-11 text-base font-semibold group bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/30">
-                    <Save className="mr-2 h-4 w-4" /> Save Changes
+                <Button type="submit" size="lg" className="h-11 text-base font-semibold group bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/30" disabled={isLoading}>
+                    {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : <><Save className="mr-2 h-4 w-4" /> Save Resume</>}
                 </Button>
             </header>
 
-            <SectionWrapper title="Professional Summary" icon={<Sparkles className="h-6 w-6" />}>
-                <Textarea
-                  id="summary-desktop-edit"
-                  placeholder="Write a brief, compelling summary of your career, skills, and goals to catch the eye of employers..."
-                  rows={4}
-                  value={professionalSummary}
-                  onChange={handleInputChange(setProfessionalSummary)}
-                  className="text-base"
-                />
-            </SectionWrapper>
+            {error && (
+                <Alert variant="destructive" className="mb-6">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            )}
 
-             <SectionWrapper title="Work Experience" icon={<Briefcase className="h-6 w-6" />}>
-                {experiences.map((exp, index) => (
-                  <div key={exp.id} className="space-y-4 border-b border-border/30 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0">
-                    {experiences.length > 1 && (
-                       <div className="flex justify-between items-center">
-                         <Label className="font-semibold text-muted-foreground">Experience #{index + 1}</Label>
-                         <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive/70 hover:bg-destructive/10 hover:text-destructive" onClick={() => removeExperience(exp.id)}>
-                            <Trash2 className="h-4 w-4" />
-                         </Button>
-                       </div>
-                    )}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <Label htmlFor={`jobTitle-desktop-edit-${exp.id}`}>Job Title</Label>
-                            <Input id={`jobTitle-desktop-edit-${exp.id}`} placeholder="e.g., Senior Software Engineer" value={exp.jobTitle} onChange={(e) => handleExperienceChange(index, 'jobTitle', e.target.value)} />
-                        </div>
-                        <div>
-                            <Label htmlFor={`company-desktop-edit-${exp.id}`}>Company</Label>
-                            <Input id={`company-desktop-edit-${exp.id}`} placeholder="e.g., Tech Solutions Inc." value={exp.company} onChange={(e) => handleExperienceChange(index, 'company', e.target.value)} />
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <Label htmlFor={`jobLocation-desktop-edit-${exp.id}`}>Location</Label>
-                            <Input id={`jobLocation-desktop-edit-${exp.id}`} placeholder="e.g., New York, NY" value={exp.jobLocation} onChange={(e) => handleExperienceChange(index, 'jobLocation', e.target.value)} />
-                        </div>
-                         <div>
-                            <Label htmlFor={`jobStartDate-desktop-edit-${exp.id}`}>Start Date</Label>
-                            <Input id={`jobStartDate-desktop-edit-${exp.id}`} type="text" placeholder="MM/YYYY" value={exp.jobStartDate} onChange={(e) => handleExperienceChange(index, 'jobStartDate', e.target.value)} />
-                        </div>
-                        <div>
-                            <Label htmlFor={`jobEndDate-desktop-edit-${exp.id}`}>End Date</Label>
-                            <Input id={`jobEndDate-desktop-edit-${exp.id}`} type="text" placeholder="MM/YYYY or Present" value={exp.jobEndDate} onChange={(e) => handleExperienceChange(index, 'jobEndDate', e.target.value)} />
-                        </div>
-                    </div>
+            <SectionWrapper title="Resume Details" icon={<FileText className="h-6 w-6" />}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <Label htmlFor={`jobResponsibilities-desktop-edit-${exp.id}`}>Responsibilities / Achievements</Label>
-                        <Textarea id={`jobResponsibilities-desktop-edit-${exp.id}`} placeholder="Describe your key tasks, accomplishments, and impact. Use bullet points for clarity." rows={3} value={exp.jobResponsibilities} onChange={(e) => handleExperienceChange(index, 'jobResponsibilities', e.target.value)} />
+                        <Label htmlFor="title">Resume Title</Label>
+                        <Input id="title" placeholder="e.g., Senior Developer Resume" value={title} onChange={(e) => setTitle(e.target.value)} required />
                     </div>
-                  </div>
-                ))}
-                <Button type="button" variant="outline" className="w-full mt-2 h-10 border-dashed border-primary/50 text-primary hover:bg-primary/10" onClick={addExperience}>
-                  <PlusCircle className="h-4 w-4 mr-1.5" /> Add Another Experience
-                </Button>
+                     <div className="flex items-center space-x-6 pt-6">
+                        <div className="flex items-center space-x-2">
+                            <Checkbox id="is_default" checked={isDefault} onCheckedChange={(checked) => setIsDefault(Boolean(checked))} />
+                            <Label htmlFor="is_default">Set as default resume</Label>
+                        </div>
+                         <div className="flex items-center space-x-2">
+                            <Checkbox id="is_active" checked={isActive} onCheckedChange={(checked) => setIsActive(Boolean(checked))} />
+                            <Label htmlFor="is_active">Set as active</Label>
+                        </div>
+                    </div>
+                </div>
             </SectionWrapper>
 
-            <SectionWrapper title="Education" icon={<BookOpen className="h-6 w-6" />}>
-              {educations.map((edu, index) => (
-                <div key={edu.id} className="space-y-4 border-b border-border/30 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0">
-                  {educations.length > 1 && (
-                     <div className="flex justify-between items-center">
-                       <Label className="font-semibold text-muted-foreground">Education #{index + 1}</Label>
-                       <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive/70 hover:bg-destructive/10 hover:text-destructive" onClick={() => removeEducation(edu.id)}>
-                          <Trash2 className="h-4 w-4" />
-                       </Button>
-                     </div>
-                  )}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                          <Label htmlFor={`degree-desktop-edit-${edu.id}`}>Degree / Certificate</Label>
-                          <Input id={`degree-desktop-edit-${edu.id}`} placeholder="e.g., B.S. in Computer Science" value={edu.degree} onChange={(e) => handleEducationChange(index, 'degree', e.target.value)} />
-                      </div>
-                      <div>
-                          <Label htmlFor={`institution-desktop-edit-${edu.id}`}>Institution</Label>
-                          <Input id={`institution-desktop-edit-${edu.id}`} placeholder="e.g., State University" value={edu.institution} onChange={(e) => handleEducationChange(index, 'institution', e.target.value)} />
-                      </div>
-                  </div>
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <Label htmlFor={`eduLocation-desktop-edit-${edu.id}`}>Location</Label>
-                            <Input id={`eduLocation-desktop-edit-${edu.id}`} placeholder="e.g., City, State" value={edu.eduLocation} onChange={(e) => handleEducationChange(index, 'eduLocation', e.target.value)} />
-                        </div>
-                        <div>
-                            <Label htmlFor={`gradDate-desktop-edit-${edu.id}`}>Graduation Date</Label>
-                            <Input id={`gradDate-desktop-edit-${edu.id}`} type="text" placeholder="MM/YYYY or Expected" value={edu.gradDate} onChange={(e) => handleEducationChange(index, 'gradDate', e.target.value)} />
-                        </div>
+            <SectionWrapper title="Current Status" icon={<Briefcase className="h-6 w-6" />}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <Label>Experience Level</Label>
+                        <Select onValueChange={setExperienceLevel} value={experienceLevel}>
+                            <SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="fresher">Fresher (0-1 years)</SelectItem>
+                                <SelectItem value="junior">Junior (1-3 years)</SelectItem>
+                                <SelectItem value="mid_level">Mid-level (3-5 years)</SelectItem>
+                                <SelectItem value="senior">Senior (5-8 years)</SelectItem>
+                                <SelectItem value="lead">Lead/Principal (8+ years)</SelectItem>
+                                <SelectItem value="executive">Executive/Director (10+ years)</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
-                  <div>
-                      <Label htmlFor={`eduDetails-desktop-edit-${edu.id}`}>Relevant Coursework / Honors (Optional)</Label>
-                      <Textarea id={`eduDetails-desktop-edit-${edu.id}`} placeholder="e.g., Dean's List, Capstone Project..." rows={2} value={edu.eduDetails} onChange={(e) => handleEducationChange(index, 'eduDetails', e.target.value)} />
-                  </div>
+                     <div className="grid grid-cols-2 gap-2">
+                         <div>
+                            <Label htmlFor="totalExperienceYears">Total Experience (Years)</Label>
+                            <Input id="totalExperienceYears" type="number" placeholder="e.g., 5" value={totalExperienceYears} onChange={(e) => setTotalExperienceYears(e.target.value)} />
+                         </div>
+                         <div>
+                             <Label htmlFor="totalExperienceMonths">Months</Label>
+                             <Input id="totalExperienceMonths" type="number" placeholder="e.g., 6" value={totalExperienceMonths} onChange={(e) => setTotalExperienceMonths(e.target.value)} />
+                         </div>
+                     </div>
                 </div>
-              ))}
-              <Button type="button" variant="outline" className="w-full mt-2 h-10 border-dashed border-primary/50 text-primary hover:bg-primary/10" onClick={addEducation}>
-                <PlusCircle className="h-4 w-4 mr-1.5" /> Add Another Education
-              </Button>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div>
+                        <Label htmlFor="currentCompany">Current Company</Label>
+                        <Input id="currentCompany" placeholder="e.g., Tech Corp" value={currentCompany} onChange={(e) => setCurrentCompany(e.target.value)} />
+                     </div>
+                     <div>
+                        <Label htmlFor="currentDesignation">Current Designation</Label>
+                        <Input id="currentDesignation" placeholder="e.g., Senior Developer" value={currentDesignation} onChange={(e) => setCurrentDesignation(e.target.value)} />
+                     </div>
+                 </div>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div>
+                        <Label htmlFor="currentSalary">Current Annual Salary (INR)</Label>
+                        <Input id="currentSalary" type="number" placeholder="e.g., 1200000" value={currentSalary} onChange={(e) => setCurrentSalary(e.target.value)} />
+                     </div>
+                     <div>
+                        <Label>Notice Period</Label>
+                        <Select onValueChange={setNoticePeriod} value={noticePeriod}>
+                             <SelectTrigger><SelectValue placeholder="Select notice period" /></SelectTrigger>
+                             <SelectContent>
+                                <SelectItem value="immediate">Immediate</SelectItem>
+                                <SelectItem value="15_days">15 Days</SelectItem>
+                                <SelectItem value="1_month">1 Month</SelectItem>
+                                <SelectItem value="2_months">2 Months</SelectItem>
+                                <SelectItem value="3_months">3+ Months</SelectItem>
+                             </SelectContent>
+                        </Select>
+                     </div>
+                 </div>
             </SectionWrapper>
             
-            <SectionWrapper title="Skills" icon={<Award className="h-6 w-6" />}>
-              <Textarea
-                id="skills-desktop-edit"
-                placeholder="e.g., JavaScript, React, Project Management, Figma (comma-separated)"
-                rows={3}
-                value={skills}
-                onChange={handleInputChange(setSkills)}
-                className="text-base"
-              />
+            <SectionWrapper title="Education" icon={<BookOpen className="h-6 w-6" />} onAdd={() => addDynamicEntry(setEducation, { id: `new-${Date.now()}`, degree: '', institution: '', cgpa: '' })}>
+                {education.map((edu, index) => (
+                    <div key={edu.id} className="space-y-4 border-b border-border/30 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0">
+                         {education.length > 1 && (
+                            <div className="flex justify-end">
+                                <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive/70 hover:bg-destructive/10 hover:text-destructive" onClick={() => removeDynamicEntry(setEducation, edu.id)}><Trash2 className="h-4 w-4" /></Button>
+                            </div>
+                         )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><Label>Degree</Label><Input placeholder="e.g., B.Tech" value={edu.degree} onChange={(e) => handleDynamicChange(setEducation, edu.id!, 'degree', e.target.value)} /></div>
+                            <div><Label>Institution</Label><Input placeholder="e.g., IIT Delhi" value={edu.institution} onChange={(e) => handleDynamicChange(setEducation, edu.id!, 'institution', e.target.value)} /></div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><Label>Start Date</Label><Input type="text" placeholder="e.g., 2014-08" value={edu.start_date || ''} onChange={(e) => handleDynamicChange(setEducation, edu.id!, 'start_date', e.target.value)} /></div>
+                            <div><Label>End Date</Label><Input type="text" placeholder="e.g., 2018-05" value={edu.end_date || ''} onChange={(e) => handleDynamicChange(setEducation, edu.id!, 'end_date', e.target.value)} /></div>
+                        </div>
+                        <div><Label>Grade / CGPA</Label><Input placeholder="e.g., 8.5 CGPA" value={edu.cgpa || ''} onChange={(e) => handleDynamicChange(setEducation, edu.id!, 'cgpa', e.target.value)} /></div>
+                    </div>
+                ))}
             </SectionWrapper>
-
-            <SectionWrapper title="Projects (Optional)" icon={<Briefcase className="h-6 w-6 opacity-70" />}>
-              {projects.map((proj, index) => (
-                <div key={proj.id} className="space-y-4 border-b border-border/30 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0">
-                  {projects.length > 1 && (
-                     <div className="flex justify-between items-center">
-                       <Label className="font-semibold text-muted-foreground">Project #{index + 1}</Label>
-                       <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive/70 hover:bg-destructive/10 hover:text-destructive" onClick={() => removeProject(proj.id)}>
-                          <Trash2 className="h-4 w-4" />
-                       </Button>
+            
+            <SectionWrapper title="Work Experience" icon={<Briefcase className="h-6 w-6" />} onAdd={() => addDynamicEntry(setWorkExperience, { id: `new-${Date.now()}`, company: '', job_title: '', start_date: '', end_date: '', responsibilities: '' })}>
+                {workExperience.map((exp, index) => (
+                     <div key={exp.id} className="space-y-4 border-b border-border/30 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0">
+                        {workExperience.length > 1 && <div className="flex justify-end"><Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive/70 hover:bg-destructive/10 hover:text-destructive" onClick={() => removeDynamicEntry(setWorkExperience, exp.id)}><Trash2 className="h-4 w-4" /></Button></div>}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><Label>Company</Label><Input placeholder="e.g., Tech Corp" value={exp.company} onChange={(e) => handleDynamicChange(setWorkExperience, exp.id!, 'company', e.target.value)} /></div>
+                            <div><Label>Job Title</Label><Input placeholder="e.g., Senior Developer" value={exp.job_title} onChange={(e) => handleDynamicChange(setWorkExperience, exp.id!, 'job_title', e.target.value)} /></div>
+                        </div>
+                         <div><Label>Location</Label><Input placeholder="e.g., Bangalore" value={exp.location || ''} onChange={(e) => handleDynamicChange(setWorkExperience, exp.id!, 'location', e.target.value)} /></div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><Label>Start Date</Label><Input type="text" placeholder="e.g., 2021-01" value={exp.start_date} onChange={(e) => handleDynamicChange(setWorkExperience, exp.id!, 'start_date', e.target.value)} /></div>
+                            <div><Label>End Date (leave blank or 'Present')</Label><Input type="text" placeholder="e.g., 2022-12" value={exp.end_date ?? ''} onChange={(e) => handleDynamicChange(setWorkExperience, exp.id!, 'end_date', e.target.value)} /></div>
+                        </div>
+                        <div><Label>Responsibilities (one per line)</Label><Textarea placeholder="Describe your responsibilities and achievements..." value={exp.responsibilities} onChange={(e) => handleDynamicChange(setWorkExperience, exp.id!, 'responsibilities', e.target.value)} rows={4} /></div>
                      </div>
-                  )}
-                  <div>
-                    <Label htmlFor={`projectTitle-desktop-edit-${proj.id}`}>Project Title</Label>
-                    <Input id={`projectTitle-desktop-edit-${proj.id}`} placeholder="e.g., Personal Portfolio Website" value={proj.projectTitle} onChange={(e) => handleProjectChange(index, 'projectTitle', e.target.value)} />
-                  </div>
-                  <div>
-                    <Label htmlFor={`projectDescription-desktop-edit-${proj.id}`}>Description</Label>
-                    <Textarea id={`projectDescription-desktop-edit-${proj.id}`} placeholder="Briefly describe your project..." rows={2} value={proj.projectDescription} onChange={(e) => handleProjectChange(index, 'projectDescription', e.target.value)} />
-                  </div>
-                   <div>
-                    <Label htmlFor={`projectLink-desktop-edit-${proj.id}`}>Project Link</Label>
-                    <Input id={`projectLink-desktop-edit-${proj.id}`} placeholder="https://github.com/yourproject" value={proj.projectLink} onChange={(e) => handleProjectChange(index, 'projectLink', e.target.value)} />
-                  </div>
-                </div>
-              ))}
-              <Button type="button" variant="outline" className="w-full mt-2 h-10 border-dashed border-primary/50 text-primary hover:bg-primary/10" onClick={addProject}>
-                <PlusCircle className="h-4 w-4 mr-1.5" /> Add Another Project
-              </Button>
+                ))}
+            </SectionWrapper>
+             
+            <SectionWrapper title="Skills" icon={<Award className="h-6 w-6" />} onAdd={() => addDynamicEntry(setSkills, { id: `new-${Date.now()}`, category: '', skills: '' })}>
+                {skills.map((skill, index) => (
+                    <div key={skill.id} className="space-y-4 border-b border-border/30 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0">
+                         {skills.length > 1 && <div className="flex justify-end"><Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive/70 hover:bg-destructive/10 hover:text-destructive" onClick={() => removeDynamicEntry(setSkills, skill.id)}><Trash2 className="h-4 w-4" /></Button></div>}
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                             <div><Label>Category</Label><Input placeholder="e.g., technical" value={skill.category} onChange={(e) => handleDynamicChange(setSkills, skill.id!, 'category', e.target.value)} /></div>
+                             <div><Label>Skills (comma-separated)</Label><Input placeholder="e.g., Python, Django" value={skill.skills} onChange={(e) => handleDynamicChange(setSkills, skill.id!, 'skills', e.target.value)} /></div>
+                         </div>
+                    </div>
+                ))}
+            </SectionWrapper>
+            
+            <SectionWrapper title="Certifications" icon={<Award className="h-6 w-6" />} onAdd={() => addDynamicEntry(setCertifications, { id: `new-${Date.now()}`, certification: '', year: '' })}>
+                 {certifications.map((cert, index) => (
+                    <div key={cert.id} className="space-y-4 border-b border-border/30 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0">
+                         {certifications.length > 1 && <div className="flex justify-end"><Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive/70 hover:bg-destructive/10 hover:text-destructive" onClick={() => removeDynamicEntry(setCertifications, cert.id)}><Trash2 className="h-4 w-4" /></Button></div>}
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><Label>Certification Name</Label><Input placeholder="e.g., AWS Certified Developer" value={cert.certification} onChange={(e) => handleDynamicChange(setCertifications, cert.id!, 'certification', e.target.value)} /></div>
+                            <div><Label>Year</Label><Input type="number" placeholder="e.g., 2022" value={cert.year} onChange={(e) => handleDynamicChange(setCertifications, cert.id!, 'year', e.target.value)} /></div>
+                         </div>
+                    </div>
+                 ))}
+            </SectionWrapper>
+            
+            <SectionWrapper title="Projects" icon={<FileText className="h-6 w-6" />} onAdd={() => addDynamicEntry(setProjects, { id: `new-${Date.now()}`, project_name: '', description: '', url: '' })}>
+                {projects.map((proj, index) => (
+                    <div key={proj.id} className="space-y-4 border-b border-border/30 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0">
+                         {projects.length > 1 && <div className="flex justify-end"><Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive/70 hover:bg-destructive/10 hover:text-destructive" onClick={() => removeDynamicEntry(setProjects, proj.id)}><Trash2 className="h-4 w-4" /></Button></div>}
+                         <div><Label>Project Name</Label><Input placeholder="e.g., Job Portal" value={proj.project_name} onChange={(e) => handleDynamicChange(setProjects, proj.id!, 'project_name', e.target.value)} /></div>
+                         <div><Label>Project URL</Label><Input type="url" placeholder="https://github.com/..." value={proj.url || ''} onChange={(e) => handleDynamicChange(setProjects, proj.id!, 'url', e.target.value)} /></div>
+                         <div><Label>Description</Label><Textarea placeholder="Describe the project..." value={proj.description} onChange={(e) => handleDynamicChange(setProjects, proj.id!, 'description', e.target.value)} /></div>
+                    </div>
+                ))}
             </SectionWrapper>
 
-            <SectionWrapper title="Links" icon={<LinkIcon className="h-6 w-6" />}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="portfolioLink-desktop-edit">Portfolio Website</Label>
-                  <Input id="portfolioLink-desktop-edit" placeholder="https://yourportfolio.com" value={links.portfolioLink} onChange={handleInputChange(setLinks, 'portfolioLink')} />
-                </div>
-                <div>
-                  <Label htmlFor="linkedinLink-desktop-edit">LinkedIn Profile</Label>
-                  <Input id="linkedinLink-desktop-edit" placeholder="https://linkedin.com/in/yourprofile" value={links.linkedinLink} onChange={handleInputChange(setLinks, 'linkedinLink')} />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="githubLink-desktop-edit">GitHub Profile</Label>
-                <Input id="githubLink-desktop-edit" placeholder="https://github.com/yourusername" value={links.githubLink} onChange={handleInputChange(setLinks, 'githubLink')} />
-              </div>
+             <SectionWrapper title="Languages" icon={<Languages className="h-6 w-6" />} onAdd={() => addDynamicEntry(setLanguages, { id: `new-${Date.now()}`, language: '', proficiency: 'native' })}>
+                {languages.map((lang, index) => (
+                    <div key={lang.id} className="space-y-4 border-b border-border/30 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0">
+                         {languages.length > 1 && <div className="flex justify-end"><Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive/70 hover:bg-destructive/10 hover:text-destructive" onClick={() => removeDynamicEntry(setLanguages, lang.id)}><Trash2 className="h-4 w-4" /></Button></div>}
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><Label>Language</Label><Input placeholder="e.g., English" value={lang.language} onChange={(e) => handleDynamicChange(setLanguages, lang.id!, 'language', e.target.value)} /></div>
+                             <div>
+                                <Label>Proficiency</Label>
+                                <Select onValueChange={(value) => handleDynamicChange(setLanguages, lang.id!, 'proficiency', value)} value={lang.proficiency}>
+                                     <SelectTrigger><SelectValue placeholder="Select proficiency" /></SelectTrigger>
+                                     <SelectContent>
+                                        <SelectItem value="beginner">Beginner</SelectItem>
+                                        <SelectItem value="intermediate">Intermediate</SelectItem>
+                                        <SelectItem value="advanced">Advanced</SelectItem>
+                                        <SelectItem value="fluent">Fluent</SelectItem>
+                                        <SelectItem value="native">Native</SelectItem>
+                                     </SelectContent>
+                                </Select>
+                             </div>
+                         </div>
+                    </div>
+                ))}
+            </SectionWrapper>
+            
+            <SectionWrapper title="Achievements" icon={<Award className="h-6 w-6" />} onAdd={() => addDynamicEntry(setAchievements, { id: `new-${Date.now()}`, description: '' })}>
+                {achievements.map((achieve, index) => (
+                    <div key={achieve.id} className="space-y-4 border-b border-border/30 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0">
+                         {achievements.length > 1 && <div className="flex justify-end"><Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive/70 hover:bg-destructive/10 hover:text-destructive" onClick={() => removeDynamicEntry(setAchievements, achieve.id)}><Trash2 className="h-4 w-4" /></Button></div>}
+                         <div><Label>Achievement</Label><Input placeholder="e.g., Employee of the Month" value={achieve.description} onChange={(e) => handleDynamicChange(setAchievements, achieve.id!, 'description', e.target.value)} /></div>
+                    </div>
+                ))}
             </SectionWrapper>
 
-            <SectionWrapper title="Job Preferences" icon={<Target className="h-6 w-6" />}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <SectionWrapper title="Keywords" icon={<Sparkles className="h-6 w-6" />}>
                 <div>
-                  <Label htmlFor="preferredRole-desktop-edit">Preferred Role(s)</Label>
-                  <Input id="preferredRole-desktop-edit" placeholder="e.g., Senior Software Engineer" value={preferredRole} onChange={handleInputChange(setPreferredRole)} />
+                    <Label htmlFor="keywords">Keywords (comma-separated)</Label>
+                    <Input id="keywords" placeholder="e.g., Python, Django, Full Stack" value={keywords} onChange={(e) => setKeywords(e.target.value)} />
+                    <p className="text-xs text-muted-foreground mt-1">Help employers find you by listing relevant keywords.</p>
                 </div>
-                <div>
-                  <Label htmlFor="preferredLocation-desktop-edit">Preferred Location(s)</Label>
-                  <Input id="preferredLocation-desktop-edit" placeholder="e.g., New York, NY; Remote" value={preferredLocation} onChange={handleInputChange(setPreferredLocation)} />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="expectedSalary-desktop-edit">Expected Salary (Optional)</Label>
-                <Input id="expectedSalary-desktop-edit" placeholder="e.g., $120,000 per year" value={expectedSalary} onChange={handleInputChange(setExpectedSalary)} />
-              </div>
             </SectionWrapper>
+
         </form>
       </div>
-
 
       <style jsx global>{`
         @keyframes pulse_slow_bg {

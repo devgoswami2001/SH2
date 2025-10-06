@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle, XCircle, Compass, LayoutGrid, User, Brain, Briefcase, CalendarDays, Sparkles, ArrowLeft, ListChecks, Search, Heart, MessageCircle, Share2, ThumbsUp, PackageSearch, Edit3, FileText, UploadCloud, Award, GraduationCap, MapPin, Building, Star, Building2, Send } from 'lucide-react';
+import { CheckCircle, XCircle, Compass, LayoutGrid, User, Brain, Briefcase, CalendarDays, Sparkles, ArrowLeft, ListChecks, Search, Heart, MessageCircle, Share2, ThumbsUp, PackageSearch, Edit3, FileText, UploadCloud, Award, GraduationCap, MapPin, Building, Star, Building2, Send, Crown } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 
@@ -319,7 +319,7 @@ const userProfileData: ProfileData = {
 };
 
 
-type ViewMode = 'swiping' | 'details' | 'explore' | 'applied' | 'profile' | 'ai_assist';
+type ViewMode = 'swiping' | 'details' | 'explore' | 'applied' | 'profile' | 'subscription';
 
 // --- Helper Functions ---
 const getStatusBadgeClass = (status?: JobStatus): string => {
@@ -738,166 +738,50 @@ const ProfileView: React.FC<{ profile: ProfileData; onBack: () => void }> = ({ p
   );
 };
 
-const AiAssistView: React.FC<{ onBack: () => void; isActive: boolean }> = ({ onBack, isActive }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 'initial-ai',
-      text: "Hello! I'm HyreSense AI. How can I assist you with your career goals or job search today?",
-      sender: 'ai',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      avatar: "/logo.png",
-      dataAiHintAvatar: "ai assistant logo"
-    }
-  ]);
-  const [inputValue, setInputValue] = useState('');
-  const [renderInputArea, setRenderInputArea] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const viewContainerRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }
-
-  useEffect(scrollToBottom, [messages]);
-
-  useEffect(() => {
-    if (isActive) {
-      if (viewContainerRef.current) {
-        viewContainerRef.current.focus({ preventScroll: true });
-      }
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          setRenderInputArea(true);
-          if (textareaRef.current && document.activeElement === textareaRef.current) {
-            textareaRef.current.blur();
-          }
-          if (viewContainerRef.current && document.activeElement !== viewContainerRef.current) {
-             viewContainerRef.current.focus({ preventScroll: true });
-          }
-        }, 50); 
-      });
-    } else {
-      setRenderInputArea(false);
-    }
-  }, [isActive]);
-
-
-  const handleSendMessage = () => {
-    if (inputValue.trim() === '') return;
-
-    const userMessage: ChatMessage = {
-      id: `user-${Date.now()}`,
-      text: inputValue,
-      sender: 'user',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
-
-    setTimeout(() => {
-      const aiResponse: ChatMessage = {
-        id: `ai-${Date.now()}`,
-        text: `Thanks for reaching out! I'm still in my learning phase. You mentioned: "${userMessage.text}". I'll be able to provide more detailed assistance soon!`,
-        sender: 'ai',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        avatar: "/logo.png",
-        dataAiHintAvatar: "ai assistant logo"
-      };
-      setMessages(prev => [...prev, aiResponse]);
-    }, 1200);
-  };
-
-  return (
-    <div
-      ref={viewContainerRef}
-      tabIndex={-1}
-      className="h-full w-full flex flex-col bg-muted/20 dark:bg-slate-900/30 outline-none"
-    >
-      <header className="p-3 border-b border-border/50 bg-background/80 backdrop-blur-sm flex items-center justify-between sticky top-0 z-10 min-h-[56px]">
-        <Button variant="ghost" size="icon" className="text-primary -ml-2" onClick={onBack}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <span className="text-base font-semibold text-foreground truncate px-2 flex-1 text-center">AI Assistant</span>
-        <Image src="/logo.png" alt="HyreSense Logo" width={28} height={20} className="rounded-sm ml-1" />
-      </header>
-
-      <ScrollArea className="flex-grow">
-        <div className="p-3 space-y-3">
-            {messages.map((msg) => (
-            <div
-                key={msg.id}
-                className={cn(
-                "flex w-full mb-2 items-end gap-2",
-                msg.sender === 'user' ? "justify-end" : "justify-start"
-                )}
-            >
-                {msg.sender === 'ai' && (
-                    <Avatar className="h-7 w-7 self-start border border-primary/30 shadow-sm">
-                        {msg.avatar ? <AvatarImage src={msg.avatar} alt="AI Avatar" data-ai-hint={msg.dataAiHintAvatar}/> : <AvatarImage src="/logo.png" alt="AI Avatar" data-ai-hint="ai logo" />}
-                        <AvatarFallback><Brain className="h-4 w-4 text-primary"/></AvatarFallback>
-                    </Avatar>
-                )}
-                <div
-                className={cn(
-                    "max-w-[75%] p-2.5 rounded-xl shadow-md text-sm",
-                    msg.sender === 'user'
-                    ? "bg-primary text-primary-foreground rounded-br-none"
-                    : "bg-card text-card-foreground border border-border/50 rounded-bl-none dark:bg-slate-800"
-                )}
-                >
-                <p className="whitespace-pre-wrap leading-relaxed">{msg.text}</p>
-                {msg.timestamp && (
-                    <p className={cn(
-                        "text-xs mt-1.5 opacity-70",
-                        msg.sender === 'user' ? 'text-right text-primary-foreground/70' : 'text-left text-muted-foreground'
-                    )}>
-                    {msg.timestamp}
-                    </p>
-                )}
-                </div>
-                 {msg.sender === 'user' && (
-                     <Avatar className="h-7 w-7 self-start border border-border/30 shadow-sm">
-                        <AvatarImage src={userProfileData.avatarUrl} alt="User Avatar" data-ai-hint={userProfileData.dataAiHintAvatar} />
-                        <AvatarFallback>{userProfileData.name.substring(0,1)}</AvatarFallback>
-                    </Avatar>
-                )}
-            </div>
-            ))}
-            <div ref={messagesEndRef} />
+const SubscriptionView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+    return (
+        <div className="h-full w-full flex flex-col">
+            <header className="p-3 border-b border-border/50 bg-background/80 backdrop-blur-sm flex items-center justify-between sticky top-0 z-10 min-h-[56px]">
+                <Button variant="ghost" size="icon" className="text-primary -ml-2" onClick={onBack}>
+                    <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <span className="text-base font-semibold text-foreground truncate px-2 flex-1 text-center">
+                    Subscription
+                </span>
+                <Image src="/logo.png" alt="HyreSense Logo" width={28} height={20} className="rounded-sm ml-1" />
+            </header>
+            <ScrollArea className="flex-grow p-4 bg-muted/30 dark:bg-slate-800/40">
+                 <div className="space-y-4">
+                     <Card className="bg-card shadow-lg border-2 border-primary">
+                        <CardHeader>
+                            <CardTitle>Premium</CardTitle>
+                            <CardDescription>₹7560/mo</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                             <ul className="space-y-2 text-sm text-muted-foreground">
+                                <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-green-500" /> 60 Daily Swipes</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-green-500" /> AI Mock Interviews</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-green-500" /> Profile Reviews</li>
+                             </ul>
+                        </CardContent>
+                        <CardFooter><Button className="w-full">Upgrade Now</Button></CardFooter>
+                     </Card>
+                      <Card className="bg-card shadow-md">
+                        <CardHeader>
+                            <CardTitle>Basic</CardTitle>
+                            <CardDescription>₹1260/mo</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                             <ul className="space-y-2 text-sm text-muted-foreground">
+                                <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-green-500" /> 40 Daily Swipes</li>
+                             </ul>
+                        </CardContent>
+                         <CardFooter><Button className="w-full" variant="outline">Choose Basic</Button></CardFooter>
+                     </Card>
+                 </div>
+            </ScrollArea>
         </div>
-      </ScrollArea>
-
-      {renderInputArea && (
-        <div className="p-3 border-t border-border/50 bg-background/90 backdrop-blur-sm flex items-center gap-2 sticky bottom-0">
-            <Textarea
-            ref={textareaRef}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Ask about career advice, resume tips..."
-            className="flex-grow resize-none rounded-xl border-border/60 focus-visible:ring-primary/50 h-10 min-h-[40px] max-h-[100px] py-2 text-sm"
-            rows={1}
-            onKeyPress={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSendMessage();
-                }
-            }}
-            />
-            <Button
-            size="icon"
-            onClick={handleSendMessage}
-            disabled={!inputValue.trim()}
-            className="rounded-full h-10 w-10 shrink-0 bg-primary hover:bg-primary/90 disabled:bg-muted transition-all duration-200 transform hover:scale-105 active:scale-95"
-            >
-            <Send className="h-5 w-5" />
-            <span className="sr-only">Send</span>
-            </Button>
-        </div>
-      )}
-    </div>
-  );
+    );
 };
 
 
@@ -1039,7 +923,7 @@ export function MobileAppDemo() {
     { label: "Job Feed", icon: LayoutGrid, view: 'swiping' as ViewMode },
     { label: "Applied", icon: ListChecks, view: 'applied' as ViewMode },
     { label: "Profile", icon: User, view: 'profile' as ViewMode },
-    { label: "AI Assist", icon: Brain, view: 'ai_assist' as ViewMode },
+    { label: "Premium", icon: Crown, view: 'subscription' as ViewMode },
   ];
 
   const handleCardClick = (job: AppJob, fromView: ViewMode) => {
@@ -1049,10 +933,6 @@ export function MobileAppDemo() {
   };
 
   const handleNavClick = (targetView: ViewMode) => {
-    if (targetView === 'ai_assist' && viewMode !== 'ai_assist') {
-      scrollPositionRef.current = window.scrollY;
-    }
-
     if (viewMode === targetView && targetView !== 'swiping' && targetView !== 'explore') {
       setPreviousViewMode(targetView);
       setViewMode('swiping');
@@ -1082,7 +962,7 @@ export function MobileAppDemo() {
 
 
  useEffect(() => {
-    if (viewMode === 'ai_assist') {
+    if (viewMode === 'subscription') {
         requestAnimationFrame(() => {
              window.scrollTo({ top: scrollPositionRef.current, behavior: 'instant' });
         });
@@ -1103,7 +983,7 @@ export function MobileAppDemo() {
             </>
         );
     }
-    if (viewMode === 'details' || viewMode === 'explore' || viewMode === 'profile' || viewMode === 'ai_assist') {
+    if (viewMode === 'details' || viewMode === 'explore' || viewMode === 'profile' || viewMode === 'subscription') {
         return null;
     }
 
@@ -1290,8 +1170,8 @@ export function MobileAppDemo() {
             {viewMode === 'profile' && (
               <ProfileView profile={userProfileData} onBack={handleBackNavigation} />
             )}
-            {viewMode === 'ai_assist' && (
-                 <AiAssistView onBack={handleBackNavigation} isActive={viewMode === 'ai_assist'} />
+             {viewMode === 'subscription' && (
+                 <SubscriptionView onBack={handleBackNavigation} />
             )}
           </main>
 

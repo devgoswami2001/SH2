@@ -9,31 +9,39 @@ import type React from 'react';
 export function MainLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const fullscreenPages = [
-    '/login', 
-    '/create-resume', 
-    '/signup', 
-    '/build-resume', 
+    '/login',
+    '/create-resume',
+    '/signup',
+    '/build-resume',
     '/job-feed',
     '/explore',
     '/applied',
     '/profile',
-    '/ai-assistant',
+    '/subscription',
     '/mobile-contact',
-    '/edit-profile' 
+    '/edit-profile',
+    '/settings',
+    '/verify-otp',
+    '/interview',
   ];
-  const isFullscreenPage = fullscreenPages.includes(pathname) || pathname.startsWith('/job-details/');
 
+  const isFullscreenPage =
+    fullscreenPages.includes(pathname) || pathname.startsWith('/company/');
 
   return (
     <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh' }}>
       {isFullscreenPage ? (
-        <>{children}</> 
+        <>{children}</>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '100%',
+          }}
+        >
           <Header />
-          <main className="flex-grow">
-            {children}
-          </main>
+          <main className="flex-grow">{children}</main>
           <Footer />
         </div>
       )}

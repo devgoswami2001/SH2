@@ -7,12 +7,12 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Compass, LayoutGrid, User, Brain, ListChecks, ArrowLeft, Menu as MenuIcon, Settings, LogOut, MessageSquare, Bell } from 'lucide-react';
+import { Compass, LayoutGrid, User, Crown, ListChecks, ArrowLeft, Menu as MenuIcon, Settings, LogOut, MessageSquare, Bell, Video } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { AppJob } from '@/app/job-feed/page'; 
 import { JobDetailsView } from '@/app/job-feed/page'; 
 
-type ActiveView = 'swiping' | 'explore' | 'applied' | 'profile' | 'ai_assist' | 'details' | 'mobile_contact';
+type ActiveView = 'swiping' | 'explore' | 'applied' | 'profile' | 'subscription' | 'details' | 'mobile_contact' | 'interview';
 
 interface MobileAppLayoutProps {
   children: React.ReactNode;
@@ -27,8 +27,8 @@ const navItemsConfig = [
   { label: "Explore", icon: Compass, view: 'explore' as ActiveView, href: "/explore" },
   { label: "Job Feed", icon: LayoutGrid, view: 'swiping' as ActiveView, href: "/job-feed" },
   { label: "Applied", icon: ListChecks, view: 'applied' as ActiveView, href: "/applied" },
+  { label: "Interview", icon: Video, view: 'interview' as ActiveView, href: "/interview" },
   { label: "Profile", icon: User, view: 'profile' as ActiveView, href: "/profile" },
-  { label: "AI Assist", icon: Brain, view: 'ai_assist' as ActiveView, href: "/ai-assistant" },
 ];
 
 export function MobileAppLayout({
@@ -84,9 +84,9 @@ export function MobileAppLayout({
         </div>
         
         <div className="flex items-center gap-1 shrink-0">
-          <Button variant="ghost" size="icon" className="text-primary hover:bg-primary/10 h-8 w-8" onClick={() => alert('Notifications Clicked!')}>
-            <Bell className="h-5 w-5" />
-            <span className="sr-only">Notifications</span>
+          <Button variant="ghost" size="icon" className="text-primary hover:bg-primary/10 h-8 w-8" onClick={() => router.push('/subscription')}>
+            <Crown className="h-5 w-5" />
+            <span className="sr-only">Subscription</span>
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -107,8 +107,10 @@ export function MobileAppLayout({
                   <MessageSquare className="mr-2 h-4 w-4" /> Contact Us
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => alert('Settings coming soon!')} className="flex items-center">
-                <Settings className="mr-2 h-4 w-4" /> Settings
+              <DropdownMenuItem asChild>
+                <Link href="/settings" className="flex items-center">
+                  <Settings className="mr-2 h-4 w-4" /> Settings
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => { router.push('/'); alert('Logged out!'); }} className="flex items-center text-destructive focus:text-destructive focus:bg-destructive/10">
@@ -141,14 +143,16 @@ export function MobileAppLayout({
                 // Determine active state based on the current page's path
                 const isActive = pathname === item.href || (pathname === '/' && item.href === '/job-feed');
                 return (
-                  <Link href={item.href} key={item.label} legacyBehavior>
-                    <a className={cn(
+                  <Link
+                    href={item.href}
+                    key={item.label}
+                    className={cn(
                       "flex flex-col items-center h-auto p-1.5 rounded-md w-1/5",
                       isActive ? "text-primary" : "text-muted-foreground hover:text-primary/80"
-                    )}>
-                      <Icon className={cn("h-5 w-5 mb-0.5", isActive ? "stroke-[2.5px]" : "")} />
-                      <span className={cn("text-[10px] leading-tight", isActive ? "font-semibold" : "font-normal")}>{item.label}</span>
-                    </a>
+                    )}
+                  >
+                    <Icon className={cn("h-5 w-5 mb-0.5", isActive ? "stroke-[2.5px]" : "")} />
+                    <span className={cn("text-[10px] leading-tight", isActive ? "font-semibold" : "font-normal")}>{item.label}</span>
                   </Link>
                 );
               })}
@@ -167,9 +171,8 @@ export function MobileAppLayout({
           animation: pulse_slow_bg 15s ease infinite;
         }
          @keyframes gradientShine {
-          0% { background-position: 0% 50%; }
+          0%, 100% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
         }
       `}</style>
     </div>

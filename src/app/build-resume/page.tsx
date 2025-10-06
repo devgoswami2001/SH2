@@ -1,44 +1,23 @@
 
 'use client';
 
-import React, { useState, type ChangeEvent } from 'react';
-import Image from 'next/image';
+import React, { useState, useEffect, type ChangeEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Briefcase, BookOpen, Sparkles, Link as LinkIcon, Award, Save, PlusCircle, Trash2, Target, MapPin, DollarSign } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Switch } from '@/components/ui/switch';
+import { ArrowLeft, Save, User, MapPin, Phone, Globe, Briefcase, Target, DollarSign, Link as LinkIcon, Lock, AlertCircle, Loader2, Building, X } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-
-interface ExperienceEntry {
-  id: string;
-  jobTitle: string;
-  company: string;
-  jobLocation: string;
-  jobStartDate: string;
-  jobEndDate: string;
-  jobResponsibilities: string;
-}
-
-interface EducationEntry {
-  id: string;
-  degree: string;
-  institution: string;
-  eduLocation: string;
-  gradDate: string;
-  eduDetails: string;
-}
-
-interface ProjectEntry {
-  id: string;
-  projectTitle: string;
-  projectDescription: string;
-  projectLink: string;
-}
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
 
 const SectionWrapper: React.FC<{ title: string; icon: React.ReactNode; children: React.ReactNode }> = ({ title, icon, children }) => (
   <Card className="bg-card/80 backdrop-blur-md shadow-lg border border-border/30 rounded-xl mb-6 last:mb-0">
@@ -54,116 +33,345 @@ const SectionWrapper: React.FC<{ title: string; icon: React.ReactNode; children:
   </Card>
 );
 
-const SectionWrapperMobile: React.FC<{ title: string; icon: React.ReactNode; children: React.ReactNode }> = ({ title, icon, children }) => (
-  <Card className="bg-card/80 backdrop-blur-md shadow-lg border border-border/30 rounded-xl mb-[10px]">
-    <CardHeader className="pb-3 pt-4 px-4">
-      <CardTitle className="text-base font-semibold text-primary flex items-center">
-        {icon}
-        <span className="ml-2">{title}</span>
-      </CardTitle>
-    </CardHeader>
-    <CardContent className="px-4 pb-4 space-y-3">
-      {children}
-    </CardContent>
-  </Card>
-);
+const job_roles = [
+    // A
+    "Accountant", "Accounting Assistant", "Accounting Clerk", "Accounting Director", "Account Executive", "Account Manager", "Accounts Payable Clerk",
+    "Accounts Receivable Clerk", "Actuary", "Acupuncturist", "Administrative Assistant", "Advertising Account Executive", "Advertising Copywriter", "Advocate",
+    "Aerospace Engineer", "Agricultural Consultant", "Agricultural Scientist", "Aircraft Maintenance Technician", "Airline Pilot", "Air Traffic Controller",
+    "Algorithm Developer", "Analytics Engineer", "Analytics Manager", "Android Developer", "Anesthesiologist", "Animal Care Assistant", "Animal Trainer", "Animator",
+    "Anthropologist", "Application Developer", "Architect", "Art Director", "Assembler", "Assistant Controller", "Auditor", "Automotive Mechanic",
+    // B
+    "Backend Developer", "Bank Manager", "Bank Teller", "Barber", "Bartender", "Benefits Analyst", "Big Data Engineer", "Billing Specialist", "Biostatistician",
+    "Blockchain Developer", "Bookkeeper", "Brand Manager", "Budget Analyst", "Business Analyst", "Business Development Manager", "Business Intelligence Analyst", "Business Owner",
+    // C
+    "Cable Installer", "CAD Designer", "Call Center Representative", "Camera Operator", "Carpenter", "Cashier", "Chef", "Chemical Engineer", "Chief Executive Officer",
+    "Chief Financial Officer", "Chief Marketing Officer", "Chief Technology Officer", "Civil Engineer", "Claims Adjuster", "Cleaner", "Clinical Researcher", "Cloud Architect",
+    "CNC Machinist", "Coach", "Collections Specialist", "Communications Director", "Community Manager", "Compensation Analyst", "Computer Programmer", "Computer Scientist",
+    "Construction Manager", "Construction Worker", "Consultant", "Content Creator", "Content Writer", "Contract Administrator", "Controller", "Cook", "Copywriter",
+    "Corporate Trainer", "Cost Estimator", "Counselor", "Court Reporter", "Creative Director", "Credit Analyst", "Customer Service Representative", "Customer Success Manager", "Cybersecurity Analyst",
+    // D
+    "Database Administrator", "Database Developer", "Data Analyst", "Data Engineer", "Data Entry Clerk", "Data Scientist", "Delivery Driver", "Dental Assistant",
+    "Dental Hygienist", "Dentist", "Designer", "Desktop Support Technician", "DevOps Engineer", "Digital Marketing Manager", "Director of Operations", "Dispatcher", "Doctor", "Drone Pilot",
+    // E
+    "Economist", "Editor", "Electrical Engineer", "Electrician", "Electronics Technician", "Email Marketing Specialist", "Emergency Medical Technician", "Engineer",
+    "Enterprise Architect", "Environmental Engineer", "Environmental Scientist", "Estate Planning Attorney", "Event Coordinator", "Event Planner", "Executive Assistant", "Executive Chef",
+    // F
+    "Facilities Manager", "Factory Worker", "Fashion Designer", "Field Service Technician", "Film Director", "Financial Advisor", "Financial Analyst", "Financial Planner",
+    "Firefighter", "Fitness Trainer", "Flight Attendant", "Florist", "Food Service Worker", "Forklift Operator", "Frontend Developer", "Full Stack Developer", "Fundraiser",
+    // G
+    "Game Developer", "General Manager", "Geologist", "Government Employee", "Graphic Designer", "Growth Hacker", "Guard", "Guidance Counselor",
+    // H
+    "Hairdresser", "Hardware Engineer", "Health Inspector", "Healthcare Administrator", "Help Desk Specialist", "Home Health Aide", "Hotel Manager", "HR Administrator",
+    "HR Director", "HR Generalist", "HR Manager", "HR Specialist", "HVAC Technician",
+    // I
+    "Industrial Designer", "Industrial Engineer", "Information Security Analyst", "Insurance Agent", "Insurance Underwriter", "Interior Designer", "Interpreter",
+    "Investment Advisor", "IT Administrator", "IT Consultant", "IT Director", "IT Manager", "IT Support Specialist",
+    // J
+    "Janitor", "Java Developer", "Journalist", "Judge", "Junior Developer",
+    // K
+    "Kitchen Staff",
+    // L
+    "Lab Technician", "Landscape Architect", "Landscaper", "Lawyer", "Legal Assistant", "Librarian", "Licensed Practical Nurse", "Loan Officer", "Logistics Coordinator", "Logistics Manager",
+    // M
+    "Machine Learning Engineer", "Machine Operator", "Maintenance Worker", "Management Consultant", "Marketing Coordinator", "Marketing Director", "Marketing Manager",
+    "Marketing Specialist", "Massage Therapist", "Mechanical Engineer", "Media Planner", "Medical Assistant", "Medical Technologist", "Mental Health Counselor", "Mobile Developer", "Music Teacher", "Musician",
+    // N
+    "Network Administrator", "Network Engineer", "Nurse", "Nurse Practitioner", "Nursing Assistant", "Nutritionist",
+    // O
+    "Occupational Therapist", "Office Administrator", "Office Manager", "Operations Analyst", "Operations Director", "Operations Manager", "Optometrist",
+    // P
+    "Paralegal", "Paramedic", "Pastor", "Payroll Clerk", "Payroll Specialist", "Personal Trainer", "Pharmacist", "Pharmacy Technician", "Photographer", "Physical Therapist",
+    "Physician", "Pilot", "Plumber", "Police Officer", "Political Scientist", "Product Manager", "Product Owner", "Production Manager", "Professor", "Program Manager",
+    "Programmer", "Project Coordinator", "Project Manager", "Property Manager", "Psychologist", "Public Relations Specialist", "Purchasing Agent",
+    // Q
+    "Quality Assurance Analyst", "Quality Assurance Engineer", "Quality Control Inspector",
+    // R
+    "Radiologic Technologist", "Real Estate Agent", "Receptionist", "Recruiter", "Registered Nurse", "Research Analyst", "Research Scientist", "Restaurant Manager", "Retail Manager", "Retail Sales Associate",
+    // S
+    "Safety Engineer", "Sales Associate", "Sales Director", "Sales Engineer", "Sales Manager", "Sales Representative", "School Administrator", "School Counselor",
+    "Security Guard", "SEO Specialist", "Server", "Social Media Manager", "Social Media Specialist", "Social Worker", "Software Architect", "Software Developer",
+    "Software Engineer", "Software Tester", "Speech Therapist", "Store Manager", "Superintendent", "Supply Chain Manager", "Surgeon", "Systems Administrator", "Systems Analyst",
+    // T
+    "Tax Accountant", "Tax Preparer", "Teacher", "Technical Support Specialist", "Technical Writer", "Technician", "Territory Manager", "Test Engineer", "Therapist",
+    "Training Coordinator", "Training Manager", "Translator", "Travel Agent", "Truck Driver",
+    // U
+    "UX Designer", "UI Designer", "University Professor", "Urban Planner",
+    // V
+    "Veterinarian", "Veterinary Technician", "Video Editor", "Vice President",
+    // W
+    "Waiter", "Warehouse Manager", "Warehouse Worker", "Web Designer", "Web Developer", "Welder", "Writer",
+    // X, Y, Z
+    "X-Ray Technician", "Yoga Instructor", "Zoologist"
+];
 
-export default function BuildResumePage() {
+const big_companies = [
+    // Top Tech Companies
+    "Apple", "Microsoft", "NVIDIA", "Amazon", "Alphabet (Google)", "Meta (Facebook)", "Tesla", "Netflix", "Adobe", "Oracle", "Salesforce", "ServiceNow", "Uber", "Airbnb", "Spotify", "Twitter (X)", "LinkedIn", "PayPal", "Square", "Zoom",
+    // Banking & Financial Services
+    "JPMorgan Chase", "Bank of America", "Wells Fargo", "Citigroup", "Goldman Sachs", "Morgan Stanley", "Berkshire Hathaway", "Visa", "Mastercard", "American Express", "BlackRock", "Charles Schwab", "State Street", "Fidelity Investments", "T. Rowe Price", "HDFC Bank", "Industrial and Commercial Bank of China", "China Construction Bank", "Royal Bank of Canada", "Commonwealth Bank of Australia",
+    // Oil & Energy
+    "Saudi Aramco", "ExxonMobil", "Chevron", "Shell", "BP", "TotalEnergies", "ConocoPhillips", "China National Petroleum", "Sinopec", "Gazprom", "Lukoil", "Rosneft", "Petrobras", "Eni", "Equinor",
+    // Healthcare & Pharmaceuticals
+    "UnitedHealth Group", "Johnson & Johnson", "Pfizer", "Roche", "Novartis", "Merck", "AbbVie", "Bristol Myers Squibb", "Eli Lilly", "Amgen", "Gilead Sciences", "Moderna", "CVS Health", "Anthem", "Humana", "Cigna", "Aetna", "Kaiser Permanente",
+    // Retail & E-commerce
+    "Walmart", "Costco", "Home Depot", "Target", "Lowe's", "Best Buy", "Macy's", "Nordstrom", "TJX Companies", "Dollar General", "Dollar Tree", "Kroger", "Albertsons", "Publix", "Ahold Delhaize", "Carrefour", "Tesco", "IKEA", "H&M", "Zara (Inditex)",
+    // Automotive
+    "Toyota", "Volkswagen Group", "General Motors", "Ford Motor Company", "Stellantis", "Mercedes-Benz Group", "BMW Group", "Honda", "Nissan", "Hyundai Motor Group", "Ferrari", "Porsche", "Volvo", "Mazda", "Subaru", "Mitsubishi Motors", "BYD", "Nio", "XPeng", "Li Auto",
+    // Aerospace & Defense
+    "Boeing", "Airbus", "Lockheed Martin", "Raytheon Technologies", "Northrop Grumman", "General Dynamics", "BAE Systems", "Thales", "Leonardo", "Saab",
+    // Telecommunications
+    "AT&T", "Verizon", "T-Mobile", "Comcast", "Charter Communications", "Deutsche Telekom", "Vodafone", "Orange", "Telefonica", "China Mobile", "China Telecom", "China Unicom", "NTT", "SoftBank", "KDDI",
+    // Manufacturing & Industrial
+    "General Electric", "Siemens", "3M", "Honeywell", "Caterpillar", "Deere & Company", "Illinois Tool Works", "Emerson Electric", "Parker Hannifin", "Danaher", "Thermo Fisher Scientific", "ABB", "Schneider Electric", "Legrand", "Eaton",
+    // Media & Entertainment
+    "Disney", "Comcast (NBCUniversal)", "Warner Bros. Discovery", "Paramount Global", "Sony", "Universal Music Group", "Live Nation Entertainment", "EA (Electronic Arts)", "Activision Blizzard", "Take-Two Interactive", "Ubisoft", "Nintendo",
+    // Food & Beverage
+    "Coca-Cola", "PepsiCo", "Nestle", "Unilever", "Procter & Gamble", "Mars", "Mondelez International", "General Mills", "Kellogg", "Kraft Heinz", "Tyson Foods", "JBS", "Cargill", "Archer Daniels Midland", "Danone",
+    // Consulting & Professional Services
+    "Accenture", "Deloitte", "PwC", "EY (Ernst & Young)", "KPMG", "McKinsey & Company", "Boston Consulting Group", "Bain & Company", "IBM", "Cognizant", "Tata Consultancy Services", "Infosys", "Wipro", "HCL Technologies", "Tech Mahindra",
+    // Semiconductor Companies
+    "TSMC", "ASML", "Broadcom", "Qualcomm", "Intel", "AMD", "Micron Technology", "Applied Materials", "Lam Research", "KLA Corporation", "Analog Devices", "Marvell Technology", "MediaTek", "SK Hynix", "Samsung Electronics",
+    // Chinese Tech Giants
+    "Tencent", "Alibaba", "Baidu", "JD.com", "Meituan", "Pinduoduo (PDD Holdings)", "ByteDance", "Xiaomi", "Didi Chuxing", "NetEase", "Bilibili", "Kuaishou",
+    // Airlines
+    "American Airlines", "Delta Air Lines", "United Airlines", "Southwest Airlines", "JetBlue Airways", "Lufthansa", "Air France-KLM", "British Airways", "Emirates", "Qatar Airways", "Singapore Airlines", "Cathay Pacific", "Japan Airlines", "All Nippon Airways",
+    // Hotels & Hospitality
+    "Marriott International", "Hilton Worldwide", "InterContinental Hotels Group", "Hyatt Hotels", "Accor", "Wyndham Hotels & Resorts", "Choice Hotels", "Best Western", "Radisson Hotel Group", "Four Seasons",
+    // Real Estate
+    "Brookfield Asset Management", "Simon Property Group", "Prologis", "American Tower", "Crown Castle", "Realty Income", "Public Storage", "Equity Residential", "AvalonBay Communities", "Boston Properties",
+    // Logistics & Transportation
+    "FedEx", "UPS", "DHL", "Union Pacific", "CSX", "Norfolk Southern", "Canadian National Railway", "Canadian Pacific Railway", "Deutsche Post DHL", "Royal Mail",
+    // Mining & Materials
+    "BHP", "Rio Tinto", "Vale", "Glencore", "Freeport-McMoRan", "Newmont", "Barrick Gold", "Anglo American", "Teck Resources", "Southern Copper",
+    // Utilities
+    "NextEra Energy", "Dominion Energy", "Duke Energy", "Southern Company", "American Electric Power", "Exelon", "Sempra Energy", "Public Service Enterprise Group", "Edison International", "Consolidated Edison",
+    // Insurance
+    "AIG", "Prudential Financial", "MetLife", "Aflac", "Progressive", "Allstate", "Travelers Companies", "Chubb", "Hartford Financial Services",
+    // Luxury Brands
+    "LVMH", "Hermès", "Kering", "Richemont", "Chanel", "Burberry", "Ralph Lauren", "Coach (Tapestry)", "Michael Kors (Capri Holdings)", "Tiffany & Co.",
+    // Sports & Fitness
+    "Nike", "Adidas", "Puma", "Under Armour", "Lululemon", "New Balance", "Reebok", "Asics", "Skechers", "VF Corporation",
+    // Gaming Companies
+    "Roblox", "Unity Software", "Epic Games", "Valve Corporation", "Riot Games", "Blizzard Entertainment", "King Digital Entertainment", "Supercell", "Machine Zone", "Zynga"
+];
+
+const unique_big_companies = [...new Set(big_companies)];
+
+export default function BuildProfilePage() {
   const [pageContainerRef, isPageContainerVisible] = useScrollAnimation<HTMLDivElement>({ threshold: 0.1, triggerOnce: true });
   const router = useRouter();
-
-  const [professionalSummary, setProfessionalSummary] = useState('');
-  const [skills, setSkills] = useState('');
-
-  const [experiences, setExperiences] = useState<ExperienceEntry[]>([
-    { id: 'exp-initial-1', jobTitle: '', company: '', jobLocation: '', jobStartDate: '', jobEndDate: '', jobResponsibilities: '' }
-  ]);
-
-  const [educations, setEducations] = useState<EducationEntry[]>([
-    { id: 'edu-initial-1', degree: '', institution: '', eduLocation: '', gradDate: '', eduDetails: ''}
-  ]);
-
-  const [projects, setProjects] = useState<ProjectEntry[]>([
-    { id: 'proj-initial-1', projectTitle: '', projectDescription: '', projectLink: ''}
-  ]);
+  const { toast } = useToast();
   
-  const [links, setLinks] = useState({ portfolioLink: '', linkedinLink: '', githubLink: '' });
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
+  const [profileId, setProfileId] = useState<string | null>(null);
 
-  const [preferredRole, setPreferredRole] = useState('');
-  const [preferredLocation, setPreferredLocation] = useState('');
-  const [expectedSalary, setExpectedSalary] = useState('');
+  const [formData, setFormData] = useState({
+    date_of_birth: '',
+    gender: '',
+    phone_number: '',
+    address_line_1: '',
+    city: '',
+    state: '',
+    country: 'India',
+    postal_code: '',
+    headline: '',
+    summary: '',
+    job_status: 'actively_looking',
+    preferred_job_types: [] as string[],
+    preferred_locations: '',
+    expected_salary: '',
+    willing_to_relocate: false,
+    linkedin_url: '',
+    portfolio_url: '',
+    profile_visibility: true,
+    allow_recruiter_contact: true,
+    preferred_roles: [] as string[],
+    dream_companies: [] as string[],
+  });
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        toast({ title: "Unauthorized", description: "Please log in to continue.", variant: "destructive" });
+        router.push('/login');
+        return;
+      }
+      
+      setIsFetching(true);
+      try {
+        const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/jobseeker-profile/', {
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.results && data.results.length > 0) {
+                const profile = data.results[0];
+                setProfileId(profile.id);
+                setFormData({
+                    date_of_birth: profile.date_of_birth || '',
+                    gender: profile.gender || '',
+                    phone_number: profile.phone_number || '',
+                    address_line_1: profile.address_line_1 || '',
+                    city: profile.city || '',
+                    state: profile.state || '',
+                    country: profile.country || 'India',
+                    postal_code: profile.postal_code || '',
+                    headline: profile.headline || '',
+                    summary: profile.summary || '',
+                    job_status: profile.job_status || 'actively_looking',
+                    preferred_job_types: profile.preferred_job_types || [],
+                    preferred_locations: (profile.preferred_locations || []).join(', '),
+                    expected_salary: profile.expected_salary?.toString() || '',
+                    willing_to_relocate: profile.willing_to_relocate || false,
+                    linkedin_url: profile.linkedin_url || '',
+                    portfolio_url: profile.portfolio_url || '',
+                    profile_visibility: profile.profile_visibility ?? true,
+                    allow_recruiter_contact: profile.allow_recruiter_contact ?? true,
+                    preferred_roles: profile.preferred_roles || [],
+                    dream_companies: profile.dream_companies || [],
+                });
+            }
+        } else if (response.status !== 404) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || "Failed to fetch profile.");
+        }
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setIsFetching(false);
+      }
+    };
+    fetchProfile();
+  }, [router, toast]);
 
 
-  const handleInputChange = (setter: React.Dispatch<React.SetStateAction<any>>, field?: string) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    if (field) {
-      setter((prev: any) => ({ ...prev, [field]: e.target.value }));
-    } else {
-      setter(e.target.value);
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCheckboxChange = (field: keyof typeof formData, checked: boolean) => {
+    setFormData(prev => ({ ...prev, [field]: checked }));
+  };
+  
+  const handleRadioGroupChange = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSelectChange = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleJobTypeChange = (jobType: string) => {
+    setFormData(prev => {
+        const newJobTypes = prev.preferred_job_types.includes(jobType)
+            ? prev.preferred_job_types.filter(type => type !== jobType)
+            : [...prev.preferred_job_types, jobType];
+        return { ...prev, preferred_job_types: newJobTypes };
+    });
+  };
+
+  const handleArrayInputChange = (e: React.KeyboardEvent<HTMLInputElement>, field: 'preferred_roles' | 'dream_companies') => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const value = e.currentTarget.value.trim();
+      if (value && !formData[field].includes(value)) {
+        setFormData(prev => ({ ...prev, [field]: [...prev[field], value] }));
+      }
+      e.currentTarget.value = '';
     }
   };
 
-  // Experience Handlers
-  const handleExperienceChange = (index: number, field: keyof ExperienceEntry, value: string) => {
-    setExperiences(prev =>
-      prev.map((exp, i) => (i === index ? { ...exp, [field]: value } : exp))
-    );
+  const removeArrayItem = (index: number, field: 'preferred_roles' | 'dream_companies') => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: prev[field].filter((_, i) => i !== index),
+    }));
   };
 
-  const addExperience = () => {
-    setExperiences(prev => [...prev, { id: `exp-${Date.now()}`, jobTitle: '', company: '', jobLocation: '', jobStartDate: '', jobEndDate: '', jobResponsibilities: '' }]);
+  const isValidUrl = (urlString: string) => {
+    try {
+      new URL(urlString);
+      return true;
+    } catch (e) {
+      return false;
+    }
   };
 
-  const removeExperience = (id: string) => {
-    setExperiences(prev => prev.filter(exp => exp.id !== id));
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    
+    let processedLinkedinUrl = formData.linkedin_url.trim();
+    if (processedLinkedinUrl && !/^https?:\/\//i.test(processedLinkedinUrl)) {
+      processedLinkedinUrl = 'https://' + processedLinkedinUrl;
+    }
+
+    if (processedLinkedinUrl && !isValidUrl(processedLinkedinUrl)) {
+      setError("The LinkedIn Profile URL is not valid. Please check and try again.");
+      setIsLoading(false);
+      return;
+    }
+
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
+        setError("You are not logged in.");
+        setIsLoading(false);
+        router.push('/login');
+        return;
+    }
+
+    try {
+        const payload = {
+            ...formData,
+            linkedin_url: processedLinkedinUrl,
+            preferred_locations: formData.preferred_locations.split(',').map(s => s.trim()).filter(Boolean),
+            expected_salary: formData.expected_salary ? parseInt(formData.expected_salary, 10) : null,
+        };
+
+        const url = profileId
+          ? `https://backend.hyresense.com/api/v1/jobseeker/jobseeker-profile/${profileId}/`
+          : 'https://backend.hyresense.com/api/v1/jobseeker/jobseeker-profile/';
+
+        const method = profileId ? 'PATCH' : 'POST';
+
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            const errorMessage = Object.values(errorData).flat().join(' ');
+            throw new Error(errorMessage || 'Failed to save profile. Please check your inputs.');
+        }
+        
+        toast({ title: "Success!", description: "Your profile has been saved." });
+        router.push('/edit-profile');
+
+    } catch (err: any) {
+        setError(err.message);
+    } finally {
+        setIsLoading(false);
+    }
   };
   
-  // Education Handlers
-  const handleEducationChange = (index: number, field: keyof EducationEntry, value: string) => {
-    setEducations(prev =>
-      prev.map((edu, i) => (i === index ? { ...edu, [field]: value } : edu))
+  if (isFetching) {
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-animated">
+            <Loader2 className="h-16 w-16 text-primary animate-spin" />
+        </div>
     );
-  };
-
-  const addEducation = () => {
-    setEducations(prev => [...prev, { id: `edu-${Date.now()}`, degree: '', institution: '', eduLocation: '', gradDate: '', eduDetails: '' }]);
-  };
-
-  const removeEducation = (id: string) => {
-    setEducations(prev => prev.filter(edu => edu.id !== id));
-  };
-
-  // Project Handlers
-  const handleProjectChange = (index: number, field: keyof ProjectEntry, value: string) => {
-    setProjects(prev =>
-      prev.map((proj, i) => (i === index ? { ...proj, [field]: value } : proj))
-    );
-  };
-
-  const addProject = () => {
-    setProjects(prev => [...prev, { id: `proj-${Date.now()}`, projectTitle: '', projectDescription: '', projectLink: '' }]);
-  };
-
-  const removeProject = (id: string) => {
-    setProjects(prev => prev.filter(proj => proj.id !== id));
-  };
-
-
-  const handleSaveResume = (e: React.FormEvent) => {
-    e.preventDefault();
-    const resumeData = {
-      professionalSummary,
-      experiences,
-      educations,
-      skills,
-      projects,
-      links,
-      preferredRole,
-      preferredLocation,
-      expectedSalary,
-    };
-    console.log("Resume Data:", resumeData);
-    router.push('/job-feed'); 
-  };
+  }
 
   return (
     <div
@@ -175,403 +383,215 @@ export default function BuildResumePage() {
     >
       <div className="absolute inset-0 opacity-20 dark:opacity-15"></div>
 
-      {/* Mobile View */}
-      <div className="md:hidden relative w-[375px] h-[780px] bg-slate-900 rounded-[48px] border-[10px] border-slate-950 shadow-2xl overflow-hidden z-10">
-        <div className="h-full w-full bg-muted/30 dark:bg-slate-900/40 flex flex-col rounded-[38px] overflow-hidden">
-          <header className="p-4 border-b border-border/50 bg-card/90 backdrop-blur-sm flex items-center justify-between sticky top-0 z-20 min-h-[60px]">
-            <Button variant="ghost" size="icon" className="text-primary" onClick={() => router.back()}>
-              <ArrowLeft className="h-6 w-6" />
-            </Button>
-            <div className="flex flex-col items-center">
-              <Award className="h-5 w-5 text-primary mb-0.5 opacity-80" />
-              <h1 className="text-md font-semibold text-foreground -mt-0.5">Complete Your Profile</h1>
-            </div>
-            <Image src="/logo.png" alt="HyreSense Logo" width={30} height={22} className="rounded-sm" />
-          </header>
-
-          <ScrollArea className="flex-grow">
-            <form onSubmit={handleSaveResume} className="p-4 space-y-0">
-              <SectionWrapperMobile title="Professional Summary" icon={<Sparkles className="h-5 w-5" />}>
-                <Textarea
-                  id="summary"
-                  placeholder="Write a brief summary of your career, skills, and goals..."
-                  rows={4}
-                  value={professionalSummary}
-                  onChange={handleInputChange(setProfessionalSummary)}
-                  className="text-xs resize-none bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70"
-                />
-              </SectionWrapperMobile>
-
-              <SectionWrapperMobile title="Work Experience" icon={<Briefcase className="h-5 w-5" />}>
-                {experiences.map((exp, index) => (
-                  <div key={exp.id} className="space-y-3 border-b border-border/30 pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0">
-                    {experiences.length > 1 && (
-                       <div className="flex justify-between items-center">
-                         <Label className="text-xs font-semibold text-muted-foreground">Experience #{index + 1}</Label>
-                         <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-destructive/70 hover:bg-destructive/10 hover:text-destructive"
-                            onClick={() => removeExperience(exp.id)}
-                         >
-                            <Trash2 className="h-4 w-4" />
-                         </Button>
-                       </div>
-                    )}
-                    <div className="space-y-2">
-                      <Label htmlFor={`jobTitle-${exp.id}`} className="text-xs">Job Title</Label>
-                      <Input id={`jobTitle-${exp.id}`} placeholder="e.g., Senior Software Engineer" value={exp.jobTitle} onChange={(e) => handleExperienceChange(index, 'jobTitle', e.target.value)} className="text-xs h-9 bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor={`company-${exp.id}`} className="text-xs">Company</Label>
-                      <Input id={`company-${exp.id}`} placeholder="e.g., Tech Solutions Inc." value={exp.company} onChange={(e) => handleExperienceChange(index, 'company', e.target.value)} className="text-xs h-9 bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor={`jobLocation-${exp.id}`} className="text-xs">Location</Label>
-                      <Input id={`jobLocation-${exp.id}`} placeholder="e.g., New York, NY" value={exp.jobLocation} onChange={(e) => handleExperienceChange(index, 'jobLocation', e.target.value)} className="text-xs h-9 bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-2">
-                        <Label htmlFor={`jobStartDate-${exp.id}`} className="text-xs">Start Date</Label>
-                        <Input id={`jobStartDate-${exp.id}`} type="text" placeholder="MM/YYYY" value={exp.jobStartDate} onChange={(e) => handleExperienceChange(index, 'jobStartDate', e.target.value)} className="text-xs h-9 bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor={`jobEndDate-${exp.id}`} className="text-xs">End Date</Label>
-                        <Input id={`jobEndDate-${exp.id}`} type="text" placeholder="MM/YYYY or Present" value={exp.jobEndDate} onChange={(e) => handleExperienceChange(index, 'jobEndDate', e.target.value)} className="text-xs h-9 bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor={`jobResponsibilities-${exp.id}`} className="text-xs">Responsibilities / Achievements</Label>
-                      <Textarea id={`jobResponsibilities-${exp.id}`} placeholder="Describe your key tasks and accomplishments..." rows={3} value={exp.jobResponsibilities} onChange={(e) => handleExperienceChange(index, 'jobResponsibilities', e.target.value)} className="text-xs resize-none bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                    </div>
-                  </div>
-                ))}
-                <Button type="button" variant="outline" size="sm" className="w-full mt-2 text-xs h-8 border-dashed border-primary/50 text-primary hover:bg-primary/10" onClick={addExperience}>
-                  <PlusCircle className="h-4 w-4 mr-1.5" /> Add Another Experience
-                </Button>
-              </SectionWrapperMobile>
-
-              <SectionWrapperMobile title="Education" icon={<BookOpen className="h-5 w-5" />}>
-                {educations.map((edu, index) => (
-                  <div key={edu.id} className="space-y-3 border-b border-border/30 pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0">
-                     {educations.length > 1 && (
-                       <div className="flex justify-between items-center">
-                         <Label className="text-xs font-semibold text-muted-foreground">Education #{index + 1}</Label>
-                         <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-destructive/70 hover:bg-destructive/10 hover:text-destructive"
-                            onClick={() => removeEducation(edu.id)}
-                         >
-                            <Trash2 className="h-4 w-4" />
-                         </Button>
-                       </div>
-                    )}
-                    <div className="space-y-2">
-                      <Label htmlFor={`degree-${edu.id}`} className="text-xs">Degree / Certificate</Label>
-                      <Input id={`degree-${edu.id}`} placeholder="e.g., B.S. in Computer Science" value={edu.degree} onChange={(e) => handleEducationChange(index, 'degree', e.target.value)} className="text-xs h-9 bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor={`institution-${edu.id}`} className="text-xs">Institution</Label>
-                      <Input id={`institution-${edu.id}`} placeholder="e.g., State University" value={edu.institution} onChange={(e) => handleEducationChange(index, 'institution', e.target.value)} className="text-xs h-9 bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor={`eduLocation-${edu.id}`} className="text-xs">Location</Label>
-                      <Input id={`eduLocation-${edu.id}`} placeholder="e.g., City, State" value={edu.eduLocation} onChange={(e) => handleEducationChange(index, 'eduLocation', e.target.value)} className="text-xs h-9 bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor={`gradDate-${edu.id}`} className="text-xs">Graduation Date</Label>
-                      <Input id={`gradDate-${edu.id}`} type="text" placeholder="MM/YYYY or Expected MM/YYYY" value={edu.gradDate} onChange={(e) => handleEducationChange(index, 'gradDate', e.target.value)} className="text-xs h-9 bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor={`eduDetails-${edu.id}`} className="text-xs">Relevant Coursework / Honors (Optional)</Label>
-                      <Textarea id={`eduDetails-${edu.id}`} placeholder="e.g., Dean's List, Capstone Project..." rows={2} value={edu.eduDetails} onChange={(e) => handleEducationChange(index, 'eduDetails', e.target.value)} className="text-xs resize-none bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                    </div>
-                  </div>
-                ))}
-                <Button type="button" variant="outline" size="sm" className="w-full mt-2 text-xs h-8 border-dashed border-primary/50 text-primary hover:bg-primary/10" onClick={addEducation}>
-                  <PlusCircle className="h-4 w-4 mr-1.5" /> Add Another Education
-                </Button>
-              </SectionWrapperMobile>
-
-              <SectionWrapperMobile title="Skills" icon={<Award className="h-5 w-5" />}>
-                <Textarea
-                  id="skills"
-                  placeholder="e.g., JavaScript, React, Project Management, Figma (comma-separated)"
-                  rows={3}
-                  value={skills}
-                  onChange={handleInputChange(setSkills)}
-                  className="text-xs resize-none bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70"
-                />
-              </SectionWrapperMobile>
-              
-              <SectionWrapperMobile title="Projects (Optional)" icon={<Briefcase className="h-5 w-5 opacity-70" />}>
-                {projects.map((proj, index) => (
-                  <div key={proj.id} className="space-y-3 border-b border-border/30 pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0">
-                    {projects.length > 1 && (
-                       <div className="flex justify-between items-center">
-                         <Label className="text-xs font-semibold text-muted-foreground">Project #{index + 1}</Label>
-                         <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-destructive/70 hover:bg-destructive/10 hover:text-destructive"
-                            onClick={() => removeProject(proj.id)}
-                         >
-                            <Trash2 className="h-4 w-4" />
-                         </Button>
-                       </div>
-                    )}
-                    <div className="space-y-2">
-                      <Label htmlFor={`projectTitle-${proj.id}`} className="text-xs">Project Title</Label>
-                      <Input id={`projectTitle-${proj.id}`} placeholder="e.g., Personal Portfolio Website" value={proj.projectTitle} onChange={(e) => handleProjectChange(index, 'projectTitle', e.target.value)} className="text-xs h-9 bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor={`projectDescription-${proj.id}`} className="text-xs">Description</Label>
-                      <Textarea id={`projectDescription-${proj.id}`} placeholder="Briefly describe your project..." rows={2} value={proj.projectDescription} onChange={(e) => handleProjectChange(index, 'projectDescription', e.target.value)} className="text-xs resize-none bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor={`projectLink-${proj.id}`} className="text-xs">Project Link (Optional)</Label>
-                      <Input id={`projectLink-${proj.id}`} placeholder="https://github.com/yourproject" value={proj.projectLink} onChange={(e) => handleProjectChange(index, 'projectLink', e.target.value)} className="text-xs h-9 bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                    </div>
-                  </div>
-                ))}
-                 <Button type="button" variant="outline" size="sm" className="w-full mt-2 text-xs h-8 border-dashed border-primary/50 text-primary hover:bg-primary/10" onClick={addProject}>
-                  <PlusCircle className="h-4 w-4 mr-1.5" /> Add Another Project
-                </Button>
-              </SectionWrapperMobile>
-
-              <SectionWrapperMobile title="Links" icon={<LinkIcon className="h-5 w-5" />}>
-                <div className="space-y-2">
-                  <Label htmlFor="portfolioLink" className="text-xs">Portfolio Website (Optional)</Label>
-                  <Input id="portfolioLink" placeholder="https://yourportfolio.com" value={links.portfolioLink} onChange={handleInputChange(setLinks, 'portfolioLink')} className="text-xs h-9 bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="linkedinLink" className="text-xs">LinkedIn Profile (Optional)</Label>
-                  <Input id="linkedinLink" placeholder="https://linkedin.com/in/yourprofile" value={links.linkedinLink} onChange={handleInputChange(setLinks, 'linkedinLink')} className="text-xs h-9 bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="githubLink" className="text-xs">GitHub Profile (Optional)</Label>
-                  <Input id="githubLink" placeholder="https://github.com/yourusername" value={links.githubLink} onChange={handleInputChange(setLinks, 'githubLink')} className="text-xs h-9 bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                </div>
-              </SectionWrapperMobile>
-
-              <SectionWrapperMobile title="Job Preferences" icon={<Target className="h-5 w-5" />}>
-                <div className="space-y-2">
-                  <Label htmlFor="preferredRole" className="text-xs">Preferred Role</Label>
-                  <Input id="preferredRole" placeholder="e.g., Senior Software Engineer, Product Manager" value={preferredRole} onChange={handleInputChange(setPreferredRole)} className="text-xs h-9 bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="preferredLocation" className="text-xs">Preferred Location(s)</Label>
-                  <Input id="preferredLocation" placeholder="e.g., New York, NY; Remote; San Francisco Bay Area" value={preferredLocation} onChange={handleInputChange(setPreferredLocation)} className="text-xs h-9 bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="expectedSalary" className="text-xs">Expected Salary (Optional)</Label>
-                  <Input id="expectedSalary" placeholder="e.g., $120,000 per year, or desired range" value={expectedSalary} onChange={handleInputChange(setExpectedSalary)} className="text-xs h-9 bg-background/70 dark:bg-slate-700/50 border-border/50 focus:border-primary/70" />
-                </div>
-              </SectionWrapperMobile>
-
-              <div className="pt-3 pb-1">
-                <Button type="submit" className="w-full h-11 text-sm font-semibold group bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/30">
-                  <Save className="mr-2 h-4 w-4" /> Save Profile
-                </Button>
-              </div>
-            </form>
-          </ScrollArea>
-        </div>
-      </div>
-
-       {/* Desktop View */}
-      <div className="hidden md:flex flex-col items-center justify-center w-full max-w-4xl z-10 py-12">
-        <form onSubmit={handleSaveResume} className="w-full">
+      <div className="w-full max-w-4xl z-10 py-12">
+        <form onSubmit={handleSaveProfile}>
             <header className="flex justify-between items-center mb-8">
                 <div>
                   <h1 className="text-4xl font-bold text-foreground">Build Your Profile</h1>
                   <p className="text-muted-foreground mt-1">This information will help our AI find the best matches for you.</p>
                 </div>
-                <Button type="submit" size="lg" className="h-11 text-base font-semibold group bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/30">
-                    <Save className="mr-2 h-4 w-4" /> Save & Continue
+                <Button type="submit" size="lg" className="h-11 text-base font-semibold group bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/30" disabled={isLoading}>
+                    {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving...</> : (
+                        <>
+                            <Save className="mr-2 h-4 w-4" /> Save & Continue
+                        </>
+                    )}
                 </Button>
             </header>
 
-            <SectionWrapper title="Professional Summary" icon={<Sparkles className="h-6 w-6" />}>
-                <Textarea
-                  id="summary-desktop"
-                  placeholder="Write a brief, compelling summary of your career, skills, and goals to catch the eye of employers..."
-                  rows={4}
-                  value={professionalSummary}
-                  onChange={handleInputChange(setProfessionalSummary)}
-                  className="text-base"
-                />
-            </SectionWrapper>
+            {error && (
+                <Alert variant="destructive" className="mb-6">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            )}
 
-             <SectionWrapper title="Work Experience" icon={<Briefcase className="h-6 w-6" />}>
-                {experiences.map((exp, index) => (
-                  <div key={exp.id} className="space-y-4 border-b border-border/30 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0">
-                    {experiences.length > 1 && (
-                       <div className="flex justify-between items-center">
-                         <Label className="font-semibold text-muted-foreground">Experience #{index + 1}</Label>
-                         <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive/70 hover:bg-destructive/10 hover:text-destructive" onClick={() => removeExperience(exp.id)}>
-                            <Trash2 className="h-4 w-4" />
-                         </Button>
-                       </div>
-                    )}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <Label htmlFor={`jobTitle-desktop-${exp.id}`}>Job Title</Label>
-                            <Input id={`jobTitle-desktop-${exp.id}`} placeholder="e.g., Senior Software Engineer" value={exp.jobTitle} onChange={(e) => handleExperienceChange(index, 'jobTitle', e.target.value)} />
-                        </div>
-                        <div>
-                            <Label htmlFor={`company-desktop-${exp.id}`}>Company</Label>
-                            <Input id={`company-desktop-${exp.id}`} placeholder="e.g., Tech Solutions Inc." value={exp.company} onChange={(e) => handleExperienceChange(index, 'company', e.target.value)} />
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <Label htmlFor={`jobLocation-desktop-${exp.id}`}>Location</Label>
-                            <Input id={`jobLocation-desktop-${exp.id}`} placeholder="e.g., New York, NY" value={exp.jobLocation} onChange={(e) => handleExperienceChange(index, 'jobLocation', e.target.value)} />
-                        </div>
-                         <div>
-                            <Label htmlFor={`jobStartDate-desktop-${exp.id}`}>Start Date</Label>
-                            <Input id={`jobStartDate-desktop-${exp.id}`} type="text" placeholder="MM/YYYY" value={exp.jobStartDate} onChange={(e) => handleExperienceChange(index, 'jobStartDate', e.target.value)} />
-                        </div>
-                        <div>
-                            <Label htmlFor={`jobEndDate-desktop-${exp.id}`}>End Date</Label>
-                            <Input id={`jobEndDate-desktop-${exp.id}`} type="text" placeholder="MM/YYYY or Present" value={exp.jobEndDate} onChange={(e) => handleExperienceChange(index, 'jobEndDate', e.target.value)} />
-                        </div>
+            <SectionWrapper title="Personal Information" icon={<User className="h-6 w-6" />}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <Label htmlFor="date_of_birth">Date of Birth</Label>
+                        <Input id="date_of_birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleInputChange} />
                     </div>
                     <div>
-                        <Label htmlFor={`jobResponsibilities-desktop-${exp.id}`}>Responsibilities / Achievements</Label>
-                        <Textarea id={`jobResponsibilities-desktop-${exp.id}`} placeholder="Describe your key tasks, accomplishments, and impact. Use bullet points for clarity." rows={3} value={exp.jobResponsibilities} onChange={(e) => handleExperienceChange(index, 'jobResponsibilities', e.target.value)} />
+                        <Label>Gender</Label>
+                        <Select name="gender" onValueChange={(value) => handleSelectChange('gender', value)} value={formData.gender}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select gender" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="male">Male</SelectItem>
+                                <SelectItem value="female">Female</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
+                                <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
-                  </div>
-                ))}
-                <Button type="button" variant="outline" className="w-full mt-2 h-10 border-dashed border-primary/50 text-primary hover:bg-primary/10" onClick={addExperience}>
-                  <PlusCircle className="h-4 w-4 mr-1.5" /> Add Another Experience
-                </Button>
-            </SectionWrapper>
-
-            <SectionWrapper title="Education" icon={<BookOpen className="h-6 w-6" />}>
-              {educations.map((edu, index) => (
-                <div key={edu.id} className="space-y-4 border-b border-border/30 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0">
-                  {educations.length > 1 && (
-                     <div className="flex justify-between items-center">
-                       <Label className="font-semibold text-muted-foreground">Education #{index + 1}</Label>
-                       <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive/70 hover:bg-destructive/10 hover:text-destructive" onClick={() => removeEducation(edu.id)}>
-                          <Trash2 className="h-4 w-4" />
-                       </Button>
-                     </div>
-                  )}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                          <Label htmlFor={`degree-desktop-${edu.id}`}>Degree / Certificate</Label>
-                          <Input id={`degree-desktop-${edu.id}`} placeholder="e.g., B.S. in Computer Science" value={edu.degree} onChange={(e) => handleEducationChange(index, 'degree', e.target.value)} />
-                      </div>
-                      <div>
-                          <Label htmlFor={`institution-desktop-${edu.id}`}>Institution</Label>
-                          <Input id={`institution-desktop-${edu.id}`} placeholder="e.g., State University" value={edu.institution} onChange={(e) => handleEducationChange(index, 'institution', e.target.value)} />
-                      </div>
-                  </div>
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <Label htmlFor={`eduLocation-desktop-${edu.id}`}>Location</Label>
-                            <Input id={`eduLocation-desktop-${edu.id}`} placeholder="e.g., City, State" value={edu.eduLocation} onChange={(e) => handleEducationChange(index, 'eduLocation', e.target.value)} />
-                        </div>
-                        <div>
-                            <Label htmlFor={`gradDate-desktop-${edu.id}`}>Graduation Date</Label>
-                            <Input id={`gradDate-desktop-${edu.id}`} type="text" placeholder="MM/YYYY or Expected" value={edu.gradDate} onChange={(e) => handleEducationChange(index, 'gradDate', e.target.value)} />
-                        </div>
-                    </div>
-                  <div>
-                      <Label htmlFor={`eduDetails-desktop-${edu.id}`}>Relevant Coursework / Honors (Optional)</Label>
-                      <Textarea id={`eduDetails-desktop-${edu.id}`} placeholder="e.g., Dean's List, Capstone Project..." rows={2} value={edu.eduDetails} onChange={(e) => handleEducationChange(index, 'eduDetails', e.target.value)} />
-                  </div>
                 </div>
-              ))}
-              <Button type="button" variant="outline" className="w-full mt-2 h-10 border-dashed border-primary/50 text-primary hover:bg-primary/10" onClick={addEducation}>
-                <PlusCircle className="h-4 w-4 mr-1.5" /> Add Another Education
-              </Button>
+                 <div>
+                    <Label htmlFor="phone_number">Phone Number</Label>
+                    <Input id="phone_number" name="phone_number" type="tel" placeholder="+919876543210" value={formData.phone_number} onChange={handleInputChange} />
+                </div>
             </SectionWrapper>
             
-            <SectionWrapper title="Skills" icon={<Award className="h-6 w-6" />}>
-              <Textarea
-                id="skills-desktop"
-                placeholder="e.g., JavaScript, React, Project Management, Figma (comma-separated)"
-                rows={3}
-                value={skills}
-                onChange={handleInputChange(setSkills)}
-                className="text-base"
-              />
+            <SectionWrapper title="Location" icon={<MapPin className="h-6 w-6" />}>
+                 <div>
+                    <Label htmlFor="address_line_1">Address Line 1</Label>
+                    <Input id="address_line_1" name="address_line_1" placeholder="123 Street Name" value={formData.address_line_1} onChange={handleInputChange} />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <Label htmlFor="city">City</Label>
+                        <Input id="city" name="city" placeholder="e.g., Mumbai" value={formData.city} onChange={handleInputChange} />
+                    </div>
+                     <div>
+                        <Label htmlFor="state">State</Label>
+                        <Input id="state" name="state" placeholder="e.g., Maharashtra" value={formData.state} onChange={handleInputChange} />
+                    </div>
+                </div>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <Label htmlFor="postal_code">Postal Code</Label>
+                        <Input id="postal_code" name="postal_code" placeholder="e.g., 400001" value={formData.postal_code} onChange={handleInputChange} />
+                    </div>
+                     <div>
+                        <Label htmlFor="country">Country</Label>
+                        <Input id="country" name="country" value={formData.country} onChange={handleInputChange} />
+                    </div>
+                </div>
             </SectionWrapper>
-
-            <SectionWrapper title="Projects (Optional)" icon={<Briefcase className="h-6 w-6 opacity-70" />}>
-              {projects.map((proj, index) => (
-                <div key={proj.id} className="space-y-4 border-b border-border/30 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0">
-                  {projects.length > 1 && (
-                     <div className="flex justify-between items-center">
-                       <Label className="font-semibold text-muted-foreground">Project #{index + 1}</Label>
-                       <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive/70 hover:bg-destructive/10 hover:text-destructive" onClick={() => removeProject(proj.id)}>
-                          <Trash2 className="h-4 w-4" />
-                       </Button>
-                     </div>
-                  )}
-                  <div>
-                    <Label htmlFor={`projectTitle-desktop-${proj.id}`}>Project Title</Label>
-                    <Input id={`projectTitle-desktop-${proj.id}`} placeholder="e.g., Personal Portfolio Website" value={proj.projectTitle} onChange={(e) => handleProjectChange(index, 'projectTitle', e.target.value)} />
-                  </div>
-                  <div>
-                    <Label htmlFor={`projectDescription-desktop-${proj.id}`}>Description</Label>
-                    <Textarea id={`projectDescription-desktop-${proj.id}`} placeholder="Briefly describe your project..." rows={2} value={proj.projectDescription} onChange={(e) => handleProjectChange(index, 'projectDescription', e.target.value)} />
-                  </div>
-                   <div>
-                    <Label htmlFor={`projectLink-desktop-${proj.id}`}>Project Link</Label>
-                    <Input id={`projectLink-desktop-${proj.id}`} placeholder="https://github.com/yourproject" value={proj.projectLink} onChange={(e) => handleProjectChange(index, 'projectLink', e.target.value)} />
-                  </div>
+            
+            <SectionWrapper title="Professional Details" icon={<Briefcase className="h-6 w-6" />}>
+                 <div>
+                    <Label htmlFor="headline">Headline</Label>
+                    <Input id="headline" name="headline" placeholder="e.g., Full Stack Developer | AI Enthusiast" value={formData.headline} onChange={handleInputChange} />
                 </div>
-              ))}
-              <Button type="button" variant="outline" className="w-full mt-2 h-10 border-dashed border-primary/50 text-primary hover:bg-primary/10" onClick={addProject}>
-                <PlusCircle className="h-4 w-4 mr-1.5" /> Add Another Project
-              </Button>
-            </SectionWrapper>
-
-            <SectionWrapper title="Links" icon={<LinkIcon className="h-6 w-6" />}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="portfolioLink-desktop">Portfolio Website</Label>
-                  <Input id="portfolioLink-desktop" placeholder="https://yourportfolio.com" value={links.portfolioLink} onChange={handleInputChange(setLinks, 'portfolioLink')} />
+                 <div>
+                    <Label htmlFor="summary">Summary / Bio</Label>
+                    <Textarea id="summary" name="summary" placeholder="Experienced developer with 5+ years in web development..." rows={4} value={formData.summary} onChange={handleInputChange} />
                 </div>
-                <div>
-                  <Label htmlFor="linkedinLink-desktop">LinkedIn Profile</Label>
-                  <Input id="linkedinLink-desktop" placeholder="https://linkedin.com/in/yourprofile" value={links.linkedinLink} onChange={handleInputChange(setLinks, 'linkedinLink')} />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="githubLink-desktop">GitHub Profile</Label>
-                <Input id="githubLink-desktop" placeholder="https://github.com/yourusername" value={links.githubLink} onChange={handleInputChange(setLinks, 'githubLink')} />
-              </div>
             </SectionWrapper>
 
             <SectionWrapper title="Job Preferences" icon={<Target className="h-6 w-6" />}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="preferredRole-desktop">Preferred Role(s)</Label>
-                  <Input id="preferredRole-desktop" placeholder="e.g., Senior Software Engineer" value={preferredRole} onChange={handleInputChange(setPreferredRole)} />
+                    <Label>Current Job Status</Label>
+                     <RadioGroup name="job_status" onValueChange={(value) => handleRadioGroupChange('job_status', value)} value={formData.job_status} className="flex flex-col md:flex-row gap-4 mt-2">
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="actively_looking" id="status-active" />
+                            <Label htmlFor="status-active">Actively Looking</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="passively_looking" id="status-passive" />
+                            <Label htmlFor="status-passive">Passively Looking</Label>
+                        </div>
+                         <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="not_looking" id="status-not" />
+                            <Label htmlFor="status-not">Not Looking</Label>
+                        </div>
+                    </RadioGroup>
+                </div>
+                 <div>
+                    <Label>Preferred Job Types</Label>
+                    <div className="flex flex-col md:flex-row gap-4 mt-2">
+                        {['full_time', 'part_time', 'contract', 'remote', 'internship'].map(type => (
+                            <div key={type} className="flex items-center space-x-2">
+                                <Checkbox id={`type-${type}`} onCheckedChange={() => handleJobTypeChange(type)} checked={formData.preferred_job_types.includes(type)} />
+                                <Label htmlFor={`type-${type}`} className="capitalize">{type.replace('_', ' ')}</Label>
+                            </div>
+                        ))}
+                    </div>
                 </div>
                 <div>
-                  <Label htmlFor="preferredLocation-desktop">Preferred Location(s)</Label>
-                  <Input id="preferredLocation-desktop" placeholder="e.g., New York, NY; Remote" value={preferredLocation} onChange={handleInputChange(setPreferredLocation)} />
+                    <Label htmlFor="preferred_locations">Preferred Locations (comma-separated)</Label>
+                    <Input id="preferred_locations" name="preferred_locations" placeholder="e.g., Mumbai, Pune, Bangalore" value={formData.preferred_locations} onChange={handleInputChange} />
                 </div>
-              </div>
-              <div>
-                <Label htmlFor="expectedSalary-desktop">Expected Salary (Optional)</Label>
-                <Input id="expectedSalary-desktop" placeholder="e.g., $120,000 per year" value={expectedSalary} onChange={handleInputChange(setExpectedSalary)} />
-              </div>
+                
+                <div className="space-y-2">
+                    <Label htmlFor="preferred_roles">Preferred Roles (Press Enter to add)</Label>
+                    <div className="flex flex-wrap gap-2 p-2 border rounded-md min-h-[40px] bg-muted/50">
+                        {formData.preferred_roles.map((role, index) => (
+                        <Badge key={index} variant="secondary" className="pl-2 pr-1 py-0.5 text-sm bg-primary/20 text-primary-foreground border-primary/50">
+                            {role}
+                            <button type="button" onClick={() => removeArrayItem(index, 'preferred_roles')} className="ml-1 rounded-full hover:bg-destructive/20 p-0.5"><X className="h-3 w-3"/></button>
+                        </Badge>
+                        ))}
+                    </div>
+                    <Input 
+                      id="preferred_roles" 
+                      placeholder="Type a role and press Enter..." 
+                      list="job-roles-list" 
+                      onKeyDown={(e) => handleArrayInputChange(e, 'preferred_roles')} 
+                    />
+                    <datalist id="job-roles-list">
+                      {job_roles.map((role) => (
+                        <option key={role} value={role} />
+                      ))}
+                    </datalist>
+                </div>
+
+                 <div className="space-y-2">
+                    <Label htmlFor="dream_companies">Dream Companies (Press Enter to add)</Label>
+                    <div className="flex flex-wrap gap-2 p-2 border rounded-md min-h-[40px] bg-muted/50">
+                        {formData.dream_companies.map((company, index) => (
+                        <Badge key={index} variant="secondary" className="pl-2 pr-1 py-0.5 text-sm bg-accent/20 text-accent-foreground border-accent/50">
+                            {company}
+                            <button type="button" onClick={() => removeArrayItem(index, 'dream_companies')} className="ml-1 rounded-full hover:bg-destructive/20 p-0.5"><X className="h-3 w-3"/></button>
+                        </Badge>
+                        ))}
+                    </div>
+                    <Input 
+                      id="dream_companies" 
+                      placeholder="Type a company and press Enter..." 
+                      list="dream-companies-list" 
+                      onKeyDown={(e) => handleArrayInputChange(e, 'dream_companies')} 
+                    />
+                    <datalist id="dream-companies-list">
+                      {unique_big_companies.map((company) => (
+                        <option key={company} value={company} />
+                      ))}
+                    </datalist>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <Label htmlFor="expected_salary">Expected Annual Salary (INR)</Label>
+                        <Input id="expected_salary" name="expected_salary" type="number" placeholder="e.g., 800000" value={formData.expected_salary} onChange={handleInputChange} />
+                    </div>
+                     <div className="flex items-center space-x-4 pt-6">
+                        <Checkbox id="willing_to_relocate" name="willing_to_relocate" onCheckedChange={(checked) => handleCheckboxChange('willing_to_relocate', Boolean(checked))} checked={formData.willing_to_relocate} />
+                        <Label htmlFor="willing_to_relocate" className="text-base">Willing to relocate for the right opportunity?</Label>
+                    </div>
+                </div>
             </SectionWrapper>
+
+             <SectionWrapper title="Online Presence" icon={<LinkIcon className="h-6 w-6" />}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <Label htmlFor="linkedin_url">LinkedIn Profile URL</Label>
+                        <Input id="linkedin_url" name="linkedin_url" placeholder="https://linkedin.com/in/yourprofile" value={formData.linkedin_url} onChange={handleInputChange} />
+                    </div>
+                     <div>
+                        <Label htmlFor="portfolio_url">Portfolio/Website URL</Label>
+                        <Input id="portfolio_url" name="portfolio_url" placeholder="https://yourportfolio.dev" value={formData.portfolio_url} onChange={handleInputChange} />
+                    </div>
+                </div>
+            </SectionWrapper>
+            
+            <SectionWrapper title="Privacy Settings" icon={<Lock className="h-6 w-6" />}>
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 rounded-md bg-muted/40">
+                        <Label htmlFor="profile_visibility" className="font-medium">Profile Visibility</Label>
+                        <Switch id="profile_visibility" name="profile_visibility" onCheckedChange={(checked) => handleCheckboxChange('profile_visibility', checked)} checked={formData.profile_visibility} />
+                    </div>
+                     <div className="flex items-center justify-between p-3 rounded-md bg-muted/40">
+                        <Label htmlFor="allow_recruiter_contact" className="font-medium">Allow Recruiter Contact</Label>
+                        <Switch id="allow_recruiter_contact" name="allow_recruiter_contact" onCheckedChange={(checked) => handleCheckboxChange('allow_recruiter_contact', checked)} checked={formData.allow_recruiter_contact} />
+                    </div>
+                </div>
+            </SectionWrapper>
+
         </form>
       </div>
-
 
       <style jsx global>{`
         @keyframes pulse_slow_bg {
