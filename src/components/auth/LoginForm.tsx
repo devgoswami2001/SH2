@@ -32,7 +32,7 @@ export function LoginForm() {
       const loginResponse = await fetch('https://backend.hyresense.com/api/v1/token/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: username, password: password })
+          body: JSON.stringify({ email: username, password: password, role: 'jobseeker' })
       });
 
       if (!loginResponse.ok) {
