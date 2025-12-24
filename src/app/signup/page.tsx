@@ -57,7 +57,7 @@ export default function SignupPage() {
 
     try {
       // Step 1: Register the user
-      const registerResponse = await fetch('https://backend.hyresense.com/api/v1/register/jobseeker', {
+      const registerResponse = await fetch('http://127.0.0.1:8000/api/v1/register/jobseeker', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ export default function SignupPage() {
       }
 
       // Step 2: Generate OTP
-      const otpResponse = await fetch('https://backend.hyresense.com/api/v1/otp/generate', {
+      const otpResponse = await fetch('http://127.0.0.1:8000/api/v1/otp/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

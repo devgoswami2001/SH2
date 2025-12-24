@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Briefcase, Building, MapPin, Users, Rss, Newspaper, Loader2, AlertCircle, ArrowLeft, FilePenLine, Save, X, Activity, ArrowRight, UserPlus, AlertTriangle, CheckCircle, Linkedin } from 'lucide-react';
+import { Briefcase, Building, MapPin, Users, Rss, Newspaper, Loader2, AlertCircle, ArrowLeft, FilePenLine, Save, X, Activity, ArrowRight, UserPlus, AlertTriangle, CheckCircle } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -20,8 +20,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Icons } from '@/components/icons';
 import { AppHeader } from '@/components/layout/AppHeader';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { cn } from '@/lib/utils';
 
 
 // --- Data Structures based on API ---
@@ -45,17 +43,7 @@ interface CompanyPost {
     category: string;
 }
 
-interface LeadershipMember {
-    id: number;
-    name: string;
-    position: string;
-    bio: string;
-    linkedin: string;
-    photo: string | null;
-}
-
-// Represents the `employer_profile` object in the API response
-interface EmployerProfileData {
+interface CompanyProfile {
     id: string;
     name: string;
     tagline: string | null;
@@ -67,36 +55,38 @@ interface EmployerProfileData {
     banner: string | null;
     about: string;
     website: string;
-    description: string;
-    company_name: string;
-    designation: string | null;
-}
-
-// Represents the entire shape of the data passed to the page content component
-interface CompanyPageData {
-    id: string;
-    company_name: string;
-    designation: string | null;
-    description: string;
-    website: string;
-    logo: string | null;
-    banner: string | null;
     jobs: CompanyJob[];
     posts: CompanyPost[];
-    leadership_team: LeadershipMember[];
-    company_stats: {
-        active_jobs: number;
-        followers_count: number;
-    };
     user_permissions: {
         can_edit_profile: boolean;
     };
+    company_stats: {
+        active_jobs: number;
+    };
+    total_applications_count: number;
 }
-
 
 // --- Mapped Component Props ---
 interface CompanyProfilePageProps {
-    initialCompanyInfo: CompanyPageData | null;
+    initialCompanyInfo: {
+        id: string;
+        company_name: string;
+        designation: string | null;
+        description: string;
+        website: string;
+        logo: string | null;
+        banner: string | null;
+        jobs: CompanyJob[];
+        posts: CompanyPost[];
+        company_stats: {
+            active_jobs: number;
+            total_applications_count: number;
+            followers_count: number;
+        };
+        user_permissions: {
+            can_edit_profile: boolean;
+        };
+    } | null;
     error: string | null;
 }
 
@@ -118,7 +108,7 @@ const CompanyProfilePageContent = ({ initialCompanyInfo, error }: CompanyProfile
       return;
     }
     try {
-      const response = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/company/${initialCompanyInfo.id}/follow-status/`, {
+      const response = await fetch(`http://127.0.0.1:8000/api/v1/jobseeker/company/${initialCompanyInfo.id}/follow-status/`, {
         headers: { 'Authorization': `Bearer ${accessToken}` },
       });
       if (response.ok) {
@@ -147,7 +137,7 @@ const CompanyProfilePageContent = ({ initialCompanyInfo, error }: CompanyProfile
     }
 
     try {
-      const response = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/follow-company/`, {
+      const response = await fetch(`http://127.0.0.1:8000/api/v1/jobseeker/follow-company/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -162,7 +152,7 @@ const CompanyProfilePageContent = ({ initialCompanyInfo, error }: CompanyProfile
         throw new Error(data.detail || 'Something went wrong.');
       }
       
-      const newFollowingStatus = data.is_following;
+      const newFollowingStatus = data.status === "followed";
       setIsFollowing(newFollowingStatus);
 
       setCompanyInfo(prev => {
@@ -272,31 +262,14 @@ const CompanyProfilePageContent = ({ initialCompanyInfo, error }: CompanyProfile
                 </div>
                 <div className="flex-grow text-center md:text-left">
                      <h1 className="text-3xl font-bold font-headline text-foreground">{companyInfo.company_name}</h1>
+                     <p className="text-muted-foreground mt-1">{companyInfo.designation}</p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                     {!isEditing && (
                       <>
-                        <Button 
-                            onClick={handleFollowToggle} 
-                            disabled={isFollowLoading} 
-                            variant={isFollowing ? 'outline' : 'default'}
-                            className={cn(
-                                "w-32 group transition-all duration-300 ease-out transform hover:scale-105",
-                                isFollowing && "hover:bg-destructive/10 hover:border-destructive hover:text-destructive"
-                            )}
-                        >
+                        <Button onClick={handleFollowToggle} disabled={isFollowLoading} className="transition-transform hover:scale-105 w-[120px]" variant={isFollowing ? 'outline' : 'default'}>
                             {isFollowLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : (
-                                isFollowing ? (
-                                    <>
-                                        <CheckCircle className="mr-2 h-4 w-4 text-green-500 group-hover:text-destructive transition-colors"/> 
-                                        <span className="group-hover:hidden">Following</span>
-                                        <span className="hidden group-hover:inline">Unfollow</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <UserPlus className="mr-2 h-4 w-4"/> Follow
-                                    </>
-                                )
+                                isFollowing ? <><CheckCircle className="mr-2 h-4 w-4"/> Unfollow</> : <><UserPlus className="mr-2 h-4 w-4"/> Follow</>
                             )}
                         </Button>
                         {companyInfo.user_permissions.can_edit_profile && (
@@ -372,40 +345,12 @@ const CompanyProfilePageContent = ({ initialCompanyInfo, error }: CompanyProfile
                     <div className="mt-8 space-y-8">
                         <TabsContent value="about">
                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                               <div className="lg:col-span-2 space-y-8">
-                                    <div className="bg-card p-6 rounded-lg border">
-                                        <h2 className="text-2xl font-bold font-headline mb-4">About {companyInfo.company_name}</h2>
-                                        <Separator className="mb-6"/>
-                                            <div className="prose prose-base dark:prose-invert max-w-none text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                                                {companyInfo.description}
-                                            </div>
+                               <div className="lg:col-span-2 bg-card p-6 rounded-lg border">
+                                   <h2 className="text-2xl font-bold font-headline mb-4">About {companyInfo.company_name}</h2>
+                                   <Separator className="mb-6"/>
+                                    <div className="prose prose-base dark:prose-invert max-w-none text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                                        {companyInfo.description}
                                     </div>
-                                    {companyInfo.leadership_team && companyInfo.leadership_team.length > 0 && (
-                                        <div className="bg-card p-6 rounded-lg border">
-                                            <h2 className="text-2xl font-bold font-headline mb-4">Meet Our Leadership</h2>
-                                            <Separator className="mb-6"/>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                                {companyInfo.leadership_team.map(member => (
-                                                    <Card key={member.id} className="border-border/60 shadow-md hover:shadow-lg transition-shadow">
-                                                        <CardContent className="p-4 flex flex-col items-center text-center">
-                                                            <Avatar className="h-24 w-24 mb-4 border-4 border-primary/20">
-                                                                <AvatarImage src={member.photo || undefined} alt={member.name} />
-                                                                <AvatarFallback>{member.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
-                                                            </Avatar>
-                                                            <p className="font-semibold text-foreground">{member.name}</p>
-                                                            <p className="text-sm text-primary capitalize">{member.position}</p>
-                                                            <p className="text-xs text-muted-foreground mt-2 line-clamp-3">{member.bio}</p>
-                                                            <Button variant="ghost" size="icon" className="mt-3 text-muted-foreground hover:text-primary" asChild>
-                                                                <a href={member.linkedin} target="_blank" rel="noreferrer noopener">
-                                                                    <Linkedin className="h-5 w-5"/>
-                                                                </a>
-                                                            </Button>
-                                                        </CardContent>
-                                                    </Card>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
                                </div>
                                <div className="space-y-6">
                                    <Card className="bg-card border">
@@ -416,6 +361,10 @@ const CompanyProfilePageContent = ({ initialCompanyInfo, error }: CompanyProfile
                                            <div className="flex justify-between items-center gap-4">
                                                <span className="text-muted-foreground flex items-center gap-2"><Building /> Active Jobs</span>
                                                <span className="font-bold text-lg">{companyInfo.company_stats.active_jobs}</span>
+                                           </div>
+                                            <div className="flex justify-between items-center gap-4">
+                                               <span className="text-muted-foreground flex items-center gap-2"><Activity /> Total Applications</span>
+                                               <span className="font-bold text-lg">{companyInfo.total_applications_count}</span>
                                            </div>
                                            <div className="flex justify-between items-center gap-4">
                                                <span className="text-muted-foreground flex items-center gap-2"><Users /> Followers</span>
@@ -536,7 +485,7 @@ export default function CompanyPageWrapper() {
             }
 
             try {
-                const res = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/employer-profiles/${id}/`, {
+                const res = await fetch(`http://127.0.0.1:8000/api/v1/jobseeker/employer-profiles/${id}/`, {
                     headers: {
                         'Authorization': `Bearer ${accessToken}`
                     }
@@ -550,30 +499,25 @@ export default function CompanyPageWrapper() {
 
                 const companyData = await res.json();
                 
-                const formattedPosts = (companyData.latest_company_posts?.results || []).map((post: any) => ({
+                const formattedPosts = (companyData.latest_company_posts.results || []).map((post: any) => ({
                     ...post,
-                    image: post.image ? `https://backend.hyresense.com${post.image}` : null,
+                    image: post.image ? `http://127.0.0.1:8000${post.image}` : null,
                 }));
 
-                const formattedLeadership = (companyData.leadership_team?.results || []).map((member: any) => ({
-                    ...member,
-                    photo: member.photo ? `https://backend.hyresense.com${member.photo}`: null,
-                }))
-
-                const props: CompanyProfilePageProps = {
+                const props = {
                     initialCompanyInfo: {
                         id: companyData.employer_profile.id,
                         company_name: companyData.employer_profile.company_name,
                         designation: companyData.employer_profile.designation,
                         description: companyData.employer_profile.description,
                         website: companyData.employer_profile.website,
-                        logo: companyData.employer_profile.logo ? `https://backend.hyresense.com${companyData.employer_profile.logo}` : null,
-                        banner: companyData.employer_profile.banner ? `https://backend.hyresense.com${companyData.employer_profile.banner}` : null,
-                        jobs: companyData.latest_job_posts?.results || [],
+                        logo: companyData.employer_profile.logo ? `http://127.0.0.1:8000${companyData.employer_profile.logo}` : null,
+                        banner: companyData.employer_profile.banner ? `http://127.0.0.1:8000${companyData.employer_profile.banner}` : null,
+                        jobs: companyData.latest_job_posts.results || [],
                         posts: formattedPosts,
-                        leadership_team: formattedLeadership,
                         company_stats: { 
-                            active_jobs: companyData.latest_job_posts?.count || 0,
+                            active_jobs: companyData.employer_profile.active_jobs_count || 0,
+                            total_applications_count: companyData.employer_profile.total_applications_count || 0,
                             followers_count: companyData.employer_profile.followers_count || 0
                         },
                         user_permissions: companyData.user_permissions || { can_edit_profile: false },
@@ -622,4 +566,3 @@ export default function CompanyPageWrapper() {
     );
 }
 
-    

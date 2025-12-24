@@ -288,7 +288,7 @@ export default function AppliedJobsPage() {
       }
 
       try {
-          const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/applications/comprehensive/', {
+          const response = await fetch('http://127.0.0.1:8000/api/v1/jobseeker/applications/comprehensive/', {
                headers: { 'Authorization': `Bearer ${accessToken}` },
           });
           if (!response.ok) throw new Error("Failed to fetch your applications.");
@@ -324,7 +324,7 @@ export default function AppliedJobsPage() {
           });
 
           setAppliedJobs(formattedJobs);
-          if (formattedJobs.length > 0 && window.innerWidth >= 768) {
+          if (formattedJobs.length > 0) {
               setSelectedJob(formattedJobs[0]);
           }
 
@@ -356,7 +356,7 @@ export default function AppliedJobsPage() {
     }
     
     try {
-        const response = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/applications/${jobId}/status/`, {
+        const response = await fetch(`http://127.0.0.1:8000/api/v1/jobseeker/applications/${jobId}/status/`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',

@@ -48,10 +48,10 @@ export function AppHeader() {
 
         try {
             const [userResponse, profileResponse] = await Promise.all([
-                fetch('https://backend.hyresense.com/api/v1/jobseeker/users/me/', {
+                fetch('http://127.0.0.1:8000/api/v1/jobseeker/users/me/', {
                     headers: { 'Authorization': `Bearer ${accessToken}` }
                 }),
-                fetch('https://backend.hyresense.com/api/v1/jobseeker/jobseeker-profile/', {
+                fetch('http://127.0.0.1:8000/api/v1/jobseeker/jobseeker-profile/', {
                     headers: { 'Authorization': `Bearer ${accessToken}` }
                 })
             ]);
@@ -73,7 +73,7 @@ export function AppHeader() {
                 if (profile?.profile_picture) {
                     const imageUrl = profile.profile_picture;
                     if (!imageUrl.startsWith('http')) {
-                        avatarUrl = `https://backend.hyresense.com${imageUrl}`;
+                        avatarUrl = `http://127.0.0.1:8000${imageUrl}`;
                     } else {
                         avatarUrl = imageUrl;
                     }

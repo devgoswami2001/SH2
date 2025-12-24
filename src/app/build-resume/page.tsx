@@ -202,7 +202,7 @@ export default function BuildProfilePage() {
       
       setIsFetching(true);
       try {
-        const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/jobseeker-profile/', {
+        const response = await fetch('http://127.0.0.1:8000/api/v1/jobseeker/jobseeker-profile/', {
             headers: { 'Authorization': `Bearer ${accessToken}` }
         });
         
@@ -335,8 +335,8 @@ export default function BuildProfilePage() {
         };
 
         const url = profileId
-          ? `https://backend.hyresense.com/api/v1/jobseeker/jobseeker-profile/${profileId}/`
-          : 'https://backend.hyresense.com/api/v1/jobseeker/jobseeker-profile/';
+          ? `http://127.0.0.1:8000/api/v1/jobseeker/jobseeker-profile/${profileId}/`
+          : 'http://127.0.0.1:8000/api/v1/jobseeker/jobseeker-profile/';
 
         const method = profileId ? 'PATCH' : 'POST';
 

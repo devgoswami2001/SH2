@@ -508,13 +508,13 @@ export default function ProfilePage() {
 
     try {
       const [resumeResponse, userResponse, jobseekerResponse] = await Promise.all([
-        fetch('https://backend.hyresense.com/api/v1/jobseeker/resumes/', {
+        fetch('http://127.0.0.1:8000/api/v1/jobseeker/resumes/', {
           headers: { 'Authorization': `Bearer ${accessToken}` }
         }),
-        fetch('https://backend.hyresense.com/api/v1/jobseeker/users/me/', {
+        fetch('http://127.0.0.1:8000/api/v1/jobseeker/users/me/', {
           headers: { 'Authorization': `Bearer ${accessToken}` }
         }),
-        fetch('https://backend.hyresense.com/api/v1/jobseeker/jobseeker-profile/', {
+        fetch('http://127.0.0.1:8000/api/v1/jobseeker/jobseeker-profile/', {
           headers: { 'Authorization': `Bearer ${accessToken}` }
         })
       ]);
@@ -552,7 +552,7 @@ export default function ProfilePage() {
       if (jobseekerProfileDetails?.profile_picture) {
         const imageUrl = jobseekerProfileDetails.profile_picture;
         if (!imageUrl.startsWith('http')) {
-          finalAvatarUrl = `https://backend.hyresense.com${imageUrl}`;
+          finalAvatarUrl = `http://127.0.0.1:8000${imageUrl}`;
         } else {
           finalAvatarUrl = imageUrl;
         }
@@ -632,7 +632,7 @@ export default function ProfilePage() {
             last_name: nameParts.slice(1).join(' ') || ''
         };
         
-        await fetch('https://backend.hyresense.com/api/v1/jobseeker/users/me/', {
+        await fetch('http://127.0.0.1:8000/api/v1/jobseeker/users/me/', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
             body: JSON.stringify(userPayload)
@@ -668,7 +668,7 @@ export default function ProfilePage() {
             formData.append('profile_picture', file);
         }
 
-        const profileResponse = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/jobseeker-profile/${userProfile.id}/`, {
+        const profileResponse = await fetch(`http://127.0.0.1:8000/api/v1/jobseeker/jobseeker-profile/${userProfile.id}/`, {
             method: 'PATCH',
             headers: { 'Authorization': `Bearer ${accessToken}` },
             body: formData,

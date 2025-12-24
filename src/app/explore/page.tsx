@@ -130,7 +130,7 @@ const CompanyPostCard: React.FC<{ post: ApiPost; isDesktop?: boolean; onUpdatePo
     onUpdatePost(updatedPost);
     
     try {
-        const response = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/company-posts/${post.id}/like/`, {
+        const response = await fetch(`http://127.0.0.1:8000/api/v1/jobseeker/company-posts/${post.id}/like/`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${accessToken}` },
         });
@@ -154,7 +154,7 @@ const CompanyPostCard: React.FC<{ post: ApiPost; isDesktop?: boolean; onUpdatePo
       return;
     }
     try {
-      const response = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/comments/?post_id=${post.id}`, {
+      const response = await fetch(`http://127.0.0.1:8000/api/v1/jobseeker/comments/?post_id=${post.id}`, {
         headers: { 'Authorization': `Bearer ${accessToken}` },
       });
       if (!response.ok) throw new Error("Failed to fetch comments.");
@@ -187,7 +187,7 @@ const CompanyPostCard: React.FC<{ post: ApiPost; isDesktop?: boolean; onUpdatePo
         }
 
         try {
-            const response = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/company-posts/${post.id}/comment/`, {
+            const response = await fetch(`http://127.0.0.1:8000/api/v1/jobseeker/company-posts/${post.id}/comment/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
                 body: JSON.stringify({ comment: commentText })
@@ -224,7 +224,7 @@ const CompanyPostCard: React.FC<{ post: ApiPost; isDesktop?: boolean; onUpdatePo
     onUpdatePost(updatedPost);
 
     try {
-        await fetch(`https://backend.hyresense.com/api/v1/jobseeker/comments/${commentId}/like/`, {
+        await fetch(`http://127.0.0.1:8000/api/v1/jobseeker/comments/${commentId}/like/`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${accessToken}` },
         });
@@ -243,7 +243,7 @@ const CompanyPostCard: React.FC<{ post: ApiPost; isDesktop?: boolean; onUpdatePo
     onUpdatePost(updatedPost);
 
     try {
-        const response = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/comments/${commentId}/`, {
+        const response = await fetch(`http://127.0.0.1:8000/api/v1/jobseeker/comments/${commentId}/`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${accessToken}` },
         });
@@ -402,7 +402,7 @@ const ExploreContent: React.FC<{isDesktop?: boolean}> = ({ isDesktop }) => {
         }
 
         try {
-            const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/company-posts/', {
+            const response = await fetch('http://127.0.0.1:8000/api/v1/jobseeker/company-posts/', {
                 headers: { 'Authorization': `Bearer ${accessToken}` },
             });
             if (!response.ok) throw new Error("Failed to fetch posts.");
@@ -437,7 +437,7 @@ const ExploreContent: React.FC<{isDesktop?: boolean}> = ({ isDesktop }) => {
                 const accessToken = localStorage.getItem('accessToken');
                 if (!accessToken) return;
                 try {
-                    const res = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/search/employers/?name=${searchTerm}`, {
+                    const res = await fetch(`http://127.0.0.1:8000/api/v1/jobseeker/search/employers/?name=${searchTerm}`, {
                          headers: { 'Authorization': `Bearer ${accessToken}` }
                     });
                     if (res.ok) {

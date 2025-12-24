@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -14,7 +15,6 @@ import { AppHeader } from '@/components/layout/AppHeader';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 
 // --- Data Structures ---
@@ -91,7 +91,7 @@ export const JobDetailsView: React.FC<{
         }
 
         try {
-          const response = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/analyze-application/`, {
+          const response = await fetch(`http://127.0.0.1:8000/api/v1/jobseeker/analyze-application/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -140,11 +140,10 @@ export const JobDetailsView: React.FC<{
       <ScrollArea className="flex-grow">
         <div className={cn("space-y-4 p-4", isDesktop && "p-8 pt-4")}>
           <div className="flex flex-col md:flex-row gap-6">
-             <Avatar className="h-24 w-24 border-2 border-primary/20 p-2 shadow-md shrink-0">
-                <AvatarImage src={job.image} alt={job.company} data-ai-hint={job.dataAiHint} className="object-contain" />
-                <AvatarFallback className="text-3xl">{job.company.substring(0, 2)}</AvatarFallback>
-            </Avatar>
-            <div className="flex-grow">
+            <div className="md:w-1/3">
+              <Image src={job.image} alt={job.title} width={400} height={225} data-ai-hint={job.dataAiHint} className="object-cover w-full rounded-lg" />
+            </div>
+            <div className="md:w-2/3">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground">{job.title}</h2>
               <div className="text-base mt-1">
                 <span className="font-medium text-primary">{job.company}</span>
@@ -320,10 +319,9 @@ const JobCard = ({
       {/* Header */}
       <div className={cn("flex items-center justify-between p-4 border-b border-border", isDesktop && "p-6")}>
         <div className="flex items-center gap-4">
-           <Avatar className="h-12 w-12 border-2 border-primary/20 p-1 shadow-md shrink-0">
-              <AvatarImage src={job.image} alt={job.company} data-ai-hint={job.dataAiHint} className="object-contain" />
-              <AvatarFallback>{job.company.substring(0, 2)}</AvatarFallback>
-          </Avatar>
+          <div className="w-12 h-12 rounded-full bg-card flex items-center justify-center shadow-md shrink-0 border border-border">
+            <Image src={job.image} alt={`${job.company} logo`} width={48} height={48} data-ai-hint={job.dataAiHint} className="object-contain rounded-md w-full h-full" />
+          </div>
           <div className="overflow-hidden">
             <p className="text-sm font-medium text-primary">{job.company}</p>
             <h2 className={cn("font-semibold text-foreground", isDesktop ? "text-xl" : "text-lg")}>{job.title}</h2>
@@ -369,8 +367,8 @@ const JobCard = ({
               key={skill}
               variant="secondary"
               className="px-3 py-1 rounded-full border transition
-                         bg-secondary/10 text-secondary border-secondary/20
-                         dark:bg-secondary/20 dark:text-secondary dark:border-secondary/30"
+                         bg-secondary/10 text-primary border-secondary/20
+                         dark:bg-secondary/20 dark:text-primary dark:border-secondary/30"
             >
               {skill}
             </Badge>
@@ -417,7 +415,8 @@ export default function JobFeedPage() {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const [[page, direction], setPage] = useState([0, 0]);
+  const [page, setPage] = useState(0);
+  const [direction, setDirection] = useState(0);
 
   const [feedback, setFeedback] = useState<'Applied' | 'Rejected' | null>(null);
   const [selectedJobForDetails, setSelectedJobForDetails] = useState<AppJob | null>(null);
@@ -433,7 +432,8 @@ export default function JobFeedPage() {
   const currentJobToSwipe = jobsToSwipe.length ? jobsToSwipe[jobIndex] : undefined;
 
   const paginate = (newDirection: number) => {
-    setPage([page + newDirection, newDirection]);
+    setPage((p) => p + newDirection);
+    setDirection(newDirection);
   };
 
   useEffect(() => {
@@ -447,7 +447,7 @@ export default function JobFeedPage() {
         return;
       }
       try {
-        const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/jobs/by-skills/', {
+        const response = await fetch('http://127.0.0.1:8000/api/v1/jobseeker/jobs/by-skills/', {
           headers: { 'Authorization': `Bearer ${accessToken}` },
         });
         if (!response.ok) throw new Error('Failed to fetch jobs.');
@@ -485,7 +485,7 @@ export default function JobFeedPage() {
       return { success: false, message: "Not authenticated" };
     }
     try {
-      const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/job-applications/', {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/jobseeker/job-applications/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -747,7 +747,7 @@ export default function JobFeedPage() {
               <JobDetailsView job={selectedJobForDetails} onBack={() => setSelectedJobForDetails(null)} isDesktop={true} onApply={handleApplyFromDetails} />
             </div>
           ) : (
-            <AnimatePresence initial={false} custom={direction}>
+            <AnimatePresence initial={false} custom={direction} mode="wait">
               {jobsToSwipe.length > 0 && currentJobToSwipe && (
                 <motion.div
                   key={page}
@@ -757,9 +757,8 @@ export default function JobFeedPage() {
                   animate="center"
                   exit="exit"
                   transition={{
-                     x: { type: "spring", stiffness: 300, damping: 30 },
-                    opacity: { duration: 0.2 },
-                    scale: { duration: 0.2 }
+                    x: { type: "spring", stiffness: 300, damping: 30 },
+                    opacity: { duration: 0.2 }
                   }}
                   drag="x"
                   dragConstraints={{ left: 0, right: 0 }}

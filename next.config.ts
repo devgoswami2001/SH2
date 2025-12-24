@@ -12,9 +12,9 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'backend.hyresense.com',
-        port: '',
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '8000',
         pathname: '/**',
       },
       {
