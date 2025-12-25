@@ -33,6 +33,7 @@ export function Footer() {
               <ul role="list" className="mt-4 space-y-2">
                 <li><Link href="/about" className="text-sm text-muted-foreground hover:text-foreground">About Us</Link></li>
                 <li><Link href="/investors" className="text-sm text-muted-foreground hover:text-foreground">Investors</Link></li>
+                <li><a href="/msme_certificate.pdf" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground">MSME Certificate</a></li>
               </ul>
             </div>
              <div>
