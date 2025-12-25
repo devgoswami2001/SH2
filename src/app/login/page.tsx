@@ -1,6 +1,6 @@
 
 import React, { Suspense } from 'react';
-import { LoginClient } from '@/components/auth/LoginClient';
+import { LoginClient } from './LoginClient';
 import { Loader2 } from 'lucide-react';
 
 // This is now a Server Component
