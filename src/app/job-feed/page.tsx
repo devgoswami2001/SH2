@@ -91,7 +91,7 @@ export const JobDetailsView: React.FC<{
         }
 
         try {
-          const response = await fetch(`http://127.0.0.1:8000/api/v1/jobseeker/analyze-application/`, {
+          const response = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/analyze-application/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -291,7 +291,7 @@ const JobCard = ({
       return;
     }
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/jobseeker/analyze-application/`, {
+      const response = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/analyze-application/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
         body: JSON.stringify({ job_post_id: job.id })
@@ -447,7 +447,7 @@ export default function JobFeedPage() {
         return;
       }
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/v1/jobseeker/jobs/by-skills/', {
+        const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/jobs/by-skills/', {
           headers: { 'Authorization': `Bearer ${accessToken}` },
         });
         if (!response.ok) throw new Error('Failed to fetch jobs.');
@@ -485,7 +485,7 @@ export default function JobFeedPage() {
       return { success: false, message: "Not authenticated" };
     }
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/v1/jobseeker/job-applications/', {
+      const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/job-applications/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

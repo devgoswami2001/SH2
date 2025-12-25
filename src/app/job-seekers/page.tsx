@@ -3,10 +3,10 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { CheckCircle, Lightbulb, BarChart3, Search, Sparkles, UserPlus, Target, Smartphone, TrendingUp, Compass, MessageSquare, ShieldCheck, ArrowRight, Briefcase, Zap, Brain, CheckCircle2, Palette, Server, Code2, BriefcaseBusiness, ZapIcon, GraduationCap } from 'lucide-react';
+import { CheckCircle, Lightbulb, BarChart3, Search, Sparkles, UserPlus, Target, Smartphone, TrendingUp, Compass, MessageSquare, ShieldCheck, ArrowRight, Briefcase, Zap, Brain, CheckCircle2, Palette, Server, Code2, BriefcaseBusiness, ZapIcon, GraduationCap, Check } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
@@ -98,6 +98,53 @@ const faqItems = [
   }
 ];
 
+const pricingPlans = [
+  {
+    name: 'Free',
+    price: '₹0',
+    duration: '/month',
+    description: 'Get started and experience the core of HyreSense.',
+    features: [
+      '20 Daily Job Swipes',
+      'HyreSense Self-Feedback on Applications',
+    ],
+    isPopular: false,
+  },
+  {
+    name: 'Basic',
+    price: '₹1260',
+    duration: '/month',
+    description: 'Unlock more opportunities and stand out from the crowd.',
+    features: [
+      '50 Daily Job Swipes',
+      'Advanced AI Job Matching',
+      'Profile Review by AI',
+      'Priority Application Listing',
+      'Verified Job Cards',
+      'HyreSense Self-Feedback on Applications',
+    ],
+    isPopular: true,
+  },
+  {
+    name: 'Premium',
+    price: '₹7560',
+    duration: '/6 months',
+    description: 'The ultimate toolkit for the serious job seeker.',
+    features: [
+      '60 Daily Job Swipes',
+      'Advanced AI Job Matching',
+      'Profile Review by AI',
+      'Priority Application Listing',
+      'Verified Job Cards',
+      '1 Mock Interview(s) Monthly',
+      'Direct Skill Development & Training Access',
+      'HyreSense Self-Feedback on Applications',
+    ],
+    isPopular: false,
+  },
+];
+
+
 export default function JobSeekersPage() {
   const [heroTitleRef, isHeroTitleVisible] = useScrollAnimation<HTMLHeadingElement>();
   const [heroSubtitleRef, isHeroSubtitleVisible] = useScrollAnimation<HTMLParagraphElement>();
@@ -106,6 +153,9 @@ export default function JobSeekersPage() {
 
   const [whyTitleRef, isWhyTitleVisible] = useScrollAnimation<HTMLHeadingElement>();
   const [whySubtitleRef, isWhySubtitleVisible] = useScrollAnimation<HTMLParagraphElement>();
+  
+  const [pricingTitleRef, isPricingTitleVisible] = useScrollAnimation<HTMLHeadingElement>();
+  const [pricingSubtitleRef, isPricingSubtitleVisible] = useScrollAnimation<HTMLParagraphElement>();
 
   const [howTitleRef, isHowTitleVisible] = useScrollAnimation<HTMLHeadingElement>();
   const [howSubtitleRef, isHowSubtitleVisible] = useScrollAnimation<HTMLParagraphElement>();
@@ -228,6 +278,80 @@ export default function JobSeekersPage() {
                   </Card>
                 </div>
               );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="py-16 sm:py-24 bg-background">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+          <div className="text-center mb-16">
+            <h2
+              ref={pricingTitleRef}
+              className={cn(
+                "text-3xl lg:text-4xl font-extrabold tracking-tight opacity-0 translate-y-10 transition-all duration-700 ease-out",
+                isPricingTitleVisible && "opacity-100 translate-y-0"
+              )}
+            >
+              Choose Your Plan
+            </h2>
+            <p
+              ref={pricingSubtitleRef}
+              className={cn(
+                "mt-4 text-lg text-muted-foreground max-w-2xl mx-auto opacity-0 translate-y-10 transition-all duration-700 ease-out",
+                isPricingSubtitleVisible && "opacity-100 translate-y-0 delay-200"
+              )}
+              style={{ transitionDelay: isPricingSubtitleVisible ? '200ms' : '0ms' }}
+            >
+              Start for free or upgrade to unlock powerful features that accelerate your job search.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+            {pricingPlans.map((plan, index) => {
+               const [planCardRef, isPlanCardVisible] = useScrollAnimation<HTMLDivElement>({ threshold: 0.1, triggerOnce: true });
+               return (
+                <div
+                    key={plan.name}
+                    ref={planCardRef}
+                    className={cn(
+                        "opacity-0 translate-y-10 transition-all duration-500 ease-out",
+                        isPlanCardVisible && "opacity-100 translate-y-0"
+                    )}
+                    style={{ transitionDelay: isPlanCardVisible ? `${index * 150}ms` : '0ms' }}
+                >
+                    <Card className={cn("h-full flex flex-col shadow-xl border-2 transition-all duration-300", plan.isPopular ? "border-primary shadow-primary/20" : "border-border/40 hover:border-primary/50")}>
+                        {plan.isPopular && (
+                            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                                <Badge variant="default" className="text-sm">Most Popular</Badge>
+                            </div>
+                        )}
+                        <CardHeader className="text-center pt-10">
+                            <CardTitle className="text-3xl font-bold">{plan.name}</CardTitle>
+                            <CardDescription>{plan.description}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex-grow space-y-6">
+                            <div className="text-center">
+                                <span className="text-5xl font-extrabold">{plan.price}</span>
+                                <span className="text-muted-foreground">{plan.duration}</span>
+                            </div>
+                            <ul className="space-y-3 text-sm">
+                                {plan.features.map((feature, i) => (
+                                <li key={i} className="flex items-start gap-3">
+                                    <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                                    <span className="text-muted-foreground">{feature}</span>
+                                </li>
+                                ))}
+                            </ul>
+                        </CardContent>
+                        <CardFooter>
+                            <Button size="lg" className="w-full text-base" variant={plan.isPopular ? "default" : "outline"}>
+                                Get Started
+                            </Button>
+                        </CardFooter>
+                    </Card>
+                </div>
+               );
             })}
           </div>
         </div>

@@ -1,7 +1,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,13 +11,15 @@ import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from '@/hooks/use-toast';
-import { Mail, MapPin, Phone, Send, Linkedin, Twitter, Instagram, MessageSquare, Building, Info, Youtube } from 'lucide-react';
+import { Mail, MapPin, Phone, Send, Linkedin, Twitter, Instagram, Building, Info, AlertCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const contactFormSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  full_name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Please enter a valid email address." }),
   subject: z.string().min(5, { message: "Subject must be at least 5 characters." }),
   message: z.string().min(10, { message: "Message must be at least 10 characters." }),
@@ -28,7 +30,7 @@ type ContactFormValues = z.infer<typeof contactFormSchema>;
 interface ContactInfoItemProps {
   icon: React.ReactNode;
   title: string;
-  value: string | React.ReactNode;
+  value: string | React.ReactNode; 
   href?: string;
   delay?: number;
 }
@@ -61,34 +63,47 @@ const ContactInfoItem: React.FC<ContactInfoItemProps> = ({ icon, title, value, h
   );
 };
 
+
 export default function ContactUsPage() {
   const { register, handleSubmit, formState: { errors }, reset } = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
   });
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const onSubmit: SubmitHandler<ContactFormValues> = async (data) => {
-    // Placeholder for actual form submission logic
-    console.log(data);
-    toast({
-      title: "Message Sent!",
-      description: "Thank you for reaching out. We'll get back to you soon.",
-    });
-    reset(); // Reset form fields after submission
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('https://backend.hyresense.com/api/v1/contact/send-message/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to send message.');
+      }
+
+      toast({
+        title: "Message Sent!",
+        description: "Thank you for reaching out. We'll get back to you soon.",
+      });
+      reset();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const [heroTitleRef, isHeroTitleVisible] = useScrollAnimation<HTMLHeadingElement>();
   const [heroSubtitleRef, isHeroSubtitleVisible] = useScrollAnimation<HTMLParagraphElement>();
   const [contactDetailsCardRef, isContactDetailsCardVisible] = useScrollAnimation<HTMLDivElement>();
-  const [contactFormCardRef, isContactFormCardRefVisible] = useScrollAnimation<HTMLDivElement>();
-  const [faqTitleRef, isFaqTitleVisible] = useScrollAnimation<HTMLHeadingElement>();
-  const [faqSubtitleRef, isFaqSubtitleVisible] = useScrollAnimation<HTMLParagraphElement>();
-
-  const contactReasons = [
-    { icon: <MessageSquare className="h-8 w-8 text-accent" />, title: "General Inquiries", description: "Have a question about HyreSense? We're here to help." },
-    { icon: <Building className="h-8 w-8 text-accent" />, title: "Partnership Opportunities", description: "Interested in collaborating with us? Let's talk." },
-    { icon: <Info className="h-8 w-8 text-accent" />, title: "Support & Feedback", description: "Need assistance or have suggestions? We value your input." },
-  ];
-
+  const [contactFormCardRef, isContactFormCardVisible] = useScrollAnimation<HTMLDivElement>();
+  
 
   return (
     <div className="bg-background text-foreground">
@@ -134,7 +149,7 @@ export default function ContactUsPage() {
                 <CardHeader className="p-0 pb-6">
                   <CardTitle className="text-2xl text-primary">Contact Information</CardTitle>
                   <CardDescription>
-                    Feel free to reach out via email or connect with us on social media.
+                    Feel free to reach out via email, phone, or connect on social media.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-0 space-y-6">
@@ -146,23 +161,33 @@ export default function ContactUsPage() {
                     delay={100}
                   />
                   <ContactInfoItem
-                    icon={<MapPin className="h-6 w-6" />}
-                    title="Our Office"
-                    value="Shaheed Nagar, Shaheed Path- Lucknow 226025"
+                    icon={<Phone className="h-6 w-6" />}
+                    title="Call Us"
+                    value="+91-9667436171" 
+                    href="tel:+919667436171"
                     delay={200}
                   />
                   <ContactInfoItem
-                    icon={<Phone className="h-6 w-6" />}
-                    title="Call Us"
-                    value="+91-9667436171"
+                    icon={<MapPin className="h-6 w-6" />}
+                    title="Our Office"
+                    value="5th Floor, DLF Centre, Savitri Cinema Complex, Greater Kailash-II, New Delhi 110048"
                     delay={300}
                   />
-                  <div className="pt-4">
+                  <Separator />
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2"><Building className="h-5 w-5 text-primary"/> Corporate Details</h4>
+                    <div className="space-y-1 text-sm text-muted-foreground">
+                        <p>A part of <strong className="text-foreground">MokshDan Solutions OPC Pvt Ltd</strong></p>
+                        <p><strong>TAN:</strong> LKNM14341F</p>
+                        <p><strong>PAN:</strong> AARCM7411P</p>
+                    </div>
+                  </div>
+                  <div className="pt-2">
                     <h4 className="font-semibold text-foreground mb-3">Follow Us:</h4>
                     <div className="flex space-x-4">
                       {[
                         { href: "#", icon: <Linkedin className="h-6 w-6" />, label: "LinkedIn", delay:400 },
-                        { href: "#", icon: <Youtube className="h-6 w-6" />, label: "Youtube", delay: 500 },
+                        { href: "#", icon: <Twitter className="h-6 w-6" />, label: "Twitter", delay: 500 },
                         { href: "#", icon: <Instagram className="h-6 w-6" />, label: "Instagram", delay: 600 },
                       ].map(social => {
                          const [socialRef, isSocialVisible] = useScrollAnimation<HTMLAnchorElement>({ threshold: 0.2, triggerOnce: true });
@@ -195,9 +220,9 @@ export default function ContactUsPage() {
               ref={contactFormCardRef}
               className={cn(
                 "lg:col-span-3 opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isContactFormCardRefVisible && "opacity-100 translate-y-0 delay-400"
+                isContactFormCardVisible && "opacity-100 translate-y-0 delay-400"
               )}
-              style={{ transitionDelay: isContactFormCardRefVisible ? '400ms' : '0ms' }}
+              style={{ transitionDelay: isContactFormCardVisible ? '400ms' : '0ms' }}
             >
               <Card className="shadow-xl p-6 sm:p-8 bg-card/90 backdrop-blur-md border border-border/30">
                 <CardHeader className="p-0 pb-6 text-center lg:text-left">
@@ -208,16 +233,23 @@ export default function ContactUsPage() {
                 </CardHeader>
                 <CardContent className="p-0">
                   <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                    {error && (
+                        <Alert variant="destructive">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertTitle>Error</AlertTitle>
+                            <AlertDescription>{error}</AlertDescription>
+                        </Alert>
+                    )}
                     <div>
-                      <Label htmlFor="name" className="text-sm font-medium">Full Name</Label>
+                      <Label htmlFor="full_name" className="text-sm font-medium">Full Name</Label>
                       <Input
-                        id="name"
+                        id="full_name"
                         type="text"
                         placeholder="e.g., Jane Doe"
-                        {...register("name")}
-                        className={cn("mt-1.5", errors.name ? "border-destructive focus-visible:ring-destructive" : "")}
+                        {...register("full_name")}
+                        className={cn("mt-1.5 h-11", errors.full_name ? "border-destructive focus-visible:ring-destructive" : "")}
                       />
-                      {errors.name && <p className="mt-1 text-xs text-destructive">{errors.name.message}</p>}
+                      {errors.full_name && <p className="mt-1 text-xs text-destructive">{errors.full_name.message}</p>}
                     </div>
                     <div>
                       <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
@@ -226,7 +258,7 @@ export default function ContactUsPage() {
                         type="email"
                         placeholder="e.g., you@example.com"
                         {...register("email")}
-                        className={cn("mt-1.5", errors.email ? "border-destructive focus-visible:ring-destructive" : "")}
+                        className={cn("mt-1.5 h-11", errors.email ? "border-destructive focus-visible:ring-destructive" : "")}
                       />
                       {errors.email && <p className="mt-1 text-xs text-destructive">{errors.email.message}</p>}
                     </div>
@@ -237,7 +269,7 @@ export default function ContactUsPage() {
                         type="text"
                         placeholder="e.g., Partnership Inquiry"
                         {...register("subject")}
-                        className={cn("mt-1.5", errors.subject ? "border-destructive focus-visible:ring-destructive" : "")}
+                        className={cn("mt-1.5 h-11", errors.subject ? "border-destructive focus-visible:ring-destructive" : "")}
                       />
                       {errors.subject && <p className="mt-1 text-xs text-destructive">{errors.subject.message}</p>}
                     </div>
@@ -252,68 +284,14 @@ export default function ContactUsPage() {
                       />
                       {errors.message && <p className="mt-1 text-xs text-destructive">{errors.message.message}</p>}
                     </div>
-                    <Button type="submit" size="lg" className="w-full group">
-                      Send Message <Send className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    <Button type="submit" size="lg" className="w-full group h-11 text-base" disabled={isLoading}>
+                      {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Send className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />}
+                      {isLoading ? 'Sending...' : 'Send Message'}
                     </Button>
                   </form>
                 </CardContent>
               </Card>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Why Contact Us Section */}
-      <section className="py-16 sm:py-24 bg-secondary/30 dark:bg-slate-800/50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-          <div className="text-center mb-16">
-            <h2
-              ref={faqTitleRef}
-              className={cn(
-                "text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isFaqTitleVisible && "opacity-100 translate-y-0"
-              )}
-            >
-              How Can We <span className="text-primary">Assist You</span>?
-            </h2>
-            <p
-              ref={faqSubtitleRef}
-              className={cn(
-                "mt-4 text-lg text-muted-foreground max-w-2xl mx-auto opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isFaqSubtitleVisible && "opacity-100 translate-y-0 delay-200"
-              )}
-              style={{ transitionDelay: isFaqSubtitleVisible ? '200ms' : '0ms' }}
-            >
-              We're eager to connect and explore how HyreSense can support your goals.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {contactReasons.map((reason, index) => {
-              const [reasonCardRef, isReasonCardVisible] = useScrollAnimation<HTMLDivElement>({ threshold: 0.1, triggerOnce: true });
-              return (
-                <div
-                  key={reason.title}
-                  ref={reasonCardRef}
-                  className={cn(
-                    "opacity-0 translate-y-10 transition-all duration-500 ease-out",
-                    isReasonCardVisible && "opacity-100 translate-y-0"
-                  )}
-                  style={{ transitionDelay: isReasonCardVisible ? `${index * 150}ms` : '0ms' }}
-                >
-                  <Card className="text-center shadow-lg hover:shadow-xl transition-shadow duration-300 h-full bg-card hover:border-accent border-2 border-transparent p-4">
-                    <CardHeader className="items-center p-2">
-                      <div className="p-4 bg-accent/10 rounded-full inline-block mb-3">
-                        {reason.icon}
-                      </div>
-                      <CardTitle className="text-xl">{reason.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-2">
-                      <p className="text-muted-foreground text-sm">{reason.description}</p>
-                    </CardContent>
-                  </Card>
-                </div>
-              );
-            })}
           </div>
         </div>
       </section>

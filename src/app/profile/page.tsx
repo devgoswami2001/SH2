@@ -508,13 +508,13 @@ export default function ProfilePage() {
 
     try {
       const [resumeResponse, userResponse, jobseekerResponse] = await Promise.all([
-        fetch('http://127.0.0.1:8000/api/v1/jobseeker/resumes/', {
+        fetch('https://backend.hyresense.com/api/v1/jobseeker/resumes/', {
           headers: { 'Authorization': `Bearer ${accessToken}` }
         }),
-        fetch('http://127.0.0.1:8000/api/v1/jobseeker/users/me/', {
+        fetch('https://backend.hyresense.com/api/v1/jobseeker/users/me/', {
           headers: { 'Authorization': `Bearer ${accessToken}` }
         }),
-        fetch('http://127.0.0.1:8000/api/v1/jobseeker/jobseeker-profile/', {
+        fetch('https://backend.hyresense.com/api/v1/jobseeker/jobseeker-profile/', {
           headers: { 'Authorization': `Bearer ${accessToken}` }
         })
       ]);
@@ -632,7 +632,7 @@ export default function ProfilePage() {
             last_name: nameParts.slice(1).join(' ') || ''
         };
         
-        await fetch('http://127.0.0.1:8000/api/v1/jobseeker/users/me/', {
+        await fetch('https://backend.hyresense.com/api/v1/jobseeker/users/me/', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
             body: JSON.stringify(userPayload)
@@ -668,7 +668,7 @@ export default function ProfilePage() {
             formData.append('profile_picture', file);
         }
 
-        const profileResponse = await fetch(`http://127.0.0.1:8000/api/v1/jobseeker/jobseeker-profile/${userProfile.id}/`, {
+        const profileResponse = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/jobseeker-profile/${userProfile.id}/`, {
             method: 'PATCH',
             headers: { 'Authorization': `Bearer ${accessToken}` },
             body: formData,

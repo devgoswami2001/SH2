@@ -52,14 +52,14 @@ export function HeroSection() {
             asChild
             className="w-full sm:w-auto group bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.02]"
           >
-            <Link href="/login">
+            <Link href="/job-seekers">
               For Job Seekers
               <Briefcase className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
           </Button>
           <Button size="lg" variant="outline" asChild className="w-full sm:w-auto">
-            <Link href="https://talent-flow-seven.vercel.app/" target="_blank" rel="noopener noreferrer">
-              For Employers
+            <Link href="/employers">
+              For Recruiter
             </Link>
           </Button>
         </div>
@@ -74,11 +74,11 @@ export function HeroSection() {
           style={{ transitionDelay: isDashboardImageVisible ? '300ms' : '0ms' }}
         >
            <Image
-              src="https://placehold.co/1200x600.png"
-              alt="AI Talent Dashboard"
+              src="https://placehold.co/1200x600/e0e7ff/4a5568?text=Gudda"
+              alt="A doll"
               width={1200}
               height={600}
-              data-ai-hint="talent dashboard analytics"
+              data-ai-hint="doll"
               className="rounded-xl shadow-2xl border-2 border-primary/20"
             />
         </div>

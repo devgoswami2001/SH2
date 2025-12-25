@@ -3,304 +3,303 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Lightbulb, Rocket, Users, Heart, Sparkles, CheckCircle, MessageSquareQuote, TrendingUp, Zap } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Lightbulb, Rocket, Users, Heart, Sparkles, Building, Handshake, Gem, Goal } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useScrollAnimation } from '@/hooks/useScrollAnimation';
-import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.15,
+      duration: 0.5,
+      ease: "easeOut"
+    }
+  })
+};
+
+const textVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+        opacity: 1, 
+        y: 0,
+        transition: { duration: 0.6, ease: "easeOut" }
+    }
+};
+
+const heroContainerVariants = {
+  visible: {
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.1,
+    }
+  }
+};
 
 interface InfoCardProps {
   icon: React.ReactNode;
   title: string;
-  description: string | React.ReactNode;
-  delay?: number;
-  bgColorClass?: string;
-  textColorClass?: string;
-  iconColorClass?: string;
+  description: string;
+  index: number;
 }
 
-const InfoCard: React.FC<InfoCardProps> = ({ icon, title, description, delay = 0, bgColorClass = "bg-card", textColorClass = "text-foreground", iconColorClass = "text-primary" }) => {
-  const [cardRef, isCardVisible] = useScrollAnimation<HTMLDivElement>({ threshold: 0.1, triggerOnce: true });
-  return (
-    <div
-      ref={cardRef}
-      className={cn(
-        "opacity-0 translate-y-10 transition-all duration-500 ease-out",
-        isCardVisible && "opacity-100 translate-y-0"
-      )}
-      style={{ transitionDelay: isCardVisible ? `${delay}ms` : '0ms' }}
-    >
-      <Card className={cn("shadow-xl hover:shadow-2xl transition-shadow duration-300 h-full border-2 border-transparent hover:border-accent", bgColorClass)}>
-        <CardHeader className="items-center text-center pt-6 pb-4">
-          <div className={cn("p-4 bg-background/50 dark:bg-slate-700/50 rounded-full inline-block mb-3 ring-2 ring-offset-2 ring-offset-card ring-accent/50", iconColorClass)}>
-            {icon}
-          </div>
-          <CardTitle className={cn("text-2xl", textColorClass)}>{title}</CardTitle>
-        </CardHeader>
-        <CardContent className={cn("text-center pb-6 px-6", textColorClass === "text-primary-foreground" ? "text-primary-foreground/90" : "text-muted-foreground")}>
-          {typeof description === 'string' ? <p>{description}</p> : description}
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
+const InfoCard: React.FC<InfoCardProps> = ({ icon, title, description, index }) => (
+  <motion.div
+    variants={cardVariants}
+    initial="hidden"
+    whileInView="visible"
+    viewport={{ once: true, amount: 0.3 }}
+    custom={index}
+  >
+    <Card className="bg-card/60 dark:bg-slate-800/50 backdrop-blur-sm shadow-xl hover:shadow-primary/20 transition-all duration-300 h-full border border-border/30 hover:border-primary/50 transform hover:-translate-y-2">
+      <CardHeader className="items-center text-center">
+        <motion.div 
+            className="p-4 bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl mb-4 ring-1 ring-inset ring-border/50"
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            transition={{ type: "spring", stiffness: 300 }}
+        >
+          {icon}
+        </motion.div>
+        <CardTitle className="text-2xl">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="text-center text-muted-foreground">
+        <p>{description}</p>
+      </CardContent>
+    </Card>
+  </motion.div>
+);
 
 export default function AboutUsPage() {
-  const [heroTitleRef, isHeroTitleVisible] = useScrollAnimation<HTMLHeadingElement>();
-  const [heroSubtitleRef, isHeroSubtitleVisible] = useScrollAnimation<HTMLParagraphElement>();
-  const [introTitleRef, isIntroTitleRefVisible] = useScrollAnimation<HTMLHeadingElement>();
-  const [storyTitleRef, isStoryTitleRefVisible] = useScrollAnimation<HTMLHeadingElement>();
-  const [ctaVisualRef, isCtaVisualVisible] = useScrollAnimation<HTMLDivElement>();
-  const [ctaTitleRef, isCtaTitleRefVisible] = useScrollAnimation<HTMLHeadingElement>();
-  const [ctaButtonRef, isCtaButtonVisible] = useScrollAnimation<HTMLDivElement>();
-
-
-  const introParagraphs = [
-    {
-      icon: <MessageSquareQuote className="h-10 w-10 text-primary" />,
-      title: "Redefining Recruitment",
-      text: "Here at HyreSense, the Swipe based job portal, we’re redefining the way people find jobs and companies hire talent. Our mission is simple — make job hunting and hiring fast, smart, and human.",
-      delay: 0
-    },
-    {
-      icon: <Sparkles className="h-10 w-10 text-primary" />,
-      title: "Effortless Experience",
-      text: "Gone are the days of filling out long applications, uploading the same resume again and again, or endlessly scrolling through irrelevant job listings. We’ve built a platform that lets job seekers apply to opportunities in seconds with just a swipe — and helps employers discover top candidates faster than ever before.",
-      delay: 150
-    }
+  const values = [
+      { icon: <Sparkles className="h-8 w-8 text-accent"/>, title: "Innovation", description: "We constantly push the boundaries of what's possible." },
+      { icon: <Gem className="h-8 w-8 text-accent"/>, title: "Integrity", description: "We operate with transparency and honesty in everything we do." },
+      { icon: <Goal className="h-8 w-8 text-accent"/>, title: "Excellence", description: "We are committed to delivering the highest quality solutions." },
   ];
-
-  const storyParagraphs = [
-     {
-      icon: <Heart className="h-10 w-10 text-accent" />,
-      title: "Born from Simplicity",
-      text: "HyreSense was born out of a simple idea: Job hunting and hiring shouldn’t be slow, outdated, or frustrating.",
-      delay: 0
-    },
-    {
-      icon: <TrendingUp className="h-10 w-10 text-accent" />,
-      title: "Mobile-First, Smart Matching",
-      text: "We’ve created a mobile-first, swipe-enabled platform that puts speed, simplicity, and smart-matching at the heart of the job market. For candidates, it means quick applications. For recruiters, it means faster closures.",
-      delay: 150
-    }
-  ];
-
 
   return (
     <div className="text-foreground bg-background">
       {/* Hero Section */}
-      <section className="py-20 md:py-32 bg-gradient-to-br from-primary/10 via-transparent to-transparent">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1
-            ref={heroTitleRef}
-            className={cn(
-              "text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl opacity-0 translate-y-10 transition-all duration-700 ease-out",
-              isHeroTitleVisible && "opacity-100 translate-y-0"
-            )}
-          >
-            Meet <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">HyreSense</span>
-          </h1>
-          <p
-            ref={heroSubtitleRef}
-            className={cn(
-              "mt-6 max-w-2xl mx-auto text-lg text-muted-foreground sm:text-xl opacity-0 translate-y-10 transition-all duration-700 ease-out",
-              isHeroSubtitleVisible && "opacity-100 translate-y-0 delay-200"
-            )}
-            style={{ transitionDelay: isHeroSubtitleVisible ? '200ms' : '0ms' }}
-          >
-            Connecting Futures, One Swipe at a Time. We're passionate about making job hunting and hiring faster, smarter, and more human.
-          </p>
-        </div>
-      </section>
+      <motion.section 
+        className="relative py-24 md:py-40 text-center overflow-hidden"
+        variants={heroContainerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+         <div className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-transparent z-10"></div>
+         <div className="absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,white_30%,transparent_70%)]">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/10 to-primary/5 animate-pulse_slow_bg"></div>
+         </div>
 
-      {/* Introduction Section */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <motion.h1
+            variants={textVariants}
+            className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
+          >
+            We're <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">HyreSense</span>
+          </motion.h1>
+          <motion.p
+            variants={textVariants}
+            className="mt-6 max-w-2xl mx-auto text-lg text-muted-foreground sm:text-xl"
+          >
+            Connecting Futures, One Swipe at a Time. We are passionate about making the world of work more intelligent, intuitive, and human.
+          </motion.p>
+        </div>
+      </motion.section>
+
+      {/* Mission & Vision Section */}
       <section className="py-16 sm:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-          <div className="text-center mb-16">
-            <h2
-              ref={introTitleRef}
-              className={cn(
-                "text-3xl lg:text-4xl font-extrabold tracking-tight opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isIntroTitleRefVisible && "opacity-100 translate-y-0"
-              )}
-            >
-              Our Approach to a Better Job Market
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight">
+              Our Core Purpose
             </h2>
-          </div>
-          <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-stretch">
-            {introParagraphs.map((item, index) => (
-              <InfoCard
-                key={item.title}
-                icon={item.icon}
-                title={item.title}
-                description={<p className="text-base">{item.text}</p>}
-                delay={item.delay}
-                bgColorClass="bg-card dark:bg-slate-800/70"
-              />
-            ))}
+          </motion.div>
+          <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+            <InfoCard
+              icon={<Lightbulb className="h-10 w-10 text-primary" />}
+              title="Our Vision"
+              description="To create the world’s most intuitive and intelligent career platform, where opportunity and talent connect instantly and meaningfully."
+              index={0}
+            />
+            <InfoCard
+              icon={<Rocket className="h-10 w-10 text-accent" />}
+              title="Our Mission"
+              description="To empower professionals and companies by transforming the recruitment process into a seamless, data-driven, and mobile-first experience."
+              index={1}
+            />
           </div>
         </div>
       </section>
 
       {/* Our Story Section */}
-       <section className="py-16 sm:py-24 bg-secondary/30 dark:bg-slate-900/50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-          <div className="text-center mb-16">
-            <h2
-              ref={storyTitleRef}
-              className={cn(
-                "text-3xl lg:text-4xl font-extrabold tracking-tight opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isStoryTitleRefVisible && "opacity-100 translate-y-0"
-              )}
+       <section className="py-16 sm:py-24 bg-secondary/10 dark:bg-slate-900/50">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div 
+                className="grid lg:grid-cols-2 gap-12 items-center"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+                variants={heroContainerVariants}
             >
-              The <span className="text-accent">HyreSense</span> Story
-            </h2>
+              <motion.div variants={textVariants}>
+                <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight">
+                  The <span className="text-accent">HyreSense</span> Story
+                </h2>
+                <div className="mt-6 space-y-6 text-muted-foreground text-lg">
+                  <p>HyreSense was born from a simple but powerful observation: the traditional job market is broken. It's slow, impersonal, and frustrating for both job seekers and employers.</p>
+                  <p>We envisioned a future where finding a job is as easy as a swipe, and finding the right talent is no longer a search for a needle in a haystack. By putting a mobile-first, AI-powered platform at the core, we're making recruitment faster, smarter, and fundamentally more human.</p>
+                </div>
+              </motion.div>
+              <motion.div variants={cardVariants} custom={2}>
+                 <Card className="bg-card/60 backdrop-blur-sm shadow-xl border border-border/30 transform transition-all duration-500 hover:scale-105 hover:shadow-accent/20">
+                     <CardContent className="p-6">
+                        <div className="flex items-start gap-4">
+                            <div className="p-3 bg-accent/10 rounded-lg"><Heart className="h-8 w-8 text-accent"/></div>
+                            <div>
+                                <h3 className="text-lg font-semibold text-foreground">From Frustration to Innovation</h3>
+                                <p className="text-sm text-muted-foreground mt-1">We replaced endless forms with an intuitive swipe, and keyword searching with deep, intelligent matching.</p>
+                            </div>
+                        </div>
+                        <hr className="my-4 border-border/50" />
+                        <div className="flex items-start gap-4">
+                            <div className="p-3 bg-primary/10 rounded-lg"><Sparkles className="h-8 w-8 text-primary"/></div>
+                            <div>
+                                <h3 className="text-lg font-semibold text-foreground">The AI Advantage</h3>
+                                <p className="text-sm text-muted-foreground mt-1">For candidates, it means opportunities that truly fit. For recruiters, it means a curated shortlist of top-tier talent, delivered instantly.</p>
+                            </div>
+                        </div>
+                     </CardContent>
+                 </Card>
+              </motion.div>
+            </motion.div>
           </div>
-          <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-stretch">
-            {storyParagraphs.map((item, index) => (
-              <InfoCard
-                key={item.title}
-                icon={item.icon}
-                title={item.title}
-                description={<p className="text-base">{item.text}</p>}
-                delay={item.delay}
-                bgColorClass="bg-card dark:bg-slate-800/70"
-                iconColorClass="text-accent"
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Vision & Mission Section */}
+       </section>
+        
+      {/* Our Values Section */}
       <section className="py-16 sm:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-          <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-stretch">
-            <InfoCard
-              icon={<Lightbulb className="h-12 w-12" />}
-              title="Our Vision"
-              description="To make job search and recruitment effortless by creating the most intuitive, swipe-first job platform that connects talent with opportunity instantly."
-              delay={0}
-              bgColorClass="bg-gradient-to-br from-primary/80 to-primary/70 dark:from-primary/70 dark:to-primary/60"
-              textColorClass="text-primary-foreground"
-              iconColorClass="text-primary-foreground/80 bg-white/20"
-            />
-            <InfoCard
-              icon={<Rocket className="h-12 w-12" />}
-              title="Our Mission"
-              description="To empower professionals and companies to find the best match in seconds — not weeks — through a modern, mobile-first hiring experience."
-              delay={150}
-              bgColorClass="bg-gradient-to-br from-accent/80 to-accent/70 dark:from-accent/70 dark:to-accent/60"
-              textColorClass="text-primary-foreground"
-              iconColorClass="text-primary-foreground/80 bg-white/20"
-            />
-          </div>
+            <motion.div
+                className="text-center mb-16"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.5 }}
+                variants={textVariants}
+            >
+                <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight">Our Core Values</h2>
+                <p className="mt-4 text-lg text-muted-foreground">The principles that guide our decisions and define our culture.</p>
+            </motion.div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {values.map((value, index) => (
+                    <motion.div
+                        key={value.title}
+                        variants={cardVariants}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, amount: 0.3 }}
+                        custom={index}
+                    >
+                        <Card className="text-center p-6 bg-card/60 backdrop-blur-sm shadow-lg hover:shadow-accent/20 transition-all duration-300 h-full border border-border/30 transform hover:-translate-y-2">
+                           <div className="inline-block p-4 bg-accent/10 rounded-xl mb-4 ring-1 ring-inset ring-border/50">{value.icon}</div>
+                            <h3 className="text-xl font-bold text-foreground">{value.title}</h3>
+                            <p className="mt-2 text-muted-foreground text-sm">{value.description}</p>
+                        </Card>
+                    </motion.div>
+                ))}
+            </div>
         </div>
       </section>
-      
+
+      {/* Corporate Information Section */}
+      <section className="py-16 sm:py-24">
+        <motion.div 
+            className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl text-center"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={heroContainerVariants}
+        >
+            <motion.h2 
+                variants={textVariants}
+                className="text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground"
+            >
+                Corporate Information
+            </motion.h2>
+            <motion.div variants={textVariants}>
+                <Card className="shadow-xl p-6 bg-card/60 backdrop-blur-sm border border-border/30 max-w-lg mx-auto mt-8">
+                    <CardContent className="p-0 space-y-3 text-muted-foreground text-sm">
+                        <div className="flex items-center justify-center gap-2">
+                            <Building className="h-5 w-5 text-primary"/>
+                            <p>A part of <span className="font-semibold text-foreground">MokshDan Solutions OPC Pvt Ltd</span></p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                            <p><strong>TAN:</strong> LKNM14341F</p>
+                            <p><strong>PAN:</strong> AARCM7411P</p>
+                        </div>
+                    </CardContent>
+                </Card>
+            </motion.div>
+        </motion.div>
+      </section>
+
       {/* Call to Action Section */}
-      <section className="py-16 sm:py-24 bg-background">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl text-center">
-          <div
-            ref={ctaVisualRef}
-            className={cn(
-              "relative w-64 h-64 sm:w-72 sm:h-72 mx-auto mb-16 group opacity-0 scale-90 transition-all duration-1000 ease-out",
-              isCtaVisualVisible && "opacity-100 scale-100 delay-100"
-            )}
-            style={{ transitionDelay: isCtaVisualVisible ? '100ms' : '0ms' }}
+      <section className="py-16 sm:py-24 bg-gradient-to-r from-primary/90 to-accent/90">
+        <motion.div 
+            className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl text-center"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={heroContainerVariants}
+        >
+          <motion.div
+             variants={textVariants}
+             className="relative w-32 h-32 mx-auto mb-8"
           >
-            {/* Background Glows */}
-            <div className="absolute inset-0 rounded-full bg-primary/10 animate-pulse_slow opacity-70 blur-2xl group-hover:opacity-90 transition-opacity duration-700"></div>
-            <div 
-              className="absolute inset-4 rounded-full bg-accent/10 animate-pulse_slow opacity-60 blur-xl group-hover:opacity-80 transition-opacity duration-700"
-              style={{ animationDelay: '400ms' }}
-            ></div>
-
-            {/* Central Logo Element */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="p-5 sm:p-6 bg-card/80 dark:bg-slate-800/70 backdrop-blur-md rounded-full shadow-2xl border-2 border-primary/30 group-hover:border-accent/50 transition-all duration-300 transform group-hover:scale-105">
-                <Image 
-                  src="/logo.png" 
-                  alt="HyreSense Revolution Icon" 
-                  width={96}
-                  height={60} 
-                  className="opacity-90 group-hover:opacity-100 transition-opacity duration-300" 
-                />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <motion.div 
+                    className="p-5 bg-primary-foreground/90 backdrop-blur-md rounded-full shadow-2xl border-2 border-primary-foreground/30"
+                    whileHover={{ scale: 1.1 }}
+                    transition={{ type: "spring", stiffness: 200 }}
+                >
+                  <Image 
+                    src="/logo.png" 
+                    alt="HyreSense Logo" 
+                    width={48}
+                    height={30}
+                  />
+                </motion.div>
               </div>
-            </div>
-
-            {/* Surrounding Animated Dots */}
-            {[
-              { pos: "top-3 left-1/2 -translate-x-1/2", delay: "0ms", color: "bg-primary/70" },
-              { pos: "bottom-3 left-1/2 -translate-x-1/2", delay: "600ms", color: "bg-primary/70" },
-              { pos: "left-3 top-1/2 -translate-y-1/2", delay: "300ms", color: "bg-accent/70" },
-              { pos: "right-3 top-1/2 -translate-y-1/2", delay: "900ms", color: "bg-accent/70" },
-            ].map((dot, i) => (
-              <div
-                key={i}
-                className={cn(
-                  "absolute w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full opacity-70 group-hover:opacity-90 transition-opacity duration-500 animate-pulse_fast",
-                  dot.color,
-                  dot.pos
-                )}
-                style={{ animationDelay: dot.delay, animationDuration: '2.5s' }}
-              ></div>
-            ))}
-            {[
-              { pos: "top-10 left-10", delay: "100ms", color: "bg-accent/50" },
-              { pos: "top-10 right-10", delay: "400ms", color: "bg-primary/50" },
-              { pos: "bottom-10 left-10", delay: "700ms", color: "bg-primary/50" },
-              { pos: "bottom-10 right-10", delay: "1000ms", color: "bg-accent/50" },
-            ].map((dot, i) => (
-              <div
-                key={`corner-${i}`}
-                className={cn(
-                  "absolute w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full opacity-60 group-hover:opacity-80 transition-opacity duration-500 animate-pulse_fast",
-                  dot.color,
-                  dot.pos
-                )}
-                style={{ animationDelay: dot.delay, animationDuration: '3s' }}
-              ></div>
-            ))}
-          </div>
-          <h2 
-            ref={ctaTitleRef}
-            className={cn(
-              "text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground opacity-0 translate-y-10 transition-all duration-700 ease-out",
-              isCtaTitleRefVisible && "opacity-100 translate-y-0 delay-200"
-            )}
-             style={{ transitionDelay: isCtaTitleRefVisible ? '200ms' : '0ms' }}
+          </motion.div>
+          <motion.h2 
+            variants={textVariants}
+            className="text-3xl lg:text-4xl font-extrabold tracking-tight text-primary-foreground"
           >
-            Join the <span className="text-primary">HyreSense</span> Revolution
-          </h2>
-          <p 
-            className={cn(
-              "mt-4 text-lg text-muted-foreground max-w-xl mx-auto opacity-0 translate-y-10 transition-all duration-700 ease-out",
-               isCtaTitleRefVisible && "opacity-100 translate-y-0 delay-400" 
-            )}
-            style={{ transitionDelay: isCtaTitleRefVisible ? '400ms' : '0ms' }}
+            Join the HyreSense Revolution
+          </motion.h2>
+          <motion.p 
+            variants={textVariants}
+            className="mt-4 text-lg text-primary-foreground/90 max-w-xl mx-auto"
           >
-            Ready to experience a smarter way to find jobs or hire talent?
-Explore HyreSense and see the difference AI can make —
-An AI-driven platform by Mokshdan Solutions.
-          </p>
-          <div 
-            ref={ctaButtonRef}
-            className={cn(
-              "mt-10 opacity-0 translate-y-10 transition-all duration-700 ease-out",
-              isCtaButtonVisible && "opacity-100 translate-y-0 delay-600" 
-            )}
-            style={{ transitionDelay: isCtaButtonVisible ? '600ms' : '0ms' }}
-          >
-            <Button size="lg" asChild className="shadow-lg hover:shadow-xl transition-shadow transform hover:scale-105">
+            Ready to experience a smarter way to find jobs or hire talent? Explore HyreSense and see the difference AI can make.
+          </motion.p>
+          <motion.div variants={textVariants}>
+            <Button size="lg" variant="secondary" asChild className="mt-10 bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg hover:shadow-xl transition-shadow transform hover:scale-105">
               <Link href="/features">Discover Our Features</Link>
             </Button>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
     </div>
   );
 }
 
+    

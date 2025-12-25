@@ -47,7 +47,7 @@ export default function CreateResumePage() {
     formData.append('title', file.name.replace(/\.[^/.]+$/, ""));
 
     try {
-        const response = await fetch('http://127.0.0.1:8000/api/v1/jobseeker/upload-resume/', {
+        const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/upload-resume/', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${accessToken}`,

@@ -35,7 +35,7 @@ export default function LoginPage() {
 
     try {
       // Step 1: Log in to get the token
-      const loginResponse = await fetch('http://127.0.0.1:8000/api/v1/token/', {
+      const loginResponse = await fetch('https://backend.hyresense.com/api/v1/token/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: username, password: password })
@@ -51,7 +51,7 @@ export default function LoginPage() {
       localStorage.setItem('accessToken', accessToken);
 
       // Step 2: Check if the user has a resume
-      const resumeCheckResponse = await fetch('http://127.0.0.1:8000/api/v1/jobseeker/check-resume/', {
+      const resumeCheckResponse = await fetch('https://backend.hyresense.com/api/v1/jobseeker/check-resume/', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

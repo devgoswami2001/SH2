@@ -263,10 +263,10 @@ export default function HowItWorksPage() {
             style={{ transitionDelay: areCtaButtonsVisible ? '600ms' : '0ms' }}
           >
             <Button size="lg" asChild>
-              <Link href="/">Get Started as a Job Seeker</Link>
+              <Link href="/signup">Get Started as a Job Seeker</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <Link href="/">Find Talent as an Employer</Link>
+              <Link href="/employers">Find Talent as an Employer</Link>
             </Button>
           </div>
         </div>
@@ -274,5 +274,3 @@ export default function HowItWorksPage() {
     </div>
   );
 }
-
-    

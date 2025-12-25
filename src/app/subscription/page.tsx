@@ -186,7 +186,7 @@ const SubscriptionPageContent = () => {
             }
 
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/v1/jobseeker/subscriptions/', {
+                const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/subscriptions/', {
                     headers: { 'Authorization': `Bearer ${accessToken}` }
                 });
                 if (!response.ok) {
@@ -230,7 +230,7 @@ const SubscriptionPageContent = () => {
 
         try {
             // Step 1: Create order on the backend
-            const orderResponse = await fetch('http://127.0.0.1:8000/api/v1/jobseeker/payments/create-order/', {
+            const orderResponse = await fetch('https://backend.hyresense.com/api/v1/jobseeker/payments/create-order/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

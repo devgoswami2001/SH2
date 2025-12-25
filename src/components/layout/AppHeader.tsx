@@ -48,10 +48,10 @@ export function AppHeader() {
 
         try {
             const [userResponse, profileResponse] = await Promise.all([
-                fetch('http://127.0.0.1:8000/api/v1/jobseeker/users/me/', {
+                fetch('https://backend.hyresense.com/api/v1/jobseeker/users/me/', {
                     headers: { 'Authorization': `Bearer ${accessToken}` }
                 }),
-                fetch('http://127.0.0.1:8000/api/v1/jobseeker/jobseeker-profile/', {
+                fetch('https://backend.hyresense.com/api/v1/jobseeker/jobseeker-profile/', {
                     headers: { 'Authorization': `Bearer ${accessToken}` }
                 })
             ]);

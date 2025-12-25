@@ -9,7 +9,7 @@ import ThreeParticleSystem from '@/components/effects/three-particle-system';
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggleButton } from '@/components/layout/ThemeToggleButton';
 import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper'; // New import
-import { Analytics } from "@vercel/analytics/next"
+// import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -120,7 +120,6 @@ export default function RootLayout({
             <ThemeToggleButton />
           </div>
         </ThemeProvider>
-        <Analytics />
       </body>
     </html>
   );

@@ -40,6 +40,7 @@ export function Footer() {
               <ul role="list" className="mt-4 space-y-2">
                 <li><Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground">Privacy Policy</Link></li>
                 <li><Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground">Terms of Use</Link></li>
+                <li><Link href="/refund-policy" className="text-sm text-muted-foreground hover:text-foreground">Refund Policy</Link></li>
               </ul>
             </div>
           </div>
@@ -68,3 +69,4 @@ export function Footer() {
     </footer>
   );
 }
+

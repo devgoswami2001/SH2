@@ -108,7 +108,7 @@ const CompanyProfilePageContent = ({ initialCompanyInfo, error }: CompanyProfile
       return;
     }
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/jobseeker/company/${initialCompanyInfo.id}/follow-status/`, {
+      const response = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/company/${initialCompanyInfo.id}/follow-status/`, {
         headers: { 'Authorization': `Bearer ${accessToken}` },
       });
       if (response.ok) {
@@ -137,7 +137,7 @@ const CompanyProfilePageContent = ({ initialCompanyInfo, error }: CompanyProfile
     }
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/jobseeker/follow-company/`, {
+      const response = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/follow-company/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -485,7 +485,7 @@ export default function CompanyPageWrapper() {
             }
 
             try {
-                const res = await fetch(`http://127.0.0.1:8000/api/v1/jobseeker/employer-profiles/${id}/`, {
+                const res = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/employer-profiles/${id}/`, {
                     headers: {
                         'Authorization': `Bearer ${accessToken}`
                     }

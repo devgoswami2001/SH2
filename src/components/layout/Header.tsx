@@ -65,7 +65,7 @@ export function Header() {
                 <Link href="/job-seekers" className="cursor-pointer">For Job Seekers</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/employers" className="cursor-pointer">For Employers</Link>
+                <Link href="/employers" className="cursor-pointer">For Recruiter</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -150,13 +150,13 @@ export function Header() {
                         >
                           For Job Seekers
                         </Link>
-                         <a
+                         <Link
                            href="/employers"
                            className={cn(mobileNavLinkClasses, "text-base py-2")}
                            onClick={() => setIsMobileMenuOpen(false)}
                          >
-                           For Employers
-                         </a>
+                           For Recruiter
+                         </Link>
                       </AccordionContent>
                     </AccordionItem>
                   </Accordion>

@@ -160,7 +160,7 @@ export default function EditProfilePage() {
 
         setIsFetching(true);
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/v1/jobseeker/resumes/', {
+            const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/resumes/', {
                 headers: { 'Authorization': `Bearer ${accessToken}` }
             });
 
@@ -275,8 +275,8 @@ export default function EditProfilePage() {
     };
 
     const url = resumeId 
-        ? `http://127.0.0.1:8000/api/v1/jobseeker/resumes/${resumeId}/`
-        : 'http://127.0.0.1:8000/api/v1/jobseeker/resumes/';
+        ? `https://backend.hyresense.com/api/v1/jobseeker/resumes/${resumeId}/`
+        : 'https://backend.hyresense.com/api/v1/jobseeker/resumes/';
     
     const method = resumeId ? 'PATCH' : 'POST';
 

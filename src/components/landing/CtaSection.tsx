@@ -3,16 +3,58 @@
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { cn } from '@/lib/utils';
+import { useState, type FormEvent } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 export function CtaSection() {
+  const { toast } = useToast();
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
   const [sectionRef, isSectionVisible] = useScrollAnimation<HTMLElement>({ threshold: 0.2, triggerOnce: true });
   const [titleRef, isTitleVisible] = useScrollAnimation<HTMLHeadingElement>({ threshold: 0.2, triggerOnce: true });
   const [textRef, isTextVisible] = useScrollAnimation<HTMLParagraphElement>({ threshold: 0.2, triggerOnce: true });
   const [formRef, isFormVisible] = useScrollAnimation<HTMLFormElement>({ threshold: 0.2, triggerOnce: true });
   const [subtextRef, isSubtextVisible] = useScrollAnimation<HTMLParagraphElement>({ threshold: 0.2, triggerOnce: true });
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('https://backend.hyresense.com/api/v1/early-access/request/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Something went wrong. Please try again.');
+      }
+      
+      const responseData = await response.json();
+
+      toast({
+        title: 'Success!',
+        description: responseData.message || 'Your request for early access has been received.',
+      });
+      setEmail('');
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description: err.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <section 
@@ -37,10 +79,11 @@ export function CtaSection() {
           )}
           style={{ transitionDelay: isTextVisible ? '200ms' : '0ms' }}
         >
-          Join hyreSENSE today and experience the future of job searching and talent acquisition.
+          Join HyreSense today and experience the future of job searching and talent acquisition.
         </p>
         <form 
           ref={formRef}
+          onSubmit={handleSubmit}
           className={cn(
             "mt-10 max-w-md mx-auto sm:flex sm:gap-4 opacity-0 translate-y-10 transition-all duration-700 ease-out",
             isFormVisible && "opacity-100 translate-y-0 delay-400"
@@ -56,6 +99,8 @@ export function CtaSection() {
             id="email-address"
             autoComplete="email"
             required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full px-5 py-3 placeholder-muted-foreground/70 focus:ring-white text-foreground" // text-foreground so input text is visible on gradient
             placeholder="Enter your email"
           />
@@ -63,9 +108,16 @@ export function CtaSection() {
             type="submit"
             size="lg"
             className="mt-3 w-full sm:mt-0 sm:w-auto sm:flex-shrink-0 bg-primary-foreground text-primary hover:bg-primary-foreground/90 group"
+            disabled={isLoading}
           >
-            Get Early Access
-             <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            {isLoading ? (
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            ) : (
+              <>
+                Get Early Access
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </>
+            )}
           </Button>
         </form>
         <p 
