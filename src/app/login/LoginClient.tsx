@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { LoginForm } from '@/components/auth/LoginForm';
+import { LoginForm } from './LoginForm';
 import Link from 'next/link';
 import Image from 'next/image';
 
