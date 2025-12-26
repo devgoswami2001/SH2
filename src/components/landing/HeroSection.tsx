@@ -52,16 +52,20 @@ export function HeroSection() {
             asChild
             className="w-full sm:w-auto group bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.02]"
           >
-            <Link href="/job-seekers">
+            <Link href="/login">
               For Job Seekers
               <Briefcase className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
           </Button>
           <Button size="lg" variant="outline" asChild className="w-full sm:w-auto">
-            <Link href="/employers">
-              For Recruiter
+           <Link
+             href="https://recruiter.hyresense.com/"
+             target="_blank"
+             rel="noopener noreferrer"
+            >
+             For Recruiter
             </Link>
-          </Button>
+           </Button>
         </div>
       </div>
       {/* <div className="mt-16 md:mt-24 w-full">
