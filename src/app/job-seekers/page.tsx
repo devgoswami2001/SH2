@@ -17,22 +17,22 @@ import { UserIcon } from '@heroicons/react/24/solid';
 
 const whyHyreSenseFeatures = [
   {
-    icon: <Target className="h-10 w-10 text-primary" />,
+    icon: <Target className="h-8 w-8 text-primary" />,
     title: "Precision AI Matching",
-    description: "Stop scrolling endlessly. Our advanced AI understands your unique skills and aspirations to connect you with jobs that truly fit."
+    description: "Our advanced AI connects you with jobs that truly fit your unique skills and career goals, far beyond simple keyword matching."
   },
   {
-    icon: <TrendingUp className="h-10 w-10 text-primary" />,
-    title: "Skill Enhancement Hub",
-    description: "Identify skill gaps with AI analysis and discover personalized learning paths to boost your qualifications and career growth."
+    icon: <TrendingUp className="h-8 w-8 text-primary" />,
+    title: "AI Skill Gap Analysis",
+    description: "Identify skill gaps for your dream job and get personalized learning paths to boost your qualifications and career growth."
   },
   {
-    icon: <Smartphone className="h-10 w-10 text-primary" />,
-    title: "Intuitive Job Discovery",
-    description: "Experience a seamless and engaging job search. Swipe through tailored opportunities and apply with ease on any device."
+    icon: <Smartphone className="h-8 w-8 text-primary" />,
+    title: "Intuitive Swipe Interface",
+    description: "Job searching that's actually engaging. Swipe through tailored opportunities and apply with ease on any device."
   },
   {
-    icon: <Compass className="h-10 w-10 text-primary" />,
+    icon: <Compass className="h-8 w-8 text-primary" />,
     title: "Career Path Navigation",
     description: "Gain valuable insights into market demands, track your profile strength, and receive AI-driven advice to steer your career."
   }
@@ -40,24 +40,24 @@ const whyHyreSenseFeatures = [
 
 const howItWorksSteps = [
   {
-    icon: <UserPlus className="h-12 w-12 text-accent" />,
-    title: "1. Create Your Standout Profile",
-    description: "Build a comprehensive profile in minutes. Highlight your skills, experience, and career ambitions to attract the right employers."
+    icon: <UserPlus className="h-10 w-10 text-accent" />,
+    title: "1. Create Profile",
+    description: "Build a standout profile showcasing skills and experience."
   },
   {
-    icon: <Brain className="h-12 w-12 text-accent" />,
-    title: "2. AI-Powered Discovery",
-    description: "Let our intelligent algorithms work for you. Receive a curated feed of job opportunities perfectly matched to your profile and preferences."
+    icon: <Brain className="h-10 w-10 text-accent" />,
+    title: "2. AI Matching",
+    description: "Receive a curated feed of jobs perfectly matched to you."
   },
   {
-    icon: <CheckCircle2 className="h-12 w-12 text-accent" />,
-    title: "3. Engage & Apply with Ease",
-    description: "Swipe through personalized recommendations, learn more about exciting roles, and apply to your dream jobs with a simple tap."
+    icon: <CheckCircle2 className="h-10 w-10 text-accent" />,
+    title: "3. Swipe & Apply",
+    description: "Engage with roles and apply to your dream jobs with a tap."
   },
   {
-    icon: <Sparkles className="h-12 w-12 text-accent" />,
-    title: "4. Grow, Succeed & Thrive",
-    description: "Track your applications, get interview tips, enhance your skills, and connect with leading companies to accelerate your career."
+    icon: <Sparkles className="h-10 w-10 text-accent" />,
+    title: "4. Get Hired",
+    description: "Track applications, get interview tips, and land your next role."
   }
 ];
 
@@ -94,54 +94,19 @@ const faqItems = [
   },
   {
     question: "Are there any costs for job seekers to use HyreSense?",
-    answer: "HyreSense offers a comprehensive free tier for job seekers, providing access to AI job matching, profile creation, and application tracking. We may offer premium features in the future for accelerated career services."
+    answer: "HyreSense offers a comprehensive free tier for job seekers, providing access to AI job matching, profile creation, and application tracking. We also offer paid plans with advanced features to accelerate your job search."
   }
 ];
 
-const pricingPlans = [
-  {
-    name: 'Free',
-    price: '₹0',
-    duration: '/month',
-    description: 'Get started and experience the core of HyreSense.',
-    features: [
-      '20 Daily Job Swipes',
-      'HyreSense Self-Feedback on Applications',
-    ],
-    isPopular: false,
-  },
-  {
-    name: 'Basic',
-    price: '₹1260',
-    duration: '/month',
-    description: 'Unlock more opportunities and stand out from the crowd.',
-    features: [
-      '50 Daily Job Swipes',
-      'Advanced AI Job Matching',
-      'Profile Review by AI',
-      'Priority Application Listing',
-      'Verified Job Cards',
-      'HyreSense Self-Feedback on Applications',
-    ],
-    isPopular: true,
-  },
-  {
-    name: 'Premium',
-    price: '₹7560',
-    duration: '/6 months',
-    description: 'The ultimate toolkit for the serious job seeker.',
-    features: [
-      '60 Daily Job Swipes',
-      'Advanced AI Job Matching',
-      'Profile Review by AI',
-      'Priority Application Listing',
-      'Verified Job Cards',
-      '1 Mock Interview(s) Monthly',
-      'Direct Skill Development & Training Access',
-      'HyreSense Self-Feedback on Applications',
-    ],
-    isPopular: false,
-  },
+const pricingFeatures = [
+    { feature: 'Daily Job Swipes', free: '20', basic: '50', premium: <strong>Unlimited</strong> },
+    { feature: 'AI Job Matching', free: true, basic: <strong>Advanced</strong>, premium: <strong>Hyper-Precise</strong> },
+    { feature: 'Application Self-Feedback', free: true, basic: <strong>AI-Powered</strong>, premium: <strong>Deep Analysis</strong> },
+    { feature: 'Profile Review by AI', free: false, basic: true, premium: <strong>Enhanced</strong> },
+    { feature: 'Verified Job Cards', free: false, basic: true, premium: true },
+    { feature: 'Priority Application Listing', free: false, basic: true, premium: true },
+    { feature: 'Mock Interviews', free: false, basic: false, premium: <strong>1 / month</strong> },
+    { feature: 'Direct Skill Training Access', free: false, basic: false, premium: true },
 ];
 
 
@@ -163,7 +128,7 @@ export default function JobSeekersPage() {
   const [aiActionTitleRef, isAiActionTitleVisible] = useScrollAnimation<HTMLHeadingElement>();
   const [aiActionSubtitleRef, isAiActionSubtitleVisible] = useScrollAnimation<HTMLParagraphElement>();
   const [aiActionImageRef, isAiActionImageVisible] = useScrollAnimation<HTMLDivElement>();
-
+  
   const [testimonialsTitleRef, isTestimonialsTitleVisible] = useScrollAnimation<HTMLHeadingElement>();
   const [testimonialsSubtitleRef, isTestimonialsSubtitleVisible] = useScrollAnimation<HTMLParagraphElement>();
   
@@ -198,7 +163,7 @@ export default function JobSeekersPage() {
               )}
               style={{ transitionDelay: isHeroSubtitleVisible ? '200ms' : '0ms' }}
             >
-              Leverage the power of AI to discover opportunities perfectly aligned with your skills, experience, and career aspirations. Your next chapter starts with HyreSense.
+              Stop endlessly scrolling through irrelevant job postings. HyreSense uses AI to deliver opportunities perfectly aligned with your skills and career goals.
             </p>
             <div
               ref={heroButtonRef}
@@ -237,7 +202,7 @@ export default function JobSeekersPage() {
                 isWhyTitleVisible && "opacity-100 translate-y-0"
               )}
             >
-              Unlock Your Career Potential with HyreSense
+              More Than a Job Board, It's Your Career Co-Pilot
             </h2>
             <p
               ref={whySubtitleRef}
@@ -263,17 +228,58 @@ export default function JobSeekersPage() {
                   )}
                   style={{ transitionDelay: isCardVisible ? `${index * 150}ms` : '0ms' }}
                 >
-                  <Card className="shadow-xl hover:shadow-2xl transition-shadow duration-300 h-full border-l-4 border-primary hover:border-accent group">
-                    <CardHeader className="pb-4">
-                      <div className="flex items-center gap-4">
+                  <div className="flex items-start gap-4">
                         <span className="p-3 bg-primary/10 rounded-full group-hover:bg-accent/10 transition-colors">
                            {React.cloneElement(feature.icon, { className: cn(feature.icon.props.className, "group-hover:text-accent transition-colors") })}
                         </span>
-                        <CardTitle className="text-2xl group-hover:text-accent transition-colors">{feature.title}</CardTitle>
+                        <div>
+                            <h3 className="text-xl font-bold text-foreground">{feature.title}</h3>
+                            <p className="mt-1 text-muted-foreground">{feature.description}</p>
+                        </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+      
+      {/* How it works */}
+        <section className="py-16 sm:py-24 bg-secondary/30 dark:bg-slate-800/50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+          <div className="text-center mb-16">
+            <h2
+              ref={howTitleRef}
+              className={cn(
+                "text-3xl lg:text-4xl font-extrabold tracking-tight opacity-0 translate-y-10 transition-all duration-700 ease-out",
+                isHowTitleVisible && "opacity-100 translate-y-0"
+              )}
+            >
+              Your Journey to a Fulfilling Career: <span className="text-primary">Simple Steps</span>
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {howItWorksSteps.map((step, index) => {
+              const [stepRef, isStepVisible] = useScrollAnimation<HTMLDivElement>({ threshold: 0.1, triggerOnce: true });
+              return (
+                <div
+                  key={step.title}
+                  ref={stepRef}
+                  className={cn(
+                    "opacity-0 translate-y-10 transition-all duration-500 ease-out",
+                    isStepVisible && "opacity-100 translate-y-0"
+                  )}
+                  style={{ transitionDelay: isStepVisible ? `${index * 150}ms` : '0ms' }}
+                >
+                  <Card className="text-center shadow-lg hover:shadow-xl transition-shadow duration-300 h-full bg-card hover:border-accent border-2 border-transparent">
+                    <CardHeader className="items-center">
+                      <div className="p-3 bg-accent/10 rounded-full inline-block mb-3">
+                        {step.icon}
                       </div>
+                      <CardTitle className="text-xl">{step.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-muted-foreground text-base">{feature.description}</p>
+                      <p className="text-muted-foreground text-sm">{step.description}</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -307,175 +313,62 @@ export default function JobSeekersPage() {
               Start for free or upgrade to unlock powerful features that accelerate your job search.
             </p>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-            {pricingPlans.map((plan, index) => {
-               const [planCardRef, isPlanCardVisible] = useScrollAnimation<HTMLDivElement>({ threshold: 0.1, triggerOnce: true });
-               return (
-                <div
-                    key={plan.name}
-                    ref={planCardRef}
-                    className={cn(
-                        "opacity-0 translate-y-10 transition-all duration-500 ease-out",
-                        isPlanCardVisible && "opacity-100 translate-y-0"
-                    )}
-                    style={{ transitionDelay: isPlanCardVisible ? `${index * 150}ms` : '0ms' }}
-                >
-                    <Card className={cn("h-full flex flex-col shadow-xl border-2 transition-all duration-300", plan.isPopular ? "border-primary shadow-primary/20" : "border-border/40 hover:border-primary/50")}>
-                        {plan.isPopular && (
-                            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                                <Badge variant="default" className="text-sm">Most Popular</Badge>
-                            </div>
-                        )}
-                        <CardHeader className="text-center pt-10">
-                            <CardTitle className="text-3xl font-bold">{plan.name}</CardTitle>
-                            <CardDescription>{plan.description}</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex-grow space-y-6">
-                            <div className="text-center">
-                                <span className="text-5xl font-extrabold">{plan.price}</span>
-                                <span className="text-muted-foreground">{plan.duration}</span>
-                            </div>
-                            <ul className="space-y-3 text-sm">
-                                {plan.features.map((feature, i) => (
-                                <li key={i} className="flex items-start gap-3">
-                                    <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                                    <span className="text-muted-foreground">{feature}</span>
-                                </li>
-                                ))}
-                            </ul>
-                        </CardContent>
-                        <CardFooter>
-                            <Button size="lg" className="w-full text-base" variant={plan.isPopular ? "default" : "outline"}>
-                                Get Started
-                            </Button>
-                        </CardFooter>
-                    </Card>
+          
+           <Card className="shadow-2xl border-2 border-primary/20 overflow-hidden">
+                <div className="grid grid-cols-4">
+                    {/* Feature Column */}
+                    <div className="col-span-1 p-4 bg-muted/50">
+                        <h3 className="text-lg font-bold h-12 flex items-end">Features</h3>
+                    </div>
+                    {/* Plan Columns */}
+                    <div className="col-span-1 p-4 text-center border-l"><h3 className="text-lg font-bold h-12 flex items-end justify-center">Free</h3></div>
+                    <div className="col-span-1 p-4 text-center border-l bg-primary/10"><h3 className="text-lg font-bold text-primary h-12 flex items-end justify-center">Basic</h3></div>
+                    <div className="col-span-1 p-4 text-center border-l"><h3 className="text-lg font-bold h-12 flex items-end justify-center">Premium</h3></div>
                 </div>
-               );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="py-16 sm:py-24 bg-secondary/30 dark:bg-slate-800/50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
-          <div className="text-center mb-16">
-            <h2
-              ref={howTitleRef}
-              className={cn(
-                "text-3xl lg:text-4xl font-extrabold tracking-tight opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isHowTitleVisible && "opacity-100 translate-y-0"
-              )}
-            >
-              Your Journey to a Fulfilling Career: <span className="text-primary">Simple Steps</span>
-            </h2>
-            <p
-              ref={howSubtitleRef}
-              className={cn(
-                "mt-4 text-lg text-muted-foreground max-w-2xl mx-auto opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isHowSubtitleVisible && "opacity-100 translate-y-0 delay-200"
-              )}
-              style={{ transitionDelay: isHowSubtitleVisible ? '200ms' : '0ms' }}
-            >
-              Follow our streamlined process designed to connect you with the right opportunities efficiently.
+                
+                {pricingFeatures.map((item, index) => (
+                    <div key={index} className="grid grid-cols-4 border-t">
+                        <div className="col-span-1 p-4 bg-muted/50 font-medium">{item.feature}</div>
+                        <div className="col-span-1 p-4 text-center flex items-center justify-center border-l">
+                            {typeof item.free === 'boolean' ? (item.free ? <CheckCircle2 className="h-5 w-5 text-green-500" /> : <div className="h-5 w-px bg-border"/>) : <span className="text-muted-foreground">{item.free}</span>}
+                        </div>
+                        <div className="col-span-1 p-4 text-center flex items-center justify-center border-l bg-primary/10">
+                            {typeof item.basic === 'boolean' ? (item.basic ? <CheckCircle2 className="h-5 w-5 text-green-500" /> : <div className="h-5 w-px bg-border"/>) : <span className="font-semibold text-primary">{item.basic}</span>}
+                        </div>
+                         <div className="col-span-1 p-4 text-center flex items-center justify-center border-l">
+                           {typeof item.premium === 'boolean' ? (item.premium ? <CheckCircle2 className="h-5 w-5 text-green-500" /> : <div className="h-5 w-px bg-border"/>) : <span className="font-semibold text-primary">{item.premium}</span>}
+                        </div>
+                    </div>
+                ))}
+                
+                {/* Price and CTA row */}
+                <div className="grid grid-cols-4 border-t">
+                    <div className="col-span-1 p-4 bg-muted/50"></div>
+                    <div className="col-span-1 p-4 text-center border-l flex flex-col justify-center items-center">
+                        <p className="text-3xl font-extrabold">₹0</p>
+                        <Button variant="outline" className="w-full mt-3">Get Started</Button>
+                    </div>
+                     <div className="col-span-1 p-4 text-center border-l bg-primary/10 flex flex-col justify-center items-center">
+                        <p className="text-3xl font-extrabold text-primary">₹1260</p>
+                        <p className="text-sm text-muted-foreground -mt-1 mb-2">/month</p>
+                        <Button className="w-full mt-auto">Choose Basic</Button>
+                    </div>
+                    <div className="col-span-1 p-4 text-center border-l flex flex-col justify-center items-center">
+                        <div>
+                           <p className="text-3xl font-extrabold">₹7560</p>
+                           <p className="text-sm text-muted-foreground -mt-1 mb-2">/6 months</p>
+                        </div>
+                        <Button variant="outline" className="w-full mt-auto">Choose Premium</Button>
+                    </div>
+                </div>
+            </Card>
+            
+            <p className="text-center text-sm text-muted-foreground mt-8">
+                ✨ <span className="font-semibold text-primary">Premium users match 3x faster</span> and unlock double the interview chances.
             </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {howItWorksSteps.map((step, index) => {
-              const [stepRef, isStepVisible] = useScrollAnimation<HTMLDivElement>({ threshold: 0.1, triggerOnce: true });
-              return (
-                <div
-                  key={step.title}
-                  ref={stepRef}
-                  className={cn(
-                    "opacity-0 translate-y-10 transition-all duration-500 ease-out",
-                    isStepVisible && "opacity-100 translate-y-0"
-                  )}
-                  style={{ transitionDelay: isStepVisible ? `${index * 150}ms` : '0ms' }}
-                >
-                  <Card className="text-center shadow-lg hover:shadow-xl transition-shadow duration-300 h-full bg-card hover:border-accent border-2 border-transparent">
-                    <CardHeader className="items-center">
-                      <div className="p-4 bg-accent/10 rounded-full inline-block mb-3">
-                        {step.icon}
-                      </div>
-                      <CardTitle className="text-xl">{step.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground">{step.description}</p>
-                    </CardContent>
-                  </Card>
-                </div>
-              );
-            })}
-          </div>
         </div>
       </section>
       
-      {/* AI in Action Section */}
-      <section className="py-16 sm:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-          <div className="text-center mb-12">
-            <h2 
-              ref={aiActionTitleRef}
-              className={cn(
-                "text-3xl lg:text-4xl font-extrabold tracking-tight opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isAiActionTitleVisible && "opacity-100 translate-y-0"
-              )}
-            >
-              See HyreSense AI in Action
-            </h2>
-            <p 
-              ref={aiActionSubtitleRef}
-              className={cn(
-                "mt-4 text-lg text-muted-foreground max-w-2xl mx-auto opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isAiActionSubtitleVisible && "opacity-100 translate-y-0 delay-200"
-              )}
-              style={{ transitionDelay: isAiActionSubtitleVisible ? '200ms' : '0ms' }}
-            >
-              Imagine a job feed that truly understands you. Discover roles tailored to your unique profile.
-            </p>
-          </div>
-          <div 
-            ref={aiActionImageRef}
-            className={cn(
-              "opacity-0 scale-90 transition-all duration-1000 ease-out",
-              isAiActionImageVisible && "opacity-100 scale-100 delay-200"
-            )}
-            style={{ transitionDelay: isAiActionImageVisible ? '200ms' : '0ms' }}
-          >
-            <Card className="max-w-2xl mx-auto shadow-2xl overflow-hidden border-2 border-primary/30 bg-gradient-to-br from-card to-muted/50">
-              <CardHeader className="bg-primary/5 p-4">
-                <CardTitle className="text-primary text-lg">Your Personalized Job Matches</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {[
-                  { title: "Senior UI/UX Designer", company: "Creative Solutions Inc.", match: 95, logoIcon: <Palette className="h-8 w-8 text-primary"/>, skills: ["Figma", "Prototyping", "User Research"] },
-                  { title: "Frontend Developer (React)", company: "Tech Innovators Co.", match: 92, logoIcon: <Code2 className="h-8 w-8 text-accent"/>, skills: ["React", "TypeScript", "Next.js"]  }
-                ].map(job => (
-                  <Card key={job.title} className="shadow-md hover:shadow-lg transition-shadow bg-background group hover:border-primary/50 border border-transparent">
-                    <CardHeader className="pb-2 items-center">
-                      <div className="p-3 bg-muted rounded-full mb-3 group-hover:bg-primary/10 transition-colors">
-                        {job.logoIcon}
-                      </div>
-                      <CardTitle className="text-md text-center">{job.title}</CardTitle>
-                      <CardDescription className="text-primary text-center group-hover:text-accent transition-colors">{job.company}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="text-xs">
-                      <p className="font-semibold text-green-500 text-center text-base mb-2">{job.match}% AI Match</p>
-                      <div className="flex flex-wrap gap-1 justify-center mb-2">
-                          {job.skills.map(skill => <Badge key={skill} variant="secondary" className="text-xs">{skill}</Badge>)}
-                      </div>
-                    </CardContent>
-                    <Button variant="link" size="sm" className="w-full text-xs text-primary group-hover:text-accent transition-colors">View Details <ArrowRight className="ml-1 h-3 w-3"/></Button>
-                  </Card>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
       {/* Testimonials Section */}
       <section className="py-16 sm:py-24 bg-muted/30 dark:bg-slate-800/30">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
@@ -489,16 +382,6 @@ export default function JobSeekersPage() {
             >
               Success Stories from <span className="text-primary">Job Seekers Like You</span>
             </h2>
-            <p 
-              ref={testimonialsSubtitleRef}
-              className={cn(
-                "mt-4 text-lg text-muted-foreground max-w-2xl mx-auto opacity-0 translate-y-10 transition-all duration-700 ease-out",
-                isTestimonialsSubtitleVisible && "opacity-100 translate-y-0 delay-200"
-              )}
-              style={{ transitionDelay: isTestimonialsSubtitleVisible ? '200ms' : '0ms' }}
-            >
-              Hear how HyreSense has helped professionals find fulfilling careers and achieve their goals.
-            </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => {
@@ -535,7 +418,7 @@ export default function JobSeekersPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 sm:py-24">
+      <section className="py-16 sm:py-24" id="faq">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
           <div className="text-center mb-12">
             <h2 
