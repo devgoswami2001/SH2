@@ -38,7 +38,7 @@ export function HeroSection() {
           )}
           style={{ transitionDelay: isTextVisible ? '200ms' : '0ms' }}
         >
-          AI-powered job matching. <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-primary">HyreSense</span> connects top talent with innovative companies, faster and smarter.
+          AI-powered job matching. <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-primary">hyreSense</span> connects top talent with innovative companies, faster and smarter.
         </p>
         <p
           ref={subHeadlineRef}
