@@ -15,7 +15,7 @@ export default function HomePage() {
       <AiDemoSection />
       <HowItWorksSection />
       <AiBenefitsSection />
-      <SwipeToHireSection />
+      {/* <SwipeToHireSection /> */}
       <PoweredByHyreSenseAiSection />
       <TestimonialsSection />
       <CtaSection />
