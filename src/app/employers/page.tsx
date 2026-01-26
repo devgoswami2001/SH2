@@ -672,7 +672,7 @@ export default function EmployersPage() {
             style={{ transitionDelay: isCtaButtonVisible ? '400ms' : '0ms' }}
           >
             <Button size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg hover:shadow-xl transition-shadow transform hover:scale-105" asChild>
-              <Link href="/signup">Request a Demo <ArrowRight className="ml-2 h-5 w-5" /></Link>
+              <Link href="https://recruiter.hyresense.com/register">Request a Demo <ArrowRight className="ml-2 h-5 w-5" /></Link>
             </Button>
              <p className="mt-6 text-sm opacity-80">
               Questions? <Link href="/contact" className="font-semibold underline hover:opacity-90">Contact our team</Link>
