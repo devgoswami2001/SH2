@@ -69,9 +69,7 @@ export function HeroSection() {
             </Link>
           </Button>
           <Button size="lg" variant="outline" asChild className="w-full sm:w-auto">
-            <Link href="/employers">
-              For Recruiter
-            </Link>
+            <a href="https://recruiter.hyresense.com/" target="_blank" rel="noopener noreferrer"> For Recruiter </a>
           </Button>
         </div>
       </div>
