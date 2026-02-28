@@ -2,17 +2,33 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { XCircle, RefreshCcw, AlertTriangle, MessageSquare, ArrowLeft } from 'lucide-react';
+import { XCircle, RefreshCcw, AlertTriangle, MessageSquare, ArrowLeft, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function PaymentFailurePage() {
   const [mounted, setMounted] = useState(false);
+  const [countdown, setCountdown] = useState(5);
+  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          router.push('/subscription');
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [router]);
 
   if (!mounted) return null;
 
@@ -52,6 +68,11 @@ export default function PaymentFailurePage() {
                   </p>
                 </div>
               </div>
+            </div>
+
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground py-2">
+              <Clock className="h-4 w-4 animate-pulse" />
+              <span>Returning to plans in {countdown} seconds...</span>
             </div>
 
             <div className="flex flex-col gap-3">
