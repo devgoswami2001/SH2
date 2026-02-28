@@ -11,26 +11,27 @@ const handler = NextAuth({
   ],
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async signIn({ account, profile }) {
-      if (account?.provider === "google") {
-        // You can add logic here to check if the user is in your database,
-        // or create a new user entry.
-        return true; 
+    async jwt({ token, account }) {
+      // Capture the id_token from the Google account
+      if (account) {
+        token.idToken = account.id_token;
       }
-      return false; 
+      return token;
+    },
+    async session({ session, token }: any) {
+      // Pass the id_token to the client-side session
+      session.idToken = token.idToken;
+      return session;
     },
     async redirect({ url, baseUrl }) {
-      // Allows redirecting to the job feed page after sign in.
-      return `${baseUrl}/job-feed`;
-    },
-    async session({ session, token, user }) {
-      // You can add user id or role to the session token here.
-      return session
+      // Stay on the same domain
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
     }
   },
   pages: {
     signIn: '/login',
-    // You can add other custom pages here if needed, e.g., error: '/auth/error'
   }
 })
 

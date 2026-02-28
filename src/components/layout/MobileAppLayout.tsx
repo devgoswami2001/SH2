@@ -11,6 +11,7 @@ import { Compass, LayoutGrid, User, Crown, ListChecks, ArrowLeft, Menu as MenuIc
 import { cn } from '@/lib/utils';
 import type { AppJob } from '@/app/job-feed/page'; 
 import { JobDetailsView } from '@/app/job-feed/page'; 
+import { signOut } from 'next-auth/react';
 
 type ActiveView = 'swiping' | 'explore' | 'applied' | 'profile' | 'subscription' | 'details' | 'mobile_contact' | 'interview';
 
@@ -44,17 +45,21 @@ export function MobileAppLayout({
     if (setSelectedJobForDetails && selectedJobForDetails) {
       setSelectedJobForDetails(null); 
     } else {
-      // If on a specific mobile page that isn't job-feed, go back to job-feed (or previous logic if defined)
       if (pathname !== '/job-feed' && navItemsConfig.some(item => item.href === pathname)) {
          router.push('/job-feed'); 
       } else {
-        router.back(); // Fallback to browser back
+        router.back(); 
       }
     }
   };
+
+  const handleLogout = async () => {
+    localStorage.removeItem('accessToken');
+    await signOut({ redirect: false });
+    router.push('/');
+  };
   
   const renderHeaderLeftContent = () => {
-    // If viewing job details, always show back arrow
     if (selectedJobForDetails && setSelectedJobForDetails) {
       return (
         <Button variant="ghost" size="icon" className="text-primary -ml-2 h-8 w-8" onClick={handleBackNavigation}>
@@ -62,7 +67,6 @@ export function MobileAppLayout({
         </Button>
       );
     }
-    // For main mobile views, show logo and name
     return (
       <Link href="/job-feed" className="flex items-center gap-1.5 group transition-opacity hover:opacity-80 -ml-1">
         <Image src="/logo.png" alt="HyreSense Logo" width={28} height={20} className="rounded-sm transition-transform group-hover:scale-105 duration-300" />
@@ -113,7 +117,7 @@ export function MobileAppLayout({
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => { router.push('/'); alert('Logged out!'); }} className="flex items-center text-destructive focus:text-destructive focus:bg-destructive/10">
+              <DropdownMenuItem onClick={handleLogout} className="flex items-center text-destructive focus:text-destructive focus:bg-destructive/10">
                 <LogOut className="mr-2 h-4 w-4" /> Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -140,7 +144,6 @@ export function MobileAppLayout({
             <nav className="px-2 py-2.5 border-t border-border/50 bg-background/80 backdrop-blur-sm flex justify-around items-center sticky bottom-0 z-10 h-[60px]">
               {navItemsConfig.map((item) => {
                 const Icon = item.icon;
-                // Determine active state based on the current page's path
                 const isActive = pathname === item.href || (pathname === '/' && item.href === '/job-feed');
                 return (
                   <Link

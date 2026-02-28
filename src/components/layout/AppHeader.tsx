@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 
 const navItems = [
   { label: "Job Feed", icon: LayoutGrid, href: "/job-feed" },
@@ -42,7 +43,6 @@ export function AppHeader() {
     const fetchUserData = async () => {
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) {
-            // No token, user is likely not logged in.
             return;
         }
 
@@ -90,10 +90,11 @@ export function AppHeader() {
     fetchUserData();
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     localStorage.removeItem('accessToken');
+    // Also sign out from NextAuth to clear Google session
+    await signOut({ redirect: false });
     router.push('/login');
-    // You might want to add a toast notification here
   };
 
 
