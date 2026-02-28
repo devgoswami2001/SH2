@@ -217,6 +217,8 @@ const SubscriptionPageContent = () => {
         }
 
         try {
+            console.log(`Initiating PayU payment for plan: ${plan.name} (${plan.id})`);
+            
             // Step 1: Create transaction/hash on the backend for PayU
             const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/payu/start/', {
                 method: 'POST',
@@ -229,37 +231,57 @@ const SubscriptionPageContent = () => {
 
             if (!response.ok) {
                 const errorData = await response.json();
+                console.error("Payment initiation API failed:", errorData);
                 throw new Error(errorData.detail || 'Could not initiate PayU payment.');
             }
 
             const data = await response.json();
+            console.log("PayU Initiation Response Data:", data);
             
-            // data should contain PayU parameters: key, txnid, amount, productinfo, firstname, email, phone, surl, furl, hash
-            const payuData = data.payu_params;
+            // Extract URL and Params - handle potential root-level or nested structure
+            const payuUrl = data.payu_url || data.url;
+            const payuData = data.payu_params || {
+                key: data.key,
+                txnid: data.txnid,
+                amount: data.amount,
+                productinfo: data.productinfo,
+                firstname: data.firstname,
+                email: data.email,
+                phone: data.phone,
+                surl: data.surl,
+                furl: data.furl,
+                hash: data.hash,
+                service_provider: data.service_provider
+            };
 
-            if (!payuData || !data.payu_url) {
-                throw new Error('Invalid payment initialization data received from server.');
+            if (!payuUrl || !payuData.hash || !payuData.key) {
+                console.error("Missing critical PayU parameters:", { payuUrl, payuData });
+                throw new Error('Invalid payment initialization data received from server. Please check console for details.');
             }
 
             // Step 2: Create a hidden form and submit it to PayU
             const payuForm = document.createElement('form');
             payuForm.method = 'POST';
-            payuForm.action = data.payu_url; // Redirection URL provided by backend (Sandbox or Production)
+            payuForm.action = payuUrl; 
 
             Object.entries(payuData).forEach(([key, value]) => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = key;
-                input.value = value as string;
-                payuForm.appendChild(input);
+                if (value !== undefined && value !== null) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = String(value);
+                    payuForm.appendChild(input);
+                }
             });
 
+            console.log("Redirecting to PayU with form data...");
             document.body.appendChild(payuForm);
             payuForm.submit();
 
         } catch (err: any) {
+            console.error("handlePayment Exception:", err);
             toast({
-                title: 'Error',
+                title: 'Payment Error',
                 description: err.message || 'An unexpected error occurred.',
                 variant: 'destructive',
             });
