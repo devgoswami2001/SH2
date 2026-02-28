@@ -1,0 +1,19 @@
+{
+  "placeholders": [
+    {
+      "id": "user-avatar",
+      "url": "https://placehold.co/128x128.png?text=U",
+      "hint": "profile person"
+    },
+    {
+      "id": "company-logo-placeholder",
+      "url": "https://placehold.co/128x128/e0e7ff/4a5568.png?text=C",
+      "hint": "company logo"
+    },
+    {
+      "id": "post-image-placeholder",
+      "url": "https://placehold.co/600x400.png?text=Update",
+      "hint": "company team"
+    }
+  ]
+}

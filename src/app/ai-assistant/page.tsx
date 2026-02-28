@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -29,16 +28,7 @@ const userProfileData = {
 };
 
 const AiChatInterface: React.FC<{className?: string}> = ({ className }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 'initial-ai',
-      text: "Hello! I'm HyreSense AI. How can I assist you with your career goals or job search today?",
-      sender: 'ai',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      avatar: "/logo.png",
-      dataAiHintAvatar: "ai assistant logo"
-    }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -46,6 +36,20 @@ const AiChatInterface: React.FC<{className?: string}> = ({ className }) => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }
+
+  // Initialize first message on client-side to prevent hydration mismatch
+  useEffect(() => {
+    setMessages([
+      {
+        id: 'initial-ai',
+        text: "Hello! I'm HyreSense AI. How can I assist you with your career goals or job search today?",
+        sender: 'ai',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        avatar: "/logo.png",
+        dataAiHintAvatar: "ai assistant logo"
+      }
+    ]);
+  }, []);
 
   useEffect(scrollToBottom, [messages]);
 
@@ -132,7 +136,7 @@ const AiChatInterface: React.FC<{className?: string}> = ({ className }) => {
               placeholder="Ask about career advice, resume tips, or get help with your job search..."
               className="flex-grow resize-none rounded-xl border-border/60 focus-visible:ring-primary/50 min-h-[44px] max-h-[120px] py-2.5 text-sm md:text-base"
               rows={1}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     handleSendMessage();

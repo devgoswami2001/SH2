@@ -1,8 +1,8 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -102,7 +102,9 @@ const JobDetailsView: React.FC<{
         <ScrollArea className="flex-grow">
             <div className={cn("space-y-4 p-4", isDesktop && "p-8 pt-4")}>
                 <div className="flex flex-col md:flex-row gap-6">
-                    <img src={job.image} alt={job.dataAiHint} className="w-24 h-24 rounded-lg object-cover border border-border shrink-0" />
+                    <div className="relative w-24 h-24 shrink-0 shadow-sm border border-border rounded-lg overflow-hidden">
+                        <Image src={job.image} alt={job.dataAiHint} fill className="object-cover" />
+                    </div>
                     <div className="flex-1">
                         <h2 className="text-2xl md:text-3xl font-bold text-foreground">{job.title}</h2>
                         <div className="text-base mt-1">
@@ -182,7 +184,7 @@ const JobDetailsView: React.FC<{
                             </div>
                             <div>
                                 <h4 className="font-semibold mb-2 text-foreground">Missing Skills:</h4>
-                                <div className="flex flex-wrap gap-2">{analysis.missing_skills.map((s, i) => <Badge key={`mis-${i}`} variant="destructive" className="bg-red-100 text-red-800 border-red-300 dark:bg-red-900/50 dark:text-red-300">{s}</Badge>)}</div>
+                                <div className="flex flex-wrap gap-2">{analysis.missing_skills.map((s, i) => <Badge key={`mis-${i}`} variant="destructive" className="bg-red-100 text-red-800 border-red-300 dark:bg-red-900/50 dark:text-green-300">{s}</Badge>)}</div>
                             </div>
                         </div>
                     </div>
@@ -201,7 +203,7 @@ const getStatusBadgeClass = (status?: JobStatus): string => {
             return "bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-700/30 dark:text-blue-300 dark:border-blue-500/50";
         case "Interview Scheduled":
         case "interview_scheduled":
-            return "bg-green-100 text-green-700 border-green-300 dark:bg-green-700/30 dark:text-green-300 dark:border-green-500/50";
+            return "bg-green-100 text-green-700 border-green-300 dark:bg-green-700/30 dark:text-green-300 dark:border-blue-500/50";
         case "Offer Received":
         case "offer_made":
              return "bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-600/30 dark:text-yellow-300 dark:border-yellow-500/50";
