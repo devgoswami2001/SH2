@@ -111,13 +111,13 @@ const PlanCard: React.FC<{ plan: DisplayPlan; onSelect: (plan: DisplayPlan) => v
       style={{ transitionDelay: isCardVisible ? `${delay}ms` : '0ms' }}
     >
       <Card className={cn(
-        "h-full flex flex-col shadow-xl border-2 transition-all duration-300",
+        "h-full flex flex-col shadow-xl border-2 transition-all duration-300 relative",
         plan.isPopular ? "border-primary shadow-primary/20" : "border-border/40 hover:border-primary/50"
       )}>
         {plan.isPopular && (
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-            <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1">
-              <Star className="h-3 w-3" /> Most Popular
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+            <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
+              <Star className="h-3 w-3 fill-current" /> Most Popular
             </div>
           </div>
         )}
@@ -218,7 +218,7 @@ const SubscriptionPageContent = () => {
 
         try {
             // Step 1: Create transaction/hash on the backend for PayU
-            const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/payments/payu/initiate/', {
+            const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/payu/start/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -237,10 +237,14 @@ const SubscriptionPageContent = () => {
             // data should contain PayU parameters: key, txnid, amount, productinfo, firstname, email, phone, surl, furl, hash
             const payuData = data.payu_params;
 
+            if (!payuData || !data.payu_url) {
+                throw new Error('Invalid payment initialization data received from server.');
+            }
+
             // Step 2: Create a hidden form and submit it to PayU
             const payuForm = document.createElement('form');
             payuForm.method = 'POST';
-            payuForm.action = data.payu_url; // https://test.payu.in/_payment or https://secure.payu.in/_payment
+            payuForm.action = data.payu_url; // Redirection URL provided by backend (Sandbox or Production)
 
             Object.entries(payuData).forEach(([key, value]) => {
                 const input = document.createElement('input');
