@@ -149,7 +149,6 @@ const PlanCard: React.FC<{ plan: DisplayPlan; onSelect: (plan: DisplayPlan) => v
             className="w-full text-base"
             variant={plan.variant as any}
             onClick={() => onSelect(plan)}
-            disabled={true}
           >
             {plan.cta}
           </Button>
@@ -171,11 +170,6 @@ const SubscriptionPageContent = () => {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const script = document.createElement('script');
-        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-        script.async = true;
-        document.body.appendChild(script);
-
         const fetchSubscriptions = async () => {
             setIsLoading(true);
             const accessToken = localStorage.getItem('accessToken');
@@ -205,12 +199,6 @@ const SubscriptionPageContent = () => {
         };
 
         fetchSubscriptions();
-        
-        return () => {
-            if (document.body.contains(script)) {
-              document.body.removeChild(script);
-            }
-        };
     }, []);
 
     const handlePayment = async (plan: DisplayPlan) => {
@@ -229,8 +217,8 @@ const SubscriptionPageContent = () => {
         }
 
         try {
-            // Step 1: Create order on the backend
-            const orderResponse = await fetch('https://backend.hyresense.com/api/v1/jobseeker/payments/create-order/', {
+            // Step 1: Create transaction/hash on the backend for PayU
+            const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/payments/payu/initiate/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -239,67 +227,31 @@ const SubscriptionPageContent = () => {
                 body: JSON.stringify({ subscription_id: plan.id }),
             });
 
-            if (!orderResponse.ok) {
-                const errorData = await orderResponse.json();
-                throw new Error(errorData.detail || 'Could not create payment order.');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'Could not initiate PayU payment.');
             }
 
-            const orderData = await orderResponse.json();
-            const orderId = orderData.order.id;
-            const orderAmount = orderData.order.amount;
+            const data = await response.json();
+            
+            // data should contain PayU parameters: key, txnid, amount, productinfo, firstname, email, phone, surl, furl, hash
+            const payuData = data.payu_params;
 
-            // Step 2: Open Razorpay checkout
-            const options = {
-                key: 'rzp_test_RkGZ4yTFws2GHU',
-                amount: orderAmount, 
-                currency: 'INR',
-                name: 'HyreSense',
-                description: `${plan.name} Subscription`,
-                image: '/logo.png',
-                order_id: orderId,
-                handler: function (response: any) {
-                    console.log('Payment successful', response);
-                    toast({
-                        title: `Subscribed to ${plan.name}!`,
-                        description: `Payment ID: ${response.razorpay_payment_id}`,
-                    });
-                    // TODO: Here you should verify the payment on your backend
-                    // by sending `response.razorpay_payment_id`, `response.razorpay_order_id`, 
-                    // and `response.razorpay_signature` to a verification endpoint.
-                },
-                prefill: {
-                    name: jobseeker?.full_name || '',
-                    email: jobseeker?.email || '',
-                    contact: jobseeker?.phone_number || '',
-                },
-                notes: {
-                    plan_id: plan.id,
-                    plan_name: plan.name,
-                },
-                theme: {
-                    color: '#2664EB', // Primary color
-                },
-            };
+            // Step 2: Create a hidden form and submit it to PayU
+            const payuForm = document.createElement('form');
+            payuForm.method = 'POST';
+            payuForm.action = data.payu_url; // https://test.payu.in/_payment or https://secure.payu.in/_payment
 
-            if (!(window as any).Razorpay) {
-                toast({
-                    title: 'Payment Gateway Error',
-                    description: 'Razorpay script not loaded. Please refresh and try again.',
-                    variant: 'destructive',
-                });
-                return;
-            }
-
-            const rzp = new (window as any).Razorpay(options);
-            rzp.on('payment.failed', function (response: any) {
-                console.error('Payment failed', response);
-                toast({
-                    title: 'Payment Failed',
-                    description: response.error.description || 'Something went wrong.',
-                    variant: 'destructive',
-                });
+            Object.entries(payuData).forEach(([key, value]) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value as string;
+                payuForm.appendChild(input);
             });
-            rzp.open();
+
+            document.body.appendChild(payuForm);
+            payuForm.submit();
 
         } catch (err: any) {
             toast({
@@ -337,9 +289,9 @@ const SubscriptionPageContent = () => {
 
             <Alert className="mb-8 border-green-500/50 bg-green-50/50 dark:bg-green-900/20 text-green-800 dark:text-green-300">
                 <Sparkles className="h-4 w-4 text-green-500" />
-                <AlertTitle className="font-semibold">You're on a Trial!</AlertTitle>
+                <AlertTitle className="font-semibold">Experience HyreSense Premium</AlertTitle>
                 <AlertDescription>
-                    Your 30-day free trial of the <strong>Premium</strong> plan is currently active. All features are unlocked.
+                    Boost your career with advanced AI insights and unlimited swipes.
                 </AlertDescription>
             </Alert>
 
