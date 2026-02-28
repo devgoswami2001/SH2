@@ -238,9 +238,9 @@ const SubscriptionPageContent = () => {
             const data = await response.json();
             console.log("PayU Initiation Response Data:", data);
             
-            // Extract URL and Params - handle potential root-level or nested structure
+            // Extract URL and Params - prioritized based on console logs
             const payuUrl = data.payu_url || data.url;
-            const payuData = data.payu_params || {
+            const payuData = data.payu_data || data.payu_params || {
                 key: data.key,
                 txnid: data.txnid,
                 amount: data.amount,
