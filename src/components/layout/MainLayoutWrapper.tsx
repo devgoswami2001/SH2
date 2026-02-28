@@ -1,4 +1,3 @@
-
 'use client';
 
 import { usePathname } from 'next/navigation';
@@ -21,7 +20,9 @@ export function MainLayoutWrapper({ children }: { children: React.ReactNode }) {
     '/profile',
     '/ai-assistant',
     '/mobile-contact',
-    '/edit-profile' 
+    '/edit-profile',
+    '/payment/success',
+    '/payment/failure'
   ];
   const isFullscreenPage = fullscreenPages.includes(pathname) || pathname.startsWith('/job-details/');
 
