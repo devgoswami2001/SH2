@@ -1,15 +1,12 @@
-
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 import { Toaster } from "@/components/ui/toaster";
 import ThreeParticleSystem from '@/components/effects/three-particle-system';
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggleButton } from '@/components/layout/ThemeToggleButton';
-import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper'; // New import
-// import { Analytics } from "@vercel/analytics/next"
+import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
+import { NextAuthProvider } from '@/components/providers/NextAuthProvider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -66,7 +63,6 @@ export const metadata: Metadata = {
     siteName: 'HyreSense',
     images: [
       {
-        // TODO: Replace with your actual OG image URL (e.g., 1200x630px in /public/hyresense-og-image.png)
         url: `${siteUrl}/logo.png`,
         width: 1200,
         height: 630,
@@ -80,9 +76,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'HyreSense: AI-Powered Job Matching & Smart Hiring',
     description: 'Leverage AI for your job search or hiring needs. Smart matching, skill insights, and faster results with HyreSense.',
-    // TODO: Replace with your actual Twitter image URL (e.g., 1200x600px in /public/hyresense-twitter-image.png)
     images: [`${siteUrl}/hyresense-twitter-image.png`],
-    // TODO: Replace with your actual Twitter handle
     creator: '@HyreSense',
   },
   icons: {
@@ -90,10 +84,8 @@ export const metadata: Metadata = {
     shortcut: '/logo.png',
     apple: '/logo.png',
   },
-  // TODO: Create a site.webmanifest file in your public folder for PWA features
   manifest: `${siteUrl}/site.webmanifest`,
 };
-
 
 export default function RootLayout({
   children,
@@ -105,21 +97,23 @@ export default function RootLayout({
       <head>
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen bg-transparent relative`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <ThreeParticleSystem />
-          <MainLayoutWrapper>
-            {children}
-          </MainLayoutWrapper>
-          <Toaster />
-          <div className="fixed bottom-6 right-6 z-50">
-            <ThemeToggleButton />
-          </div>
-        </ThemeProvider>
+        <NextAuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <ThreeParticleSystem />
+            <MainLayoutWrapper>
+              {children}
+            </MainLayoutWrapper>
+            <Toaster />
+            <div className="fixed bottom-6 right-6 z-50">
+              <ThemeToggleButton />
+            </div>
+          </ThemeProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );

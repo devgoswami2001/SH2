@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -14,6 +13,7 @@ import { Mail, Lock, Eye, EyeOff, User, ArrowRight, AlertCircle } from 'lucide-r
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { signIn } from 'next-auth/react';
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5 mr-2">
@@ -100,6 +100,10 @@ export default function SignupPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGoogleSignUp = () => {
+    signIn('google', { callbackUrl: '/job-feed' });
   };
 
   return (
@@ -224,7 +228,12 @@ export default function SignupPage() {
               <Separator className="my-1" />
               <div className="space-y-3 w-full">
                 <p className="text-xs text-center text-muted-foreground">Or sign up with</p>
-                <Button variant="outline" className="w-full h-11 text-sm border-border/60 hover:bg-muted/80 hover:border-primary/50">
+                <Button 
+                  variant="outline" 
+                  className="w-full h-11 text-sm border-border/60 hover:bg-muted/80 hover:border-primary/50"
+                  onClick={handleGoogleSignUp}
+                  type="button"
+                >
                   <GoogleIcon /> Sign up with Google
                 </Button>
               </div>
