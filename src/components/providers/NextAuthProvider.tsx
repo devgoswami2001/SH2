@@ -1,4 +1,3 @@
-
 'use client';
 
 import { SessionProvider, useSession } from "next-auth/react";
@@ -71,7 +70,7 @@ const AuthBackendSync = () => {
       }
     };
 
-    syncWithBackend();
+    syncWithBackend().catch(e => console.error("Unhandled auth sync failure:", e));
   }, [session, status, router, isSyncing]);
 
   return null;

@@ -13,7 +13,7 @@ import { MobileAppLayout } from '@/components/layout/MobileAppLayout';
 import { AppHeader } from '@/components/layout/AppHeader';
 import type { AppJob, JobStatus } from '@/app/job-feed/page'; 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, isValid } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 
@@ -55,8 +55,8 @@ interface AppliedAppJob extends AppJob {
     appliedDate: string;
 }
 
-// Custom JobDetailsView component for Applied Jobs
-const JobDetailsView: React.FC<{
+// Custom AppliedJobDetailsView component for Applied Jobs
+const AppliedJobDetailsView: React.FC<{
   job: AppliedAppJob;
   onBack: () => void;
   isDesktop?: boolean;
@@ -306,6 +306,11 @@ export default function AppliedJobsPage() {
           
           const formattedJobs: AppliedAppJob[] = applications.map(app => {
                const companyInitials = app.company_name ? app.company_name.substring(0, 2) : 'C';
+               const appliedDateObj = new Date(app.applied_at);
+               const appliedDateText = isValid(appliedDateObj) 
+                ? `Applied ${formatDistanceToNow(appliedDateObj)} ago`
+                : 'Applied recently';
+
                return {
                   id: app.id,
                   title: app.job_title,
@@ -318,7 +323,7 @@ export default function AppliedJobsPage() {
                   experienceLevel: app.experience_level,
                   jobType: app.employment_type,
                   postedDate: new Date(app.job_created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
-                  appliedDate: `Applied ${formatDistanceToNow(new Date(app.applied_at))} ago`,
+                  appliedDate: appliedDateText,
                   applicationStatus: app.status,
                   analysisResult: app.ai_analysis,
                   fitScore: app.ai_analysis?.fit_score
@@ -338,7 +343,7 @@ export default function AppliedJobsPage() {
   };
 
   useEffect(() => {
-    fetchAppliedJobs();
+    fetchAppliedJobs().catch(e => console.error("Initial applied jobs fetch error:", e));
   }, []);
 
   const handleApplicationStatusUpdate = async (jobId: number | string, status: JobStatus) => {
@@ -370,15 +375,19 @@ export default function AppliedJobsPage() {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.detail || `Failed to update status to ${status}.`);
+            let errorMessage = `Failed to update status to ${status}.`;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.detail || errorMessage;
+            } catch (e) {}
+            throw new Error(errorMessage);
         }
         
         toast({ title: "Success", description: `Application status updated to ${status.replace(/_/g, ' ')}.` });
-        fetchAppliedJobs();
+        fetchAppliedJobs().catch(e => console.error("Refresh applied jobs error:", e));
 
     } catch (err: any) {
-        toast({ title: "Update Failed", description: err.message, variant: "destructive" });
+        toast({ title: "Update Failed", description: err.message || "Network error", variant: "destructive" });
         setAppliedJobs(originalJobs);
         if(selectedJob?.id === jobId) {
           const originalJob = originalJobs.find(j => j.id === jobId);
@@ -458,7 +467,7 @@ export default function AppliedJobsPage() {
           {/* Job Details Panel */}
           <div className="lg:col-span-2 xl:col-span-3 overflow-y-auto bg-muted/30">
             {selectedJob ? (
-                <JobDetailsView 
+                <AppliedJobDetailsView 
                   job={selectedJob} 
                   onBack={() => setSelectedJob(null)} 
                   isDesktop={true}

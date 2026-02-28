@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -100,8 +99,12 @@ export const JobDetailsView: React.FC<{
             body: JSON.stringify({ job_post_id: job.id })
           });
           if (!response.ok) {
-            const errData = await response.json();
-            throw new Error(errData.detail || `HTTP error! status: ${response.status}`);
+            let errorMessage = `HTTP error! status: ${response.status}`;
+            try {
+                const errData = await response.json();
+                errorMessage = errData.detail || errorMessage;
+            } catch (e) { /* ignore non-json errors */ }
+            throw new Error(errorMessage);
           }
           const data = await response.json();
           if (data.success) {
@@ -110,13 +113,13 @@ export const JobDetailsView: React.FC<{
             throw new Error(data.message || "Analysis failed.");
           }
         } catch (err: any) {
-          setError(err.message);
+          setError(err.message || "Network error occurred.");
         } finally {
           setIsLoading(false);
         }
       };
 
-      fetchAnalysis();
+      fetchAnalysis().catch(e => console.error("Job details fetch error:", e));
     }
   }, [job.id, job.analysisResult]);
 
@@ -297,8 +300,12 @@ const JobCard = ({
         body: JSON.stringify({ job_post_id: job.id })
       });
       if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.detail || 'Analysis failed');
+        let errorMessage = 'Analysis failed';
+        try {
+            const errData = await response.json();
+            errorMessage = errData.detail || errorMessage;
+        } catch (e) {}
+        throw new Error(errorMessage);
       }
       const data = await response.json();
       if (data.success) {
@@ -308,7 +315,7 @@ const JobCard = ({
         throw new Error(data.message || 'Analysis did not return a successful result');
       }
     } catch (err: any) {
-      toast({ title: "Analysis Failed", description: err.message, variant: "destructive" });
+      toast({ title: "Analysis Failed", description: err.message || "Network error", variant: "destructive" });
     } finally {
       setIsAnalyzing(false);
     }
@@ -459,7 +466,7 @@ export default function JobFeedPage() {
           company: job.company_name,
           location: `${job.location} (${job.working_mode})`,
           description: job.description,
-          image: job.company_profile_image || `https://placehold.co/128x128/e0e7ff/4a5568.png?text=${job.company_name.substring(0, 2)}`,
+          image: job.company_profile_image || `https://placehold.co/128x128/e0e7ff/4a5568.png?text=${(job.company_name || 'C').substring(0, 2)}`,
           dataAiHint: `${job.company_name} logo`,
           skills: job.required_skills,
           experienceLevel: job.experience_level,
@@ -475,7 +482,7 @@ export default function JobFeedPage() {
         setIsLoading(false);
       }
     };
-    fetchJobs();
+    fetchJobs().catch(e => console.error("Initial jobs fetch error:", e));
   }, []);
 
   const handleJobApplication = useCallback(async (jobId: number | string, status: 'applied' | 'user_rejected') => {
@@ -498,8 +505,11 @@ export default function JobFeedPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
         let errorMessage = "Failed to submit application";
+        let errorData: any = {};
+        try {
+            errorData = await response.json();
+        } catch (e) {}
 
         if (response.status === 429) {
           const throttleMatch = errorData.detail?.match(/Expected available in (\d+) seconds/);
@@ -573,7 +583,7 @@ export default function JobFeedPage() {
           duration: toastDuration,
         });
       }
-    });
+    }).catch(e => console.error("Swipe handler error:", e));
   }, [page, currentJobToSwipe, handleJobApplication, toast]);
 
   const SWIPE_THRESHOLD = 75;
@@ -663,7 +673,7 @@ export default function JobFeedPage() {
           duration: toastDuration
         });
       }
-    });
+    }).catch(e => console.error("Details apply error:", e));
     setSelectedJobForDetails(null);
   };
 

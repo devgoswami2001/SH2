@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
@@ -162,7 +161,7 @@ const CompanyPostCard: React.FC<{ post: ApiPost; isDesktop?: boolean; onUpdatePo
       const updatedPost = {...post, comments: data.results || []};
       onUpdatePost(updatedPost);
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toast({ title: "Error", description: err.message || "Network error", variant: "destructive" });
     } finally {
       setIsLoadingComments(false);
     }
@@ -172,7 +171,7 @@ const CompanyPostCard: React.FC<{ post: ApiPost; isDesktop?: boolean; onUpdatePo
     const newShowState = !showComments;
     setShowComments(newShowState);
     if (newShowState && !post.comments) { 
-        fetchComments();
+        fetchComments().catch(e => console.error("Comment fetch error:", e));
     }
   };
 
@@ -418,7 +417,7 @@ const ExploreContent: React.FC<{isDesktop?: boolean}> = ({ isDesktop }) => {
     }, []);
 
     useEffect(() => {
-        fetchPosts();
+        fetchPosts().catch(e => console.error("Initial explore posts fetch error:", e));
     }, [fetchPosts]);
 
     const handleUpdatePost = useCallback((updatedPost: ApiPost) => {
