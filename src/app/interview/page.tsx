@@ -1,8 +1,7 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
+import Link from 'link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Brain, User, Video, Calendar, Star, Clock, AlertCircle, Loader2, PlusCircle, MessageSquareText } from 'lucide-react';
@@ -79,8 +78,8 @@ const RequestInterviewForm: React.FC<{onSuccess: (newInterview: MockInterview) =
                 description: `Your ${newInterview.interview_type_display} interview request has been sent.`,
             });
             onSuccess(newInterview);
-            setIsOpen(false); // Close dialog on success
-            setNotes(''); // Reset form
+            setIsOpen(false);
+            setNotes('');
             setInterviewType('technical');
 
         } catch (err: any) {
@@ -179,7 +178,7 @@ const InterviewPageContent = () => {
     }, []);
 
     useEffect(() => {
-        fetchInterviews();
+        fetchInterviews().catch(e => console.error("Initial interviews fetch error:", e));
     }, [fetchInterviews]);
     
     const handleRequestSuccess = (newInterview: MockInterview) => {

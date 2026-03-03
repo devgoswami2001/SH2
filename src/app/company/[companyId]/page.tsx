@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -123,7 +122,7 @@ const CompanyProfilePageContent = ({ initialCompanyInfo, error }: CompanyProfile
   }, [initialCompanyInfo]);
   
   useEffect(() => {
-    fetchFollowStatus();
+    fetchFollowStatus().catch(e => console.error("Follow status fetch error:", e));
   }, [fetchFollowStatus]);
 
   const handleFollowToggle = async () => {
@@ -539,7 +538,7 @@ export default function CompanyPageWrapper() {
 
         if (companyId) {
             setIsLoading(true);
-            fetchCompanyProfile(companyId);
+            fetchCompanyProfile(companyId).catch(e => console.error("Fetch company profile error:", e));
         }
     }, [companyId, router]);
     
@@ -565,4 +564,3 @@ export default function CompanyPageWrapper() {
         </div>
     );
 }
-

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -87,12 +86,11 @@ export function AppHeader() {
         }
     };
 
-    fetchUserData();
+    fetchUserData().catch(e => console.error("Header user data sync error:", e));
   }, []);
 
   const handleLogout = async () => {
     localStorage.removeItem('accessToken');
-    // Also sign out from NextAuth to clear Google session
     await signOut({ redirect: false });
     router.push('/login');
   };

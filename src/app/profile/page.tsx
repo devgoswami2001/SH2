@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, type ChangeEvent, useRef } from 'react';
@@ -134,124 +133,76 @@ interface UserDetails {
 type EditableSection = 'profile' | 'preferences' | null;
 
 const job_roles = [
-    // A
     "Accountant", "Accounting Assistant", "Accounting Clerk", "Accounting Director", "Account Executive", "Account Manager", "Accounts Payable Clerk",
     "Accounts Receivable Clerk", "Actuary", "Acupuncturist", "Administrative Assistant", "Advertising Account Executive", "Advertising Copywriter", "Advocate",
     "Aerospace Engineer", "Agricultural Consultant", "Agricultural Scientist", "Aircraft Maintenance Technician", "Airline Pilot", "Air Traffic Controller",
     "Algorithm Developer", "Analytics Engineer", "Analytics Manager", "Android Developer", "Anesthesiologist", "Animal Care Assistant", "Animal Trainer", "Animator",
     "Anthropologist", "Application Developer", "Architect", "Art Director", "Assembler", "Assistant Controller", "Auditor", "Automotive Mechanic",
-    // B
     "Backend Developer", "Bank Manager", "Bank Teller", "Barber", "Bartender", "Benefits Analyst", "Big Data Engineer", "Billing Specialist", "Biostatistician",
     "Blockchain Developer", "Bookkeeper", "Brand Manager", "Budget Analyst", "Business Analyst", "Business Development Manager", "Business Intelligence Analyst", "Business Owner",
-    // C
     "Cable Installer", "CAD Designer", "Call Center Representative", "Camera Operator", "Carpenter", "Cashier", "Chef", "Chemical Engineer", "Chief Executive Officer",
     "Chief Financial Officer", "Chief Marketing Officer", "Chief Technology Officer", "Civil Engineer", "Claims Adjuster", "Cleaner", "Clinical Researcher", "Cloud Architect",
     "CNC Machinist", "Coach", "Collections Specialist", "Communications Director", "Community Manager", "Compensation Analyst", "Computer Programmer", "Computer Scientist",
     "Construction Manager", "Construction Worker", "Consultant", "Content Creator", "Content Writer", "Contract Administrator", "Controller", "Cook", "Copywriter",
     "Corporate Trainer", "Cost Estimator", "Counselor", "Court Reporter", "Creative Director", "Credit Analyst", "Customer Service Representative", "Customer Success Manager", "Cybersecurity Analyst",
-    // D
     "Database Administrator", "Database Developer", "Data Analyst", "Data Engineer", "Data Entry Clerk", "Data Scientist", "Delivery Driver", "Dental Assistant",
     "Dental Hygienist", "Dentist", "Designer", "Desktop Support Technician", "DevOps Engineer", "Digital Marketing Manager", "Director of Operations", "Dispatcher", "Doctor", "Drone Pilot",
-    // E
     "Economist", "Editor", "Electrical Engineer", "Electrician", "Electronics Technician", "Email Marketing Specialist", "Emergency Medical Technician", "Engineer",
     "Enterprise Architect", "Environmental Engineer", "Environmental Scientist", "Estate Planning Attorney", "Event Coordinator", "Event Planner", "Executive Assistant", "Executive Chef",
-    // F
     "Facilities Manager", "Factory Worker", "Fashion Designer", "Field Service Technician", "Film Director", "Financial Advisor", "Financial Analyst", "Financial Planner",
     "Firefighter", "Fitness Trainer", "Flight Attendant", "Florist", "Food Service Worker", "Forklift Operator", "Frontend Developer", "Full Stack Developer", "Fundraiser",
-    // G
     "Game Developer", "General Manager", "Geologist", "Government Employee", "Graphic Designer", "Growth Hacker", "Guard", "Guidance Counselor",
-    // H
     "Hairdresser", "Hardware Engineer", "Health Inspector", "Healthcare Administrator", "Help Desk Specialist", "Home Health Aide", "Hotel Manager", "HR Administrator",
     "HR Director", "HR Generalist", "HR Manager", "HR Specialist", "HVAC Technician",
-    // I
     "Industrial Designer", "Industrial Engineer", "Information Security Analyst", "Insurance Agent", "Insurance Underwriter", "Interior Designer", "Interpreter",
     "Investment Advisor", "IT Administrator", "IT Consultant", "IT Director", "IT Manager", "IT Support Specialist",
-    // J
     "Janitor", "Java Developer", "Journalist", "Judge", "Junior Developer",
-    // K
     "Kitchen Staff",
-    // L
     "Lab Technician", "Landscape Architect", "Landscaper", "Lawyer", "Legal Assistant", "Librarian", "Licensed Practical Nurse", "Loan Officer", "Logistics Coordinator", "Logistics Manager",
-    // M
     "Machine Learning Engineer", "Machine Operator", "Maintenance Worker", "Management Consultant", "Marketing Coordinator", "Marketing Director", "Marketing Manager",
     "Marketing Specialist", "Massage Therapist", "Mechanical Engineer", "Media Planner", "Medical Assistant", "Medical Technologist", "Mental Health Counselor", "Mobile Developer", "Music Teacher", "Musician",
-    // N
     "Network Administrator", "Network Engineer", "Nurse", "Nurse Practitioner", "Nursing Assistant", "Nutritionist",
-    // O
     "Occupational Therapist", "Office Administrator", "Office Manager", "Operations Analyst", "Operations Director", "Operations Manager", "Optometrist",
-    // P
     "Paralegal", "Paramedic", "Pastor", "Payroll Clerk", "Payroll Specialist", "Personal Trainer", "Pharmacist", "Pharmacy Technician", "Photographer", "Physical Therapist",
     "Physician", "Pilot", "Plumber", "Police Officer", "Political Scientist", "Product Manager", "Product Owner", "Production Manager", "Professor", "Program Manager",
     "Programmer", "Project Coordinator", "Project Manager", "Property Manager", "Psychologist", "Public Relations Specialist", "Purchasing Agent",
-    // Q
     "Quality Assurance Analyst", "Quality Assurance Engineer", "Quality Control Inspector",
-    // R
     "Radiologic Technologist", "Real Estate Agent", "Receptionist", "Recruiter", "Registered Nurse", "Research Analyst", "Research Scientist", "Restaurant Manager", "Retail Manager", "Retail Sales Associate",
-    // S
     "Safety Engineer", "Sales Associate", "Sales Director", "Sales Engineer", "Sales Manager", "Sales Representative", "School Administrator", "School Counselor",
     "Security Guard", "SEO Specialist", "Server", "Social Media Manager", "Social Media Specialist", "Social Worker", "Software Architect", "Software Developer",
     "Software Engineer", "Software Tester", "Speech Therapist", "Store Manager", "Superintendent", "Supply Chain Manager", "Surgeon", "Systems Administrator", "Systems Analyst",
-    // T
     "Tax Accountant", "Tax Preparer", "Teacher", "Technical Support Specialist", "Technical Writer", "Technician", "Territory Manager", "Test Engineer", "Therapist",
     "Training Coordinator", "Training Manager", "Translator", "Travel Agent", "Truck Driver",
-    // U
     "UX Designer", "UI Designer", "University Professor", "Urban Planner",
-    // V
     "Veterinarian", "Veterinary Technician", "Video Editor", "Vice President",
-    // W
     "Waiter", "Warehouse Manager", "Warehouse Worker", "Web Designer", "Web Developer", "Welder", "Writer",
-    // X, Y, Z
     "X-Ray Technician", "Yoga Instructor", "Zoologist"
 ];
 
 const big_companies = [
-    // Top Tech Companies
     "Apple", "Microsoft", "NVIDIA", "Amazon", "Alphabet (Google)", "Meta (Facebook)", "Tesla", "Netflix", "Adobe", "Oracle", "Salesforce", "ServiceNow", "Uber", "Airbnb", "Spotify", "Twitter (X)", "LinkedIn", "PayPal", "Square", "Zoom",
-    // Banking & Financial Services
-    "JPMorgan Chase", "Bank of America", "Wells Fargo", "Citigroup", "Goldman Sachs", "Morgan Stanley", "Visa", "Mastercard", "American Express", "BlackRock", "Charles Schwab", "State Street", "Fidelity Investments", "T. Rowe Price", "HDFC Bank", "Industrial and Commercial Bank of China", "China Construction Bank", "Royal Bank of Canada", "Commonwealth Bank of Australia",
-    // Oil & Energy
+    "JPMorgan Chase", "Bank of America", "Wells Fargo", "Citigroup", "Goldman Sachs", "Morgan Stanley", "Berkshire Hathaway", "Visa", "Mastercard", "American Express", "BlackRock", "Charles Schwab", "State Street", "Fidelity Investments", "T. Rowe Price", "HDFC Bank", "Industrial and Commercial Bank of China", "China Construction Bank", "Royal Bank of Canada", "Commonwealth Bank of Australia",
     "Saudi Aramco", "ExxonMobil", "Chevron", "Shell", "BP", "TotalEnergies", "ConocoPhillips", "China National Petroleum", "Sinopec", "Gazprom", "Lukoil", "Rosneft", "Petrobras", "Eni", "Equinor",
-    // Healthcare & Pharmaceuticals
     "UnitedHealth Group", "Johnson & Johnson", "Pfizer", "Roche", "Novartis", "Merck", "AbbVie", "Bristol Myers Squibb", "Eli Lilly", "Amgen", "Gilead Sciences", "Moderna", "CVS Health", "Anthem", "Humana", "Cigna", "Aetna", "Kaiser Permanente",
-    // Retail & E-commerce
     "Walmart", "Costco", "Home Depot", "Target", "Lowe's", "Best Buy", "Macy's", "Nordstrom", "TJX Companies", "Dollar General", "Dollar Tree", "Kroger", "Albertsons", "Publix", "Ahold Delhaize", "Carrefour", "Tesco", "IKEA", "H&M", "Zara (Inditex)",
-    // Automotive
     "Toyota", "Volkswagen Group", "General Motors", "Ford Motor Company", "Stellantis", "Mercedes-Benz Group", "BMW Group", "Honda", "Nissan", "Hyundai Motor Group", "Ferrari", "Porsche", "Volvo", "Mazda", "Subaru", "Mitsubishi Motors", "BYD", "Nio", "XPeng", "Li Auto",
-    // Aerospace & Defense
     "Boeing", "Airbus", "Lockheed Martin", "Raytheon Technologies", "Northrop Grumman", "General Dynamics", "BAE Systems", "Thales", "Leonardo", "Saab",
-    // Telecommunications
     "AT&T", "Verizon", "T-Mobile", "Comcast", "Charter Communications", "Deutsche Telekom", "Vodafone", "Orange", "Telefonica", "China Mobile", "China Telecom", "China Unicom", "NTT", "SoftBank", "KDDI",
-    // Manufacturing & Industrial
     "General Electric", "Siemens", "3M", "Honeywell", "Caterpillar", "Deere & Company", "Illinois Tool Works", "Emerson Electric", "Parker Hannifin", "Danaher", "Thermo Fisher Scientific", "ABB", "Schneider Electric", "Legrand", "Eaton",
-    // Media & Entertainment
     "Disney", "Comcast (NBCUniversal)", "Warner Bros. Discovery", "Paramount Global", "Sony", "Universal Music Group", "Live Nation Entertainment", "EA (Electronic Arts)", "Activision Blizzard", "Take-Two Interactive", "Ubisoft", "Nintendo",
-    // Food & Beverage
     "Coca-Cola", "PepsiCo", "Nestle", "Unilever", "Procter & Gamble", "Mars", "Mondelez International", "General Mills", "Kellogg", "Kraft Heinz", "Tyson Foods", "JBS", "Cargill", "Archer Daniels Midland", "Danone",
-    // Consulting & Professional Services
     "Accenture", "Deloitte", "PwC", "EY (Ernst & Young)", "KPMG", "McKinsey & Company", "Boston Consulting Group", "Bain & Company", "IBM", "Cognizant", "Tata Consultancy Services", "Infosys", "Wipro", "HCL Technologies", "Tech Mahindra",
-    // Semiconductor Companies
     "TSMC", "ASML", "Broadcom", "Qualcomm", "Intel", "AMD", "Micron Technology", "Applied Materials", "Lam Research", "KLA Corporation", "Analog Devices", "Marvell Technology", "MediaTek", "SK Hynix", "Samsung Electronics",
-    // Chinese Tech Giants
     "Tencent", "Alibaba", "Baidu", "JD.com", "Meituan", "Pinduoduo (PDD Holdings)", "ByteDance", "Xiaomi", "Didi Chuxing", "NetEase", "Bilibili", "Kuaishou",
-    // Airlines
     "American Airlines", "Delta Air Lines", "United Airlines", "Southwest Airlines", "JetBlue Airways", "Lufthansa", "Air France-KLM", "British Airways", "Emirates", "Qatar Airways", "Singapore Airlines", "Cathay Pacific", "Japan Airlines", "All Nippon Airways",
-    // Hotels & Hospitality
     "Marriott International", "Hilton Worldwide", "InterContinental Hotels Group", "Hyatt Hotels", "Accor", "Wyndham Hotels & Resorts", "Choice Hotels", "Best Western", "Radisson Hotel Group", "Four Seasons",
-    // Real Estate
     "Brookfield Asset Management", "Simon Property Group", "Prologis", "American Tower", "Crown Castle", "Realty Income", "Public Storage", "Equity Residential", "AvalonBay Communities", "Boston Properties",
-    // Logistics & Transportation
     "FedEx", "UPS", "DHL", "Union Pacific", "CSX", "Norfolk Southern", "Canadian National Railway", "Canadian Pacific Railway", "Deutsche Post DHL", "Royal Mail",
-    // Mining & Materials
     "BHP", "Rio Tinto", "Vale", "Glencore", "Freeport-McMoRan", "Newmont", "Barrick Gold", "Anglo American", "Teck Resources", "Southern Copper",
-    // Utilities
     "NextEra Energy", "Dominion Energy", "Duke Energy", "Southern Company", "American Electric Power", "Exelon", "Sempra Energy", "Public Service Enterprise Group", "Edison International", "Consolidated Edison",
-    // Insurance
     "Berkshire Hathaway", "AIG", "Prudential Financial", "MetLife", "Aflac", "Progressive", "Allstate", "Travelers Companies", "Chubb", "Hartford Financial Services",
-    // Luxury Brands
-    "LVMH", "Hermès", "Kering", "Richemont", "Chanel", "Burberry", "Ralph Lauren", "Coach (Tapestry)", "Michael Kors (Capri Holdings)", "Tiffany & Co.",
-    // Sports & Fitness
+    "LVMH", "Hermès", "Kering", "Richemont", "Chanel", "Burberry", "Ralph Lauren", "Coach (Tapestry)", "Michael kors (Capri Holdings)", "Tiffany & Co.",
     "Nike", "Adidas", "Puma", "Under Armour", "Lululemon", "New Balance", "Reebok", "Asics", "Skechers", "VF Corporation",
-    // Gaming Companies
     "Roblox", "Unity Software", "Epic Games", "Valve Corporation", "Riot Games", "Blizzard Entertainment", "King Digital Entertainment", "Supercell", "Machine Zone", "Zynga"
 ];
 const unique_big_companies = [...new Set(big_companies)];
@@ -332,25 +283,18 @@ const ProfileEditForm: React.FC<{
 
     const handleSave = async () => {
         setIsSaving(true);
-        
-        const nameParts = editData.name.split(' ') || [''];
-        const userPayload = {
-            first_name: nameParts[0],
-            last_name: nameParts.slice(1).join(' ')
-        };
-
-        const profilePayload = new FormData();
-        profilePayload.append('headline', editData.title);
-        profilePayload.append('summary', editData.bio);
-        profilePayload.append('city', editData.location.city);
-        profilePayload.append('state', editData.location.state);
-        
-        if (imageFile) {
-            profilePayload.append('profile_picture', imageFile);
+        try {
+            const nameParts = editData.name.split(' ') || [''];
+            const userPayload = {
+                first_name: nameParts[0],
+                last_name: nameParts.slice(1).join(' ')
+            };
+            await onSave(userPayload, imageFile ?? undefined);
+        } catch (e) {
+            console.error("Profile save error:", e);
+        } finally {
+            setIsSaving(false);
         }
-
-        await onSave(userPayload, imageFile ?? undefined);
-        setIsSaving(false);
     };
 
     return (
@@ -431,11 +375,16 @@ const PreferencesEditForm: React.FC<{
 
     const handleSave = async () => {
         setIsSaving(true);
-        await onSave({
-            ...editData,
-            preferred_locations: editData.preferred_locations.split(',').map(s => s.trim()).filter(Boolean),
-        });
-        setIsSaving(false);
+        try {
+            await onSave({
+                ...editData,
+                preferred_locations: editData.preferred_locations.split(',').map(s => s.trim()).filter(Boolean),
+            });
+        } catch (e) {
+            console.error("Preferences save error:", e);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -607,7 +556,7 @@ export default function ProfilePage() {
 
 
   useEffect(() => {
-    fetchProfileData();
+    fetchProfileData().catch(e => console.error("Initial profile fetch error:", e));
   }, [router]);
   
   const handleEditClick = (section: EditableSection) => {
@@ -632,11 +581,15 @@ export default function ProfilePage() {
             last_name: nameParts.slice(1).join(' ') || ''
         };
         
-        await fetch('https://backend.hyresense.com/api/v1/jobseeker/users/me/', {
+        const userRes = await fetch('https://backend.hyresense.com/api/v1/jobseeker/users/me/', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
             body: JSON.stringify(userPayload)
         });
+
+        if (!userRes.ok) {
+            throw new Error('Failed to update user details.');
+        }
 
         const formData = new FormData();
         const appendIfDefined = (key: string, value: any) => {

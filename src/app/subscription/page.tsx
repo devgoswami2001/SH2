@@ -198,7 +198,7 @@ const SubscriptionPageContent = () => {
             }
         };
 
-        fetchSubscriptions();
+        fetchSubscriptions().catch(e => console.error("Initial subscriptions fetch error:", e));
     }, []);
 
     const handlePayment = async (plan: DisplayPlan) => {
@@ -219,7 +219,6 @@ const SubscriptionPageContent = () => {
         try {
             console.log(`Initiating PayU payment for plan: ${plan.name} (${plan.id})`);
             
-            // Step 1: Create transaction/hash on the backend for PayU
             const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/payu/start/', {
                 method: 'POST',
                 headers: {
@@ -236,9 +235,7 @@ const SubscriptionPageContent = () => {
             }
 
             const data = await response.json();
-            console.log("PayU Initiation Response Data:", data);
             
-            // Extract URL and Params - prioritized based on console logs
             const payuUrl = data.payu_url || data.url;
             const payuData = data.payu_data || data.payu_params || {
                 key: data.key,
@@ -255,11 +252,9 @@ const SubscriptionPageContent = () => {
             };
 
             if (!payuUrl || !payuData.hash || !payuData.key) {
-                console.error("Missing critical PayU parameters:", { payuUrl, payuData });
-                throw new Error('Invalid payment initialization data received from server. Please check console for details.');
+                throw new Error('Invalid payment initialization data received from server.');
             }
 
-            // Step 2: Create a hidden form and submit it to PayU
             const payuForm = document.createElement('form');
             payuForm.method = 'POST';
             payuForm.action = payuUrl; 
@@ -274,7 +269,6 @@ const SubscriptionPageContent = () => {
                 }
             });
 
-            console.log("Redirecting to PayU with form data...");
             document.body.appendChild(payuForm);
             payuForm.submit();
 
