@@ -6,8 +6,6 @@ import { useRouter, usePathname } from "next/navigation";
 
 /**
  * Syncs the NextAuth Google session with the HyreSense backend.
- * This component runs in the background and watches for a valid NextAuth session
- * to exchange the Google ID Token for a backend-issued JWT.
  */
 const AuthBackendSync = () => {
   const { data: session, status } = useSession();
@@ -18,7 +16,6 @@ const AuthBackendSync = () => {
 
   useEffect(() => {
     const syncWithBackend = async () => {
-      // Avoid syncing if we already have a token, are currently syncing, or sync already failed for this session
       const idToken = (session as any)?.idToken;
 
       if (
@@ -29,7 +26,7 @@ const AuthBackendSync = () => {
         !syncFailed
       ) {
         setIsSyncing(true);
-        console.log("Auth Sync: NextAuth authenticated. Attempting backend sync...");
+        console.log("Auth Sync: NextAuth authenticated. Attempting backend exchange...");
 
         try {
           const response = await fetch('https://backend.hyresense.com/api/v1/auth/google/login/', {
@@ -52,6 +49,9 @@ const AuthBackendSync = () => {
           if (accessToken) {
             localStorage.setItem('accessToken', accessToken);
             
+            // Immediately dispatch a storage event to notify other tabs/components
+            window.dispatchEvent(new Event('storage'));
+            
             // Verify profile status
             try {
               const resumeCheckResponse = await fetch('https://backend.hyresense.com/api/v1/jobseeker/check-resume/', {
@@ -72,8 +72,9 @@ const AuthBackendSync = () => {
               
               console.log(`Auth Sync: Redirecting to ${targetPath}`);
               
-              // If we are already on the target path, we need to reload or re-trigger fetches
               if (pathname === targetPath) {
+                // Already on target, components should pick up the token now
+                // We'll trigger a reload just to be sure clean state is used
                 window.location.reload();
               } else {
                 router.push(targetPath);
@@ -86,9 +87,6 @@ const AuthBackendSync = () => {
         } catch (error) {
           console.error("Auth Sync: Critical error during sync process.", error);
           setSyncFailed(true);
-          // If sync fails repeatedly, we might need to force sign out to let the user try again
-          // localStorage.removeItem('accessToken');
-          // signOut({ redirect: false });
         } finally {
           setIsSyncing(false);
         }

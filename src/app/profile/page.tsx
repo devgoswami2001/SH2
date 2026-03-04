@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, type ChangeEvent, useRef } from 'react';
+import React, { useState, useEffect, type ChangeEvent, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -19,6 +19,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
+import { useSession } from 'next-auth/react';
 
 // --- Data Structures ---
 interface EducationEntry {
@@ -437,6 +438,7 @@ const PreferencesEditForm: React.FC<{
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { status } = useSession();
   const { toast } = useToast();
   const [resumeData, setResumeData] = useState<Resume | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -444,10 +446,18 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [editingSection, setEditingSection] = useState<EditableSection>(null);
 
-  const fetchProfileData = async () => {
+  const fetchProfileData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     const accessToken = localStorage.getItem('accessToken');
+
+    if (status === 'loading') return;
+
+    if (status === 'authenticated' && !accessToken) {
+        console.log("Profile: waiting for sync...");
+        return;
+    }
+
     if (!accessToken) {
       setError("You are not logged in. Redirecting to login...");
       setTimeout(() => router.push('/login'), 2000);
@@ -552,12 +562,26 @@ export default function ProfilePage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [status, router]);
 
 
   useEffect(() => {
     fetchProfileData().catch(e => console.error("Initial profile fetch error:", e));
-  }, [router]);
+  }, [fetchProfileData]);
+
+  // Backend token polling
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (status === 'authenticated' && !localStorage.getItem('accessToken')) {
+      interval = setInterval(() => {
+        if (localStorage.getItem('accessToken')) {
+          fetchProfileData();
+          clearInterval(interval);
+        }
+      }, 500);
+    }
+    return () => clearInterval(interval);
+  }, [status, fetchProfileData]);
   
   const handleEditClick = (section: EditableSection) => {
     setEditingSection(section);
@@ -642,9 +666,10 @@ export default function ProfilePage() {
     }
   };
 
+  const isGlobalLoading = (status === 'loading') || (status === 'authenticated' && !localStorage.getItem('accessToken')) || (isLoading && !userProfile);
 
   const DesktopProfileContent = () => {
-    if (isLoading) return <div className="flex items-center justify-center h-full p-10"><Loader2 className="h-16 w-16 animate-spin text-primary" /></div>;
+    if (isGlobalLoading) return <div className="flex items-center justify-center h-full p-10"><Loader2 className="h-16 w-16 animate-spin text-primary" /></div>;
     if (error && !userProfile) { 
       return (
           <div className="max-w-2xl mx-auto my-10">
@@ -842,9 +867,13 @@ export default function ProfilePage() {
     <>
       <div className="md:hidden">
         <MobileAppLayout activeView="profile" pageTitle="My Profile">
-           {isLoading && <div className="flex items-center justify-center h-full"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>}
-           {error && <div className="p-4"><Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertTitle>Error</AlertTitle><AlertDescription>{error}</AlertDescription></Alert></div>}
-           {!isLoading && !error && userProfile && <div className="bg-muted/20 dark:bg-slate-800/40 h-full"><DesktopProfileContent /></div>}
+           {isGlobalLoading ? (
+             <div className="flex items-center justify-center h-full"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>
+           ) : error && !userProfile ? (
+             <div className="p-4"><Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertTitle>Error</AlertTitle><AlertDescription>{error}</AlertDescription></Alert></div>
+           ) : (
+             <div className="bg-muted/20 dark:bg-slate-800/40 h-full"><DesktopProfileContent /></div>
+           )}
         </MobileAppLayout>
       </div>
 

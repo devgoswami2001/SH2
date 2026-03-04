@@ -450,13 +450,24 @@ export default function JobFeedPage() {
     setError(null);
     const accessToken = localStorage.getItem('accessToken');
     
-    // If NextAuth is authenticated but we don't have a token yet, 
-    // it means background sync is likely in progress. We wait.
+    // 1. If session is loading, wait.
+    if (status === 'loading') return;
+
+    // 2. If session is authenticated but we don't have a token yet, 
+    // sync is in progress. Stay in loading state.
     if (status === 'authenticated' && !accessToken) {
-      console.log("Job Feed: Waiting for backend sync to complete...");
+      console.log("Job Feed: Session active, waiting for backend token...");
       return;
     }
 
+    // 3. If we definitely have no session and no token, then error out.
+    if (status === 'unauthenticated' && !accessToken) {
+      setError("Please log in to view the job feed.");
+      setIsLoading(false);
+      return;
+    }
+
+    // 4. Final safety check: if we have no token, we can't fetch.
     if (!accessToken) {
       setError("You are not logged in.");
       setIsLoading(false);
@@ -494,9 +505,22 @@ export default function JobFeedPage() {
   }, [status]);
 
   useEffect(() => {
-    if (status === 'loading') return;
     fetchJobs().catch(e => console.error("Initial jobs fetch error:", e));
-  }, [fetchJobs, status]);
+  }, [fetchJobs]);
+
+  // Background retry if we are waiting for the token
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (status === 'authenticated' && !localStorage.getItem('accessToken')) {
+      interval = setInterval(() => {
+        if (localStorage.getItem('accessToken')) {
+          fetchJobs();
+          clearInterval(interval);
+        }
+      }, 500);
+    }
+    return () => clearInterval(interval);
+  }, [status, fetchJobs]);
 
   const handleJobApplication = useCallback(async (jobId: number | string, status: 'applied' | 'user_rejected') => {
     const accessToken = localStorage.getItem('accessToken');
@@ -736,8 +760,12 @@ export default function JobFeedPage() {
     },
   };
 
-  // Show generic loading if session is transitioning or we're fetching data
-  const isGlobalLoading = (status === 'loading') || (isLoading && jobsToSwipe.length === 0);
+  // 1. Loading if session is loading
+  // 2. Loading if authenticated but token is missing (wait for sync)
+  // 3. Loading if we are actually fetching data
+  const isGlobalLoading = (status === 'loading') || 
+                          (status === 'authenticated' && !localStorage.getItem('accessToken')) || 
+                          (isLoading && jobsToSwipe.length === 0);
 
   if (isGlobalLoading) return <div className="flex items-center justify-center h-screen bg-background"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
   

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,6 +16,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { formatDistanceToNow, isValid } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
+import { useSession } from 'next-auth/react';
 
 
 interface AiAnalysis {
@@ -273,16 +274,26 @@ const NoJobsPlaceholder: React.FC<{ error?: string | null }> = ({ error }) => (
 );
 
 export default function AppliedJobsPage() {
+  const { status } = useSession();
   const [appliedJobs, setAppliedJobs] = useState<AppliedAppJob[]>([]);
   const [selectedJob, setSelectedJob] = useState<AppliedAppJob | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const fetchAppliedJobs = async () => {
+  const fetchAppliedJobs = useCallback(async () => {
       setIsLoading(true);
       setError(null);
+      
       const accessToken = localStorage.getItem('accessToken');
+
+      if (status === 'loading') return;
+
+      if (status === 'authenticated' && !accessToken) {
+          console.log("Applied Jobs: Waiting for backend token sync...");
+          return;
+      }
+
       if (!accessToken) {
           setError("Please log in to view your applications.");
           setIsLoading(false);
@@ -331,7 +342,7 @@ export default function AppliedJobsPage() {
           });
 
           setAppliedJobs(formattedJobs);
-          if (formattedJobs.length > 0) {
+          if (formattedJobs.length > 0 && !selectedJob) {
               setSelectedJob(formattedJobs[0]);
           }
 
@@ -340,11 +351,25 @@ export default function AppliedJobsPage() {
       } finally {
           setIsLoading(false);
       }
-  };
+  }, [status, selectedJob]);
 
   useEffect(() => {
     fetchAppliedJobs().catch(e => console.error("Initial applied jobs fetch error:", e));
-  }, []);
+  }, [fetchAppliedJobs]);
+
+  // Polling for token if authenticated via NextAuth but backend token missing
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (status === 'authenticated' && !localStorage.getItem('accessToken')) {
+      interval = setInterval(() => {
+        if (localStorage.getItem('accessToken')) {
+          fetchAppliedJobs();
+          clearInterval(interval);
+        }
+      }, 500);
+    }
+    return () => clearInterval(interval);
+  }, [status, fetchAppliedJobs]);
 
   const handleApplicationStatusUpdate = async (jobId: number | string, status: JobStatus) => {
     const accessToken = localStorage.getItem('accessToken');
@@ -396,8 +421,10 @@ export default function AppliedJobsPage() {
     }
   }
 
+  const isGlobalLoading = (status === 'loading') || (status === 'authenticated' && !localStorage.getItem('accessToken')) || (isLoading && appliedJobs.length === 0);
+
   const renderContent = () => {
-    if (isLoading) {
+    if (isGlobalLoading) {
         return <div className="flex items-center justify-center h-full"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
     }
     if (error) {
@@ -428,7 +455,7 @@ export default function AppliedJobsPage() {
         >
           <div className="h-full w-full flex flex-col">
             <ScrollArea className="flex-grow p-3 bg-muted/20 dark:bg-slate-900/30">
-                {isLoading ? (
+                {isGlobalLoading ? (
                     <div className="flex items-center justify-center pt-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
                 ) : error ? (
                     <div className="p-4"><Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertTitle>Error</AlertTitle><AlertDescription>{error}</AlertDescription></Alert></div>
@@ -473,7 +500,7 @@ export default function AppliedJobsPage() {
                   isDesktop={true}
                   onStatusUpdate={handleApplicationStatusUpdate}
                 />
-            ) : !isLoading && !error && (
+            ) : !isGlobalLoading && !error && (
               <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground p-10">
                 <PackageSearch className="h-20 w-20 text-primary/20 mb-5" />
                 <h3 className="text-2xl font-semibold text-foreground mb-2">Select a Job</h3>
