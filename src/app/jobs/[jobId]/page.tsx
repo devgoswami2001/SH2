@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Briefcase, CalendarDays, ArrowLeft, Loader2, AlertCircle, Sparkles, MapPin, Clock, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Briefcase, CalendarDays, ArrowLeft, Loader2, AlertCircle, Sparkles, MapPin, Clock, ThumbsUp, ThumbsDown, Globe, IndianRupee } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { AppHeader } from '@/components/layout/AppHeader';
@@ -31,16 +31,20 @@ interface AnalysisResult {
 }
 
 interface JobData {
-  id: number | string;
+  id: number;
   title: string;
+  slug: string;
   company_name: string;
-  company_logo: string | null;
+  company_logo: string | null; // Note: if not in API response, we use placeholder
   location: string;
+  employment_type: string;
+  experience_level: string;
+  working_mode: string;
   description: string;
   required_skills: string[];
-  experience_level: string;
-  employment_type: string;
-  working_mode: string;
+  salary_min: number | null;
+  salary_max: number | null;
+  deadline: string;
   created_at: string;
 }
 
@@ -70,8 +74,8 @@ export default function JobDetailsPage() {
     }
 
     try {
-      // Fetch job details
-      const response = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/job-posts/${jobId}/`, {
+      // Fetch job details from the provided endpoint
+      const response = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/jobs/${jobId}/`, {
         headers: { 'Authorization': `Bearer ${accessToken}` },
       });
 
@@ -80,8 +84,12 @@ export default function JobDetailsPage() {
         throw new Error("Failed to fetch job details.");
       }
 
-      const data = await response.json();
-      setJob(data);
+      const resData = await response.json();
+      if (resData.success && resData.data) {
+        setJob(resData.data);
+      } else {
+        throw new Error(resData.message || "Invalid response format from server.");
+      }
 
       // Fetch AI Analysis
       const analysisResponse = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/analyze-application/`, {
@@ -94,7 +102,7 @@ export default function JobDetailsPage() {
       });
 
       if (analysisResponse.ok) {
-        const analysisData = await analysisResponse.json();
+        const analysisData = await analysisResponse.json().catch(() => ({}));
         if (analysisData.success) {
           setAnalysis(analysisData.result);
         }
@@ -210,6 +218,9 @@ export default function JobDetailsPage() {
                     <Badge variant="secondary" className="px-3 py-1 bg-accent/10 text-accent border-accent/20 text-sm">
                       <Clock className="mr-1.5 h-4 w-4" /> {job.experience_level}
                     </Badge>
+                    <Badge variant="outline" className="px-3 py-1 text-sm border-border/60">
+                      <Globe className="mr-1.5 h-4 w-4" /> {job.working_mode}
+                    </Badge>
                     <Badge variant="outline" className="px-3 py-1 text-sm">
                       <CalendarDays className="mr-1.5 h-4 w-4" /> Posted: {new Date(job.created_at).toLocaleDateString()}
                     </Badge>
@@ -298,16 +309,20 @@ export default function JobDetailsPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Mode</span>
+                        <span className="text-muted-foreground">Working Mode</span>
                         <span className="font-medium text-foreground">{job.working_mode}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Type</span>
-                        <span className="font-medium text-foreground">{job.employment_type}</span>
+                        <span className="text-muted-foreground">Salary Range</span>
+                        <span className="font-medium text-foreground">
+                            {job.salary_min && job.salary_max 
+                                ? `₹${job.salary_min.toLocaleString()} - ₹${job.salary_max.toLocaleString()}`
+                                : 'Not specified'}
+                        </span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Level</span>
-                        <span className="font-medium text-foreground">{job.experience_level}</span>
+                        <span className="text-muted-foreground">Deadline</span>
+                        <span className="font-medium text-foreground">{new Date(job.deadline).toLocaleDateString()}</span>
                       </div>
                     </CardContent>
                   </Card>
