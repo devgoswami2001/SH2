@@ -47,7 +47,7 @@ const RequestInterviewForm: React.FC<{onSuccess: (newInterview: MockInterview) =
         e.preventDefault();
         setIsLoading(true);
         setError(null);
-        const accessToken = localStorage.getItem('accessToken');
+        const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
         if (!accessToken) {
             setError("You must be logged in to make a request.");
             setIsLoading(false);
@@ -68,7 +68,7 @@ const RequestInterviewForm: React.FC<{onSuccess: (newInterview: MockInterview) =
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
+                const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.detail || 'Failed to request interview.');
             }
             
@@ -154,7 +154,7 @@ const InterviewPageContent = () => {
 
     const fetchInterviews = useCallback(async () => {
         setIsLoading(true);
-        const accessToken = localStorage.getItem('accessToken');
+        const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
         if (!accessToken) {
             setError("Please log in to view your interviews.");
             setIsLoading(false);
@@ -165,7 +165,10 @@ const InterviewPageContent = () => {
             const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/mock-interviews/my/', {
                 headers: { 'Authorization': `Bearer ${accessToken}` }
             });
-            if (!response.ok) throw new Error("Failed to fetch interviews.");
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.detail || "Failed to fetch interviews.");
+            }
             
             const data = await response.json();
             setInterviews(data.results || []);
