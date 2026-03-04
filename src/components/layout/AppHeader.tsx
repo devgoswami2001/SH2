@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { Compass, LayoutGrid, ListChecks, User, Brain, Settings, LogOut, Crown, Video } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
