@@ -14,6 +14,7 @@ import { AppHeader } from '@/components/layout/AppHeader';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSession } from 'next-auth/react';
 
 
 // --- Data Structures ---
@@ -421,6 +422,7 @@ export default function JobFeedPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const { status } = useSession();
 
   const [page, setPage] = useState(0);
   const [direction, setDirection] = useState(0);
@@ -443,47 +445,58 @@ export default function JobFeedPage() {
     setDirection(newDirection);
   };
 
+  const fetchJobs = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    const accessToken = localStorage.getItem('accessToken');
+    
+    // If NextAuth is authenticated but we don't have a token yet, 
+    // it means background sync is likely in progress. We wait.
+    if (status === 'authenticated' && !accessToken) {
+      console.log("Job Feed: Waiting for backend sync to complete...");
+      return;
+    }
+
+    if (!accessToken) {
+      setError("You are not logged in.");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/jobs/by-skills/', {
+        headers: { 'Authorization': `Bearer ${accessToken}` },
+      });
+      if (!response.ok) throw new Error('Failed to fetch jobs.');
+      const data = await response.json();
+      const apiJobs: ApiJob[] = data.jobs || [];
+      const formattedJobs: AppJob[] = apiJobs.map(job => ({
+        id: job.id,
+        title: job.title,
+        company: job.company_name,
+        location: `${job.location} (${job.working_mode})`,
+        description: job.description,
+        image: job.company_profile_image || `https://placehold.co/128x128/e0e7ff/4a5568.png?text=${(job.company_name || 'C').substring(0, 2)}`,
+        dataAiHint: `${job.company_name} logo`,
+        skills: job.required_skills,
+        experienceLevel: job.experience_level,
+        jobType: job.employment_type,
+        postedDate: new Date(job.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+        fitScore: null,
+        analysisResult: null,
+      }));
+      setJobsToSwipe(formattedJobs);
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [status]);
+
   useEffect(() => {
-    const fetchJobs = async () => {
-      setIsLoading(true);
-      setError(null);
-      const accessToken = localStorage.getItem('accessToken');
-      if (!accessToken) {
-        setError("You are not logged in.");
-        setIsLoading(false);
-        return;
-      }
-      try {
-        const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/jobs/by-skills/', {
-          headers: { 'Authorization': `Bearer ${accessToken}` },
-        });
-        if (!response.ok) throw new Error('Failed to fetch jobs.');
-        const data = await response.json();
-        const apiJobs: ApiJob[] = data.jobs || [];
-        const formattedJobs: AppJob[] = apiJobs.map(job => ({
-          id: job.id,
-          title: job.title,
-          company: job.company_name,
-          location: `${job.location} (${job.working_mode})`,
-          description: job.description,
-          image: job.company_profile_image || `https://placehold.co/128x128/e0e7ff/4a5568.png?text=${(job.company_name || 'C').substring(0, 2)}`,
-          dataAiHint: `${job.company_name} logo`,
-          skills: job.required_skills,
-          experienceLevel: job.experience_level,
-          jobType: job.employment_type,
-          postedDate: new Date(job.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
-          fitScore: null,
-          analysisResult: null,
-        }));
-        setJobsToSwipe(formattedJobs);
-      } catch (err: any) {
-        setError(err.message || "An unexpected error occurred.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (status === 'loading') return;
     fetchJobs().catch(e => console.error("Initial jobs fetch error:", e));
-  }, []);
+  }, [fetchJobs, status]);
 
   const handleJobApplication = useCallback(async (jobId: number | string, status: 'applied' | 'user_rejected') => {
     const accessToken = localStorage.getItem('accessToken');
@@ -723,7 +736,11 @@ export default function JobFeedPage() {
     },
   };
 
-  if (isLoading) return <div className="flex items-center justify-center h-screen bg-background"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
+  // Show generic loading if session is transitioning or we're fetching data
+  const isGlobalLoading = (status === 'loading') || (isLoading && jobsToSwipe.length === 0);
+
+  if (isGlobalLoading) return <div className="flex items-center justify-center h-screen bg-background"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
+  
   if (error) return <div className="flex flex-col items-center justify-center h-screen bg-background text-center p-4"><AlertCircle className="h-12 w-12 text-destructive mb-4" /><h2 className="text-xl font-semibold text-destructive mb-2">Something went wrong</h2><p className="text-muted-foreground mb-4">{error}</p><Button onClick={() => window.location.reload()} variant="destructive">Try Again</Button></div>;
 
   return (

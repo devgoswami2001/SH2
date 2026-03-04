@@ -1,9 +1,8 @@
-
 'use client';
 
-import { SessionProvider, useSession } from "next-auth/react";
+import { SessionProvider, useSession, signOut } from "next-auth/react";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 /**
  * Syncs the NextAuth Google session with the HyreSense backend.
@@ -13,29 +12,26 @@ import { useRouter } from "next/navigation";
 const AuthBackendSync = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
   const [isSyncing, setIsSyncing] = useState(false);
+  const [syncFailed, setSyncFailed] = useState(false);
 
   useEffect(() => {
     const syncWithBackend = async () => {
-      // We only want to sync if:
-      // 1. NextAuth has successfully authenticated the user.
-      // 2. We have the idToken available in the session.
-      // 3. We don't already have an active backend accessToken in localStorage.
-      // 4. We aren't already in the middle of a sync process.
-      
+      // Avoid syncing if we already have a token, are currently syncing, or sync already failed for this session
       const idToken = (session as any)?.idToken;
 
       if (
         status === 'authenticated' && 
         idToken && 
         !localStorage.getItem('accessToken') && 
-        !isSyncing
+        !isSyncing &&
+        !syncFailed
       ) {
         setIsSyncing(true);
         console.log("Auth Sync: NextAuth authenticated. Attempting backend sync...");
 
         try {
-          // Exchange Google ID Token for Backend Tokens (Django/REST)
           const response = await fetch('https://backend.hyresense.com/api/v1/auth/google/login/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -56,7 +52,7 @@ const AuthBackendSync = () => {
           if (accessToken) {
             localStorage.setItem('accessToken', accessToken);
             
-            // Proceed to verify if the user has a resume/profile set up
+            // Verify profile status
             try {
               const resumeCheckResponse = await fetch('https://backend.hyresense.com/api/v1/jobseeker/check-resume/', {
                 method: 'GET',
@@ -67,29 +63,32 @@ const AuthBackendSync = () => {
               });
               
               if (!resumeCheckResponse.ok) {
-                console.warn("Auth Sync: Resume check failed, defaulting to job feed.");
                 router.push('/job-feed');
                 return;
               }
               
               const resumeData = await resumeCheckResponse.json();
+              const targetPath = resumeData.has_resume ? '/job-feed' : '/create-resume';
               
-              if (resumeData.has_resume) {
-                console.log("Auth Sync: User has resume. Redirecting to job feed.");
-                router.push('/job-feed');
+              console.log(`Auth Sync: Redirecting to ${targetPath}`);
+              
+              // If we are already on the target path, we need to reload or re-trigger fetches
+              if (pathname === targetPath) {
+                window.location.reload();
               } else {
-                console.log("Auth Sync: User has no resume. Redirecting to creation flow.");
-                router.push('/create-resume');
+                router.push(targetPath);
               }
             } catch (resumeError) {
-              console.error("Auth Sync: Critical error during resume check.", resumeError);
+              console.error("Auth Sync: Resume check failed.", resumeError);
               router.push('/job-feed');
             }
-          } else {
-            console.error("Auth Sync: Backend did not return an access token in the expected format.");
           }
         } catch (error) {
           console.error("Auth Sync: Critical error during sync process.", error);
+          setSyncFailed(true);
+          // If sync fails repeatedly, we might need to force sign out to let the user try again
+          // localStorage.removeItem('accessToken');
+          // signOut({ redirect: false });
         } finally {
           setIsSyncing(false);
         }
@@ -97,7 +96,7 @@ const AuthBackendSync = () => {
     };
 
     syncWithBackend().catch(e => console.error("Auth Sync: Unhandled failure.", e));
-  }, [session, status, router, isSyncing]);
+  }, [session, status, router, pathname, isSyncing, syncFailed]);
 
   return null;
 };

@@ -76,7 +76,6 @@ export function LoginForm() {
       });
       
       if (!resumeCheckResponse.ok) {
-        console.error("Failed to check resume status, proceeding to job feed.");
         router.push('/job-feed');
         return;
       }
@@ -97,7 +96,9 @@ export function LoginForm() {
   };
 
   const handleGoogleSignIn = () => {
-    signIn('google', { callbackUrl: '/job-feed' });
+    // We redirect to /login itself so that AuthBackendSync can handle the redirection
+    // after the background token exchange is complete.
+    signIn('google', { callbackUrl: '/login' });
   };
 
   return (
