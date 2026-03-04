@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Check, Crown, Star, Sparkles, Loader2, AlertCircle, RefreshCcw } from 'lucide-react';
 import { AppHeader } from '@/components/layout/AppHeader';
+import { MobileAppLayout } from '@/components/layout/MobileAppLayout';
 import { cn } from '@/lib/utils';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -391,7 +392,7 @@ const SubscriptionPageContent = () => {
   )
 }
 
-export default function SubscriptionPage() {
+function SubscriptionPageInner() {
   return (
     <>
       <div className="md:hidden">
@@ -409,5 +410,13 @@ export default function SubscriptionPage() {
         </main>
       </div>
     </>
+  );
+}
+
+export default function SubscriptionPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-screen bg-background"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>}>
+      <SubscriptionPageInner />
+    </Suspense>
   );
 }
