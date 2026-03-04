@@ -7,7 +7,21 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Briefcase, CalendarDays, ArrowLeft, Loader2, AlertCircle, Sparkles, MapPin, Clock, ThumbsUp, ThumbsDown, Globe, IndianRupee } from 'lucide-react';
+import { 
+  Briefcase, 
+  CalendarDays, 
+  ArrowLeft, 
+  Loader2, 
+  AlertCircle, 
+  Sparkles, 
+  MapPin, 
+  Clock, 
+  ThumbsUp, 
+  ThumbsDown, 
+  Globe, 
+  IndianRupee, 
+  Brain 
+} from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { AppHeader } from '@/components/layout/AppHeader';
@@ -54,7 +68,7 @@ export default function JobDetailsPage() {
   const router = useRouter();
   const { status } = useSession();
   const { toast } = useToast();
-  const jobId = params.jobId as string;
+  const jobId = params?.jobId as string;
 
   const [job, setJob] = useState<JobData | null>(null);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
@@ -63,11 +77,14 @@ export default function JobDetailsPage() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchJobDetails = useCallback(async () => {
+    if (!jobId) return;
+    
     setIsLoading(true);
     setError(null);
     const accessToken = localStorage.getItem('accessToken');
 
     if (status === 'loading') return;
+    
     if (status === 'unauthenticated' && !accessToken) {
         setError("Please log in to view job details.");
         setIsLoading(false);
@@ -75,6 +92,7 @@ export default function JobDetailsPage() {
     }
 
     try {
+      // Fetch Job Details
       const response = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/jobs/${jobId}/`, {
         headers: { 'Authorization': `Bearer ${accessToken}` },
       });
@@ -91,21 +109,27 @@ export default function JobDetailsPage() {
         throw new Error(resData.message || "Invalid response format from server.");
       }
 
-      const analysisResponse = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/analyze-application/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify({ job_post_id: jobId })
-      });
+      // Fetch AI Analysis separately to not block job details if it fails
+      try {
+        const analysisResponse = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/analyze-application/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+          },
+          body: JSON.stringify({ job_post_id: jobId })
+        });
 
-      if (analysisResponse.ok) {
-        const analysisData = await analysisResponse.json().catch(() => ({}));
-        if (analysisData.success) {
-          setAnalysis(analysisData.result);
+        if (analysisResponse.ok) {
+          const analysisData = await analysisResponse.json();
+          if (analysisData.success) {
+            setAnalysis(analysisData.result);
+          }
         }
+      } catch (analysisErr) {
+        console.error("AI Analysis fetch error (non-fatal):", analysisErr);
       }
+
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
     } finally {
@@ -114,7 +138,7 @@ export default function JobDetailsPage() {
   }, [jobId, status]);
 
   useEffect(() => {
-    fetchJobDetails().catch(e => console.error("Job details fetch error:", e));
+    fetchJobDetails();
   }, [fetchJobDetails]);
 
   const handleApply = async () => {
@@ -182,7 +206,7 @@ export default function JobDetailsPage() {
 
   const companyLogo = job.company_logo 
     ? (job.company_logo.startsWith('http') ? job.company_logo : `https://backend.hyresense.com${job.company_logo}`)
-    : `https://placehold.co/128x128/e0e7ff/4a5568.png?text=${job.company_name.substring(0, 2)}`;
+    : `https://placehold.co/128x128/e0e7ff/4a5568.png?text=${(job.company_name || 'C').substring(0, 2)}`;
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -199,7 +223,7 @@ export default function JobDetailsPage() {
                 <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden border border-border shadow-sm shrink-0 bg-white p-2">
                   <Image
                     src={companyLogo}
-                    alt={job.company_name}
+                    alt={job.company_name || 'Company'}
                     fill
                     className="object-contain"
                   />
@@ -208,20 +232,20 @@ export default function JobDetailsPage() {
                   <h1 className="text-3xl md:text-4xl font-bold text-foreground leading-tight mb-2">{job.title}</h1>
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-lg">
                     <span className="font-semibold text-primary hover:underline cursor-pointer">{job.company_name}</span>
-                    <span className="text-muted-foreground flex items-center gap-1.5"><MapPin className="h-5 w-5 text-secondary" /> {job.location}</span>
+                    <span className="text-muted-foreground flex items-center gap-1.5"><MapPin className="h-5 w-5 text-secondary" /> {job.location || 'Location not specified'}</span>
                   </div>
                   <div className="flex flex-wrap gap-3 mt-6">
                     <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary border-primary/20 text-sm">
-                      <Briefcase className="mr-1.5 h-4 w-4" /> {job.employment_type}
+                      <Briefcase className="mr-1.5 h-4 w-4" /> {job.employment_type || 'Full-time'}
                     </Badge>
                     <Badge variant="secondary" className="px-3 py-1 bg-accent/10 text-accent border-accent/20 text-sm">
-                      <Clock className="mr-1.5 h-4 w-4" /> {job.experience_level}
+                      <Clock className="mr-1.5 h-4 w-4" /> {job.experience_level || 'Not specified'}
                     </Badge>
                     <Badge variant="outline" className="px-3 py-1 text-sm border-border/60">
-                      <Globe className="mr-1.5 h-4 w-4" /> {job.working_mode}
+                      <Globe className="mr-1.5 h-4 w-4" /> {job.working_mode || 'On-site'}
                     </Badge>
                     <Badge variant="outline" className="px-3 py-1 text-sm">
-                      <CalendarDays className="mr-1.5 h-4 w-4" /> Posted: {new Date(job.created_at).toLocaleDateString()}
+                      <CalendarDays className="mr-1.5 h-4 w-4" /> Posted: {job.created_at ? new Date(job.created_at).toLocaleDateString() : 'Recently'}
                     </Badge>
                   </div>
                 </div>
@@ -267,9 +291,9 @@ export default function JobDetailsPage() {
                         <div className="space-y-2">
                           <div className="flex justify-between items-end">
                             <span className="text-sm font-medium text-muted-foreground">Match Score</span>
-                            <span className="text-2xl font-bold text-primary">{analysis.fit_score}%</span>
+                            <span className="text-2xl font-bold text-primary">{analysis.fit_score || 0}%</span>
                           </div>
-                          <Progress value={analysis.fit_score} className="h-2" />
+                          <Progress value={analysis.fit_score || 0} className="h-2" />
                         </div>
                         
                         <div className="pt-2">
@@ -284,11 +308,11 @@ export default function JobDetailsPage() {
                         <div className="space-y-3">
                           <div>
                             <p className="text-xs font-bold uppercase text-muted-foreground mb-1">Top Strength</p>
-                            <p className="text-sm text-foreground">{analysis.strengths[0] || "N/A"}</p>
+                            <p className="text-sm text-foreground">{analysis.strengths?.[0] || "N/A"}</p>
                           </div>
                           <div>
                             <p className="text-xs font-bold uppercase text-muted-foreground mb-1">Gap to Bridge</p>
-                            <p className="text-sm text-foreground">{analysis.weaknesses[0] || "N/A"}</p>
+                            <p className="text-sm text-foreground">{analysis.weaknesses?.[0] || "N/A"}</p>
                           </div>
                         </div>
                       </CardContent>
@@ -309,19 +333,19 @@ export default function JobDetailsPage() {
                     <CardContent className="space-y-4">
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Working Mode</span>
-                        <span className="font-medium text-foreground">{job.working_mode}</span>
+                        <span className="font-medium text-foreground capitalize">{job.working_mode || 'Not specified'}</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Salary Range</span>
                         <span className="font-medium text-foreground">
-                            {job.salary_min && job.salary_max 
+                            {job.salary_min !== null && job.salary_max !== null 
                                 ? `₹${job.salary_min.toLocaleString()} - ₹${job.salary_max.toLocaleString()}`
                                 : 'Not specified'}
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Deadline</span>
-                        <span className="font-medium text-foreground">{new Date(job.deadline).toLocaleDateString()}</span>
+                        <span className="font-medium text-foreground">{job.deadline ? new Date(job.deadline).toLocaleDateString() : 'N/A'}</span>
                       </div>
                     </CardContent>
                   </Card>
