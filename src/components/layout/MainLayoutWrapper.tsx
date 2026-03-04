@@ -24,7 +24,11 @@ export function MainLayoutWrapper({ children }: { children: React.ReactNode }) {
     '/payment/success',
     '/payment/failure'
   ];
-  const isFullscreenPage = fullscreenPages.includes(pathname) || pathname.startsWith('/job-details/');
+  const isFullscreenPage = 
+    fullscreenPages.includes(pathname) || 
+    pathname.startsWith('/job-details/') || 
+    pathname.startsWith('/jobs/') ||
+    pathname.startsWith('/company/');
 
 
   return (
