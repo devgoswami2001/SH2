@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Briefcase, CalendarDays, ArrowLeft, Loader2, AlertCircle, Sparkles, MapPin, Clock, ThumbsUp, ThumbsDown, Globe, IndianRupee } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
@@ -35,7 +36,7 @@ interface JobData {
   title: string;
   slug: string;
   company_name: string;
-  company_logo: string | null; // Note: if not in API response, we use placeholder
+  company_logo: string | null;
   location: string;
   employment_type: string;
   experience_level: string;
@@ -74,7 +75,6 @@ export default function JobDetailsPage() {
     }
 
     try {
-      // Fetch job details from the provided endpoint
       const response = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/jobs/${jobId}/`, {
         headers: { 'Authorization': `Bearer ${accessToken}` },
       });
@@ -91,7 +91,6 @@ export default function JobDetailsPage() {
         throw new Error(resData.message || "Invalid response format from server.");
       }
 
-      // Fetch AI Analysis
       const analysisResponse = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/analyze-application/`, {
         method: 'POST',
         headers: {
