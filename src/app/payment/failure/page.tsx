@@ -1,11 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { XCircle, RefreshCcw, AlertTriangle, MessageSquare, ArrowLeft, Clock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { XCircle, AlertTriangle, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function PaymentFailurePage() {
@@ -64,7 +62,7 @@ export default function PaymentFailurePage() {
                 <div className="space-y-2">
                   <p className="text-sm font-semibold text-red-800 dark:text-red-300">Important Note:</p>
                   <p className="text-xs text-red-700/80 dark:text-red-400/80 leading-relaxed">
-                    If your money was deducted, it will be automatically refunded within 7-10 business days. You can try again using a different payment method or contact your bank.
+                    If your money was deducted, it will be automatically refunded within 7-10 business days. You will be redirected back to try again shortly.
                   </p>
                 </div>
               </div>
@@ -73,27 +71,6 @@ export default function PaymentFailurePage() {
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground py-2">
               <Clock className="h-4 w-4 animate-pulse" />
               <span>Returning to plans in {countdown} seconds...</span>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <Button asChild size="lg" className="w-full h-12 text-base font-semibold group bg-foreground text-background transition-all">
-                <Link href="/subscription">
-                  <RefreshCcw className="mr-2 h-4 w-4 group-hover:rotate-180 transition-transform duration-500" /> 
-                  Try Again
-                </Link>
-              </Button>
-              <div className="grid grid-cols-2 gap-3">
-                <Button asChild variant="outline" size="lg" className="h-12 text-sm">
-                  <Link href="/contact">
-                    <MessageSquare className="mr-2 h-4 w-4" /> Support
-                  </Link>
-                </Button>
-                <Button asChild variant="ghost" size="lg" className="h-12 text-sm">
-                  <Link href="/job-feed">
-                    <ArrowLeft className="mr-2 h-4 w-4" /> Back Home
-                  </Link>
-                </Button>
-              </div>
             </div>
           </CardContent>
         </Card>

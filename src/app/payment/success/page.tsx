@@ -1,11 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { CheckCircle, ArrowRight, Briefcase, Sparkles, Clock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { CheckCircle, Sparkles, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function PaymentSuccessPage() {
@@ -77,19 +75,6 @@ export default function PaymentSuccessPage() {
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground py-2">
               <Clock className="h-4 w-4 animate-pulse" />
               <span>Redirecting to subscriptions in {countdown} seconds...</span>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <Button asChild size="lg" className="w-full h-12 text-base font-semibold group bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all">
-                <Link href="/job-feed">
-                  Go to Job Feed <Briefcase className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild variant="ghost" size="lg" className="w-full h-12 text-base">
-                <Link href="/profile">
-                  View My Profile <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
             </div>
           </CardContent>
         </Card>
