@@ -31,6 +31,7 @@ interface UserData {
     name: string;
     initials: string;
     avatarUrl: string;
+    isPro: boolean;
 }
 
 export function AppHeader() {
@@ -41,24 +42,22 @@ export function AppHeader() {
   useEffect(() => {
     const fetchUserData = async () => {
         const accessToken = localStorage.getItem('accessToken');
-        if (!accessToken) {
-            return;
-        }
+        if (!accessToken) return;
 
         try {
-            const [userResponse, profileResponse] = await Promise.all([
+            const [userResponse, profileResponse, subResponse] = await Promise.all([
                 fetch('https://backend.hyresense.com/api/v1/jobseeker/users/me/', {
                     headers: { 'Authorization': `Bearer ${accessToken}` }
                 }),
                 fetch('https://backend.hyresense.com/api/v1/jobseeker/jobseeker-profile/', {
                     headers: { 'Authorization': `Bearer ${accessToken}` }
+                }),
+                fetch('https://backend.hyresense.com/api/v1/jobseeker/subscription/active/', {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
                 })
             ]);
 
-            if (!userResponse.ok) {
-                console.error("Failed to fetch user details");
-                return;
-            }
+            if (!userResponse.ok) return;
             
             const userDetails = await userResponse.json();
             const name = `${userDetails.first_name || ''} ${userDetails.last_name || ''}`.trim();
@@ -71,15 +70,18 @@ export function AppHeader() {
                 const profile = profileData?.results?.[0];
                 if (profile?.profile_picture) {
                     const imageUrl = profile.profile_picture;
-                    if (!imageUrl.startsWith('http')) {
-                        avatarUrl = `http://127.0.0.1:8000${imageUrl}`;
-                    } else {
-                        avatarUrl = imageUrl;
-                    }
+                    avatarUrl = imageUrl.startsWith('http') ? imageUrl : `https://backend.hyresense.com${imageUrl}`;
                 }
             }
 
-            setUserData({ name, initials, avatarUrl });
+            let isPro = false;
+            if (subResponse.ok) {
+                const subData = await subResponse.json();
+                const plan = subData?.subscription?.plan_name?.toLowerCase();
+                isPro = subData.is_active && (plan === 'pro' || plan === 'premium');
+            }
+
+            setUserData({ name, initials, avatarUrl, isPro });
 
         } catch (error) {
             console.error("Error fetching user data for header:", error);
@@ -130,22 +132,35 @@ export function AppHeader() {
         <div className="flex items-center gap-4">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-2 outline-none">
+                    <button className="flex items-center gap-2 outline-none group relative">
                         {userData && <span className="text-sm font-medium text-muted-foreground hidden lg:inline">{userData.name}</span>}
-                        <Avatar className="h-9 w-9 border-2 border-primary/50">
-                            {userData ? (
-                                <>
-                                    <AvatarImage src={userData.avatarUrl} alt={userData.name} data-ai-hint="profile picture" />
-                                    <AvatarFallback>{userData.initials}</AvatarFallback>
-                                </>
-                            ) : (
-                                <AvatarFallback>U</AvatarFallback>
+                        <div className="relative">
+                            <Avatar className={cn(
+                                "h-9 w-9 transition-all duration-300",
+                                userData?.isPro ? "border-2 border-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.3)]" : "border-2 border-primary/50"
+                            )}>
+                                {userData ? (
+                                    <>
+                                        <AvatarImage src={userData.avatarUrl} alt={userData.name} data-ai-hint="profile picture" />
+                                        <AvatarFallback>{userData.initials}</AvatarFallback>
+                                    </>
+                                ) : (
+                                    <AvatarFallback>U</AvatarFallback>
+                                )}
+                            </Avatar>
+                            {userData?.isPro && (
+                                <div className="absolute -top-2.5 -right-2.5 bg-background rounded-full p-0.5 shadow-sm border border-yellow-200">
+                                    <Crown className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                                </div>
                             )}
-                        </Avatar>
+                        </div>
                     </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 mt-2">
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuLabel className="flex items-center justify-between">
+                        My Account
+                        {userData?.isPro && <Badge variant="secondary" className="bg-yellow-100 text-yellow-700 border-yellow-200 text-[10px] h-4">PRO</Badge>}
+                    </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                         <Link href="/profile"><User className="mr-2 h-4 w-4" />Profile</Link>

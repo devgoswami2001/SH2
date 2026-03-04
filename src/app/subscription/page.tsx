@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Check, Crown, Star, Sparkles, Loader2, AlertCircle } from 'lucide-react';
+import { Check, Crown, Star, Sparkles, Loader2, AlertCircle, RefreshCcw } from 'lucide-react';
 import { AppHeader } from '@/components/layout/AppHeader';
-import { MobileAppLayout } from '@/components/layout/MobileAppLayout';
 import { cn } from '@/lib/utils';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -28,20 +28,18 @@ interface ApiPlan {
   created_at: string;
 }
 
-interface JobseekerInfo {
-    full_name: string;
-    email: string;
-    phone_number: string;
+interface ActiveSubscription {
+    id: string;
+    status: string;
+    start_date: string;
+    end_date: string;
+    plan_name: string;
+    daily_swipe_limit: number;
+    mock_interviews_monthly: number;
 }
 
 interface ApiSubscriptionResponse {
-    jobseeker: JobseekerInfo;
     subscriptions: ApiPlan[];
-}
-
-interface PlanFeature {
-  text: string;
-  included: boolean;
 }
 
 interface DisplayPlan {
@@ -57,12 +55,18 @@ interface DisplayPlan {
   variant: 'default' | 'outline';
 }
 
+interface PlanFeature {
+  text: string;
+  included: boolean;
+}
+
 const getPlanDescription = (name: string): string => {
     switch (name.toLowerCase()) {
         case 'free':
             return 'Get started and experience the core of HyreSense.';
         case 'basic':
             return 'Unlock more opportunities and stand out from the crowd.';
+        case 'pro':
         case 'premium':
             return 'The ultimate toolkit for the serious job seeker.';
         default:
@@ -93,12 +97,12 @@ const mapApiPlanToDisplayPlan = (apiPlan: ApiPlan): DisplayPlan => {
         description: getPlanDescription(apiPlan.name),
         features: visibleFeatures,
         isPopular: apiPlan.name.toLowerCase() === 'basic',
-        cta: apiPlan.name.toLowerCase() === 'free' ? 'Continue with Free' : `Upgrade to ${apiPlan.name}`,
+        cta: apiPlan.name.toLowerCase() === 'free' ? 'Current Plan' : `Upgrade to ${apiPlan.name}`,
         variant: apiPlan.name.toLowerCase() === 'basic' ? 'default' : 'outline',
     }
 };
 
-const PlanCard: React.FC<{ plan: DisplayPlan; onSelect: (plan: DisplayPlan) => void; delay: number }> = ({ plan, onSelect, delay }) => {
+const PlanCard: React.FC<{ plan: DisplayPlan; onSelect: (plan: DisplayPlan) => void; delay: number; isActive: boolean }> = ({ plan, onSelect, delay, isActive }) => {
   const [cardRef, isCardVisible] = useScrollAnimation<HTMLDivElement>({ threshold: 0.1, triggerOnce: true });
 
   return (
@@ -112,9 +116,16 @@ const PlanCard: React.FC<{ plan: DisplayPlan; onSelect: (plan: DisplayPlan) => v
     >
       <Card className={cn(
         "h-full flex flex-col shadow-xl border-2 transition-all duration-300 relative",
-        plan.isPopular ? "border-primary shadow-primary/20" : "border-border/40 hover:border-primary/50"
+        isActive ? "border-green-500 shadow-green-500/10" : (plan.isPopular ? "border-primary shadow-primary/20" : "border-border/40 hover:border-primary/50")
       )}>
-        {plan.isPopular && (
+        {isActive && (
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                <div className="bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
+                    <Check className="h-3 w-3" /> Your Active Plan
+                </div>
+            </div>
+        )}
+        {!isActive && plan.isPopular && (
           <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
             <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
               <Star className="h-3 w-3 fill-current" /> Most Popular
@@ -124,6 +135,7 @@ const PlanCard: React.FC<{ plan: DisplayPlan; onSelect: (plan: DisplayPlan) => v
         <CardHeader className="text-center pt-10">
           <CardTitle className="text-3xl font-bold flex items-center justify-center gap-2">
             {plan.name === 'Premium' && <Sparkles className="h-7 w-7 text-accent" />}
+            {plan.name === 'Pro' && <Crown className="h-7 w-7 text-yellow-500" />}
             {plan.name === 'Basic' && <Crown className="h-7 w-7 text-primary" />}
             {plan.name}
           </CardTitle>
@@ -147,10 +159,11 @@ const PlanCard: React.FC<{ plan: DisplayPlan; onSelect: (plan: DisplayPlan) => v
           <Button
             size="lg"
             className="w-full text-base"
-            variant={plan.variant as any}
-            onClick={() => onSelect(plan)}
+            variant={isActive ? 'ghost' : (plan.variant as any)}
+            onClick={() => !isActive && onSelect(plan)}
+            disabled={isActive}
           >
-            {plan.cta}
+            {isActive ? 'Current Plan' : plan.cta}
           </Button>
         </CardFooter>
       </Card>
@@ -160,55 +173,94 @@ const PlanCard: React.FC<{ plan: DisplayPlan; onSelect: (plan: DisplayPlan) => v
 
 
 const SubscriptionPageContent = () => {
+    const searchParams = useSearchParams();
     const [titleRef, isTitleVisible] = useScrollAnimation<HTMLHeadingElement>();
     const [subtitleRef, isSubtitleVisible] = useScrollAnimation<HTMLParagraphElement>();
     const { toast } = useToast();
 
     const [plans, setPlans] = useState<DisplayPlan[]>([]);
-    const [jobseeker, setJobseeker] = useState<JobseekerInfo | null>(null);
+    const [activeSub, setActiveSub] = useState<ActiveSubscription | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isSyncing, setIsSyncing] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    
+    const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-    useEffect(() => {
-        const fetchSubscriptions = async () => {
-            setIsLoading(true);
-            const accessToken = localStorage.getItem('accessToken');
-            if (!accessToken) {
-                setError("Please log in to view subscriptions.");
-                setIsLoading(false);
-                return;
-            }
+    const fetchSubscriptionStatus = useCallback(async (isSilent = false) => {
+        const accessToken = localStorage.getItem('accessToken');
+        if (!accessToken) return null;
 
-            try {
-                const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/subscriptions/', {
-                    headers: { 'Authorization': `Bearer ${accessToken}` }
-                });
-                if (!response.ok) {
-                    throw new Error('Failed to fetch subscription plans.');
+        try {
+            const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/subscription/active/', {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.is_active) {
+                    setActiveSub(data.subscription);
+                    return data.subscription;
                 }
-                const data: ApiSubscriptionResponse = await response.json();
-                
-                const sortedPlans = data.subscriptions.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
-                setPlans(sortedPlans.map(mapApiPlanToDisplayPlan));
-                setJobseeker(data.jobseeker);
-            } catch (err: any) {
-                setError(err.message || "An unknown error occurred.");
-            } finally {
-                setIsLoading(false);
             }
-        };
-
-        fetchSubscriptions().catch(e => console.error("Initial subscriptions fetch error:", e));
+        } catch (e) {
+            console.error("Fetch active sub error:", e);
+        }
+        return null;
     }, []);
 
-    const handlePayment = async (plan: DisplayPlan) => {
-        if (plan.priceNumeric === 0) {
-            toast({
-                title: "You're on the Free Plan",
-                description: "You can continue using the core features of HyreSense.",
-            });
+    const fetchAllPlans = useCallback(async () => {
+        setIsLoading(true);
+        const accessToken = localStorage.getItem('accessToken');
+        if (!accessToken) {
+            setError("Please log in to view subscriptions.");
+            setIsLoading(false);
             return;
         }
+
+        try {
+            const [plansRes, activeRes] = await Promise.all([
+                fetch('https://backend.hyresense.com/api/v1/jobseeker/subscriptions/', {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                }),
+                fetchSubscriptionStatus()
+            ]);
+
+            if (!plansRes.ok) throw new Error('Failed to fetch subscription plans.');
+            
+            const plansData: ApiSubscriptionResponse = await plansRes.json();
+            const sortedPlans = plansData.subscriptions.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+            setPlans(sortedPlans.map(mapApiPlanToDisplayPlan));
+
+        } catch (err: any) {
+            setError(err.message || "An unknown error occurred.");
+        } finally {
+            setIsLoading(false);
+        }
+    }, [fetchSubscriptionStatus]);
+
+    useEffect(() => {
+        fetchAllPlans();
+        
+        // Start polling if we just came from a successful payment
+        if (searchParams.get('check_sync') === 'true') {
+            setIsSyncing(true);
+            pollingIntervalRef.current = setInterval(async () => {
+                const sub = await fetchSubscriptionStatus(true);
+                // If sub is Pro/Premium or just not Free anymore, stop polling
+                if (sub && sub.plan_name.toLowerCase() !== 'free') {
+                    setIsSyncing(false);
+                    if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
+                    toast({ title: "Success!", description: `Your ${sub.plan_name} subscription is now active.` });
+                }
+            }, 10000); // 10 seconds
+        }
+
+        return () => {
+            if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
+        };
+    }, [fetchAllPlans, fetchSubscriptionStatus, searchParams, toast]);
+
+    const handlePayment = async (plan: DisplayPlan) => {
+        if (plan.priceNumeric === 0) return;
 
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) {
@@ -217,8 +269,6 @@ const SubscriptionPageContent = () => {
         }
 
         try {
-            console.log(`Initiating PayU payment for plan: ${plan.name} (${plan.id})`);
-            
             const response = await fetch('https://backend.hyresense.com/api/v1/jobseeker/payu/start/', {
                 method: 'POST',
                 headers: {
@@ -230,50 +280,29 @@ const SubscriptionPageContent = () => {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                console.error("Payment initiation API failed:", errorData);
                 throw new Error(errorData.detail || 'Could not initiate PayU payment.');
             }
 
             const data = await response.json();
-            
             const payuUrl = data.payu_url || data.url;
-            const payuData = data.payu_data || data.payu_params || {
-                key: data.key,
-                txnid: data.txnid,
-                amount: data.amount,
-                productinfo: data.productinfo,
-                firstname: data.firstname,
-                email: data.email,
-                phone: data.phone,
-                surl: data.surl,
-                furl: data.furl,
-                hash: data.hash,
-                service_provider: data.service_provider
-            };
-
-            if (!payuUrl || !payuData.hash || !payuData.key) {
-                throw new Error('Invalid payment initialization data received from server.');
-            }
+            const payuData = data.payu_data || data.payu_params;
 
             const payuForm = document.createElement('form');
             payuForm.method = 'POST';
             payuForm.action = payuUrl; 
 
             Object.entries(payuData).forEach(([key, value]) => {
-                if (value !== undefined && value !== null) {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = key;
-                    input.value = String(value);
-                    payuForm.appendChild(input);
-                }
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = String(value);
+                payuForm.appendChild(input);
             });
 
             document.body.appendChild(payuForm);
             payuForm.submit();
 
         } catch (err: any) {
-            console.error("handlePayment Exception:", err);
             toast({
                 title: 'Payment Error',
                 description: err.message || 'An unexpected error occurred.',
@@ -307,13 +336,31 @@ const SubscriptionPageContent = () => {
                 </p>
             </div>
 
-            <Alert className="mb-8 border-green-500/50 bg-green-50/50 dark:bg-green-900/20 text-green-800 dark:text-green-300">
-                <Sparkles className="h-4 w-4 text-green-500" />
-                <AlertTitle className="font-semibold">Experience HyreSense Premium</AlertTitle>
-                <AlertDescription>
-                    Boost your career with advanced AI insights and unlimited swipes.
-                </AlertDescription>
-            </Alert>
+            {isSyncing ? (
+                <Alert className="mb-8 border-primary/50 bg-primary/5 text-primary animate-pulse">
+                    <RefreshCcw className="h-4 w-4 animate-spin" />
+                    <AlertTitle className="font-semibold">Updating your account...</AlertTitle>
+                    <AlertDescription>
+                        We've received your payment! Our AI is currently syncing your new features. This may take up to a minute.
+                    </AlertDescription>
+                </Alert>
+            ) : activeSub && activeSub.plan_name.toLowerCase() !== 'free' ? (
+                <Alert className="mb-8 border-green-500/50 bg-green-50/50 dark:bg-green-900/20 text-green-800 dark:text-green-300">
+                    <Sparkles className="h-4 w-4 text-green-500" />
+                    <AlertTitle className="font-semibold">Active {activeSub.plan_name} Subscription</AlertTitle>
+                    <AlertDescription>
+                        You are enjoying premium features. You have {activeSub.daily_swipe_limit} daily swipes and access to expert sessions.
+                    </AlertDescription>
+                </Alert>
+            ) : (
+                <Alert className="mb-8 border-blue-500/50 bg-blue-50/50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300">
+                    <Sparkles className="h-4 w-4 text-blue-500" />
+                    <AlertTitle className="font-semibold">Experience HyreSense Premium</AlertTitle>
+                    <AlertDescription>
+                        Boost your career with advanced AI insights and unlimited swipes.
+                    </AlertDescription>
+                </Alert>
+            )}
 
 
             {isLoading ? (
@@ -334,6 +381,7 @@ const SubscriptionPageContent = () => {
                             plan={plan}
                             onSelect={handlePayment}
                             delay={index * 150}
+                            isActive={activeSub?.plan_name === plan.name}
                         />
                     ))}
                 </div>
@@ -346,7 +394,6 @@ const SubscriptionPageContent = () => {
 export default function SubscriptionPage() {
   return (
     <>
-      {/* Mobile View */}
       <div className="md:hidden">
         <MobileAppLayout activeView="subscription" pageTitle="Subscription">
           <ScrollArea className="flex-grow bg-muted/20 dark:bg-slate-800/40">
@@ -355,7 +402,6 @@ export default function SubscriptionPage() {
         </MobileAppLayout>
       </div>
 
-      {/* Desktop View */}
       <div className="hidden md:flex flex-col h-screen bg-background">
         <AppHeader />
         <main className="flex-1 overflow-y-auto">

@@ -18,7 +18,8 @@ export default function PaymentSuccessPage() {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          router.push('/subscription');
+          // Redirect with a sync flag so the dashboard knows to poll for the update
+          router.push('/subscription?check_sync=true');
           return 0;
         }
         return prev - 1;
