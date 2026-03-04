@@ -173,7 +173,7 @@ const job_roles = [
     "Security Guard", "SEO Specialist", "Server", "Social Media Manager", "Social Media Specialist", "Social Worker", "Software Architect", "Software Developer",
     "Software Engineer", "Software Tester", "Speech Therapist", "Store Manager", "Superintendent", "Supply Chain Manager", "Surgeon", "Systems Administrator", "Systems Analyst",
     "Tax Accountant", "Tax Preparer", "Teacher", "Technical Support Specialist", "Technical Writer", "Technician", "Territory Manager", "Test Engineer", "Therapist",
-    "Training Coordinator", "Training Manager", "Translator", "Travel Agent", "Truck Driver",
+    "Training Coordinator", "Training Manager", "Translator", "Travel Agent", "Truck Developer",
     "UX Designer", "UI Designer", "University Professor", "Urban Planner",
     "Veterinarian", "Veterinary Technician", "Video Editor", "Vice President",
     "Waiter", "Warehouse Manager", "Warehouse Worker", "Web Designer", "Web Developer", "Welder", "Writer",
@@ -511,7 +511,7 @@ export default function ProfilePage() {
       if (jobseekerProfileDetails?.profile_picture) {
         const imageUrl = jobseekerProfileDetails.profile_picture;
         if (!imageUrl.startsWith('http')) {
-          finalAvatarUrl = `http://127.0.0.1:8000${imageUrl}`;
+          finalAvatarUrl = `https://backend.hyresense.com${imageUrl}`;
         } else {
           finalAvatarUrl = imageUrl;
         }

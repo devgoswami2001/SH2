@@ -500,7 +500,7 @@ export default function CompanyPageWrapper() {
                 
                 const formattedPosts = (companyData.latest_company_posts.results || []).map((post: any) => ({
                     ...post,
-                    image: post.image ? `http://127.0.0.1:8000${post.image}` : null,
+                    image: post.image ? `https://backend.hyresense.com${post.image}` : null,
                 }));
 
                 const props = {
@@ -510,8 +510,8 @@ export default function CompanyPageWrapper() {
                         designation: companyData.employer_profile.designation,
                         description: companyData.employer_profile.description,
                         website: companyData.employer_profile.website,
-                        logo: companyData.employer_profile.logo ? `http://127.0.0.1:8000${companyData.employer_profile.logo}` : null,
-                        banner: companyData.employer_profile.banner ? `http://127.0.0.1:8000${companyData.employer_profile.banner}` : null,
+                        logo: companyData.employer_profile.logo ? `https://backend.hyresense.com${companyData.employer_profile.logo}` : null,
+                        banner: companyData.employer_profile.banner ? `https://backend.hyresense.com${companyData.employer_profile.banner}` : null,
                         jobs: companyData.latest_job_posts.results || [],
                         posts: formattedPosts,
                         company_stats: { 
