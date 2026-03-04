@@ -63,14 +63,14 @@ export default function JobDetailsPage() {
     const accessToken = localStorage.getItem('accessToken');
 
     if (status === 'loading') return;
-    if (status === 'unauthenticated') {
+    if (status === 'unauthenticated' && !accessToken) {
         setError("Please log in to view job details.");
         setIsLoading(false);
         return;
     }
 
     try {
-      // Fetch job details - assuming standard REST endpoint for single job
+      // Fetch job details
       const response = await fetch(`https://backend.hyresense.com/api/v1/jobseeker/job-posts/${jobId}/`, {
         headers: { 'Authorization': `Bearer ${accessToken}` },
       });
@@ -173,13 +173,17 @@ export default function JobDetailsPage() {
     );
   }
 
+  const companyLogo = job.company_logo 
+    ? (job.company_logo.startsWith('http') ? job.company_logo : `https://backend.hyresense.com${job.company_logo}`)
+    : `https://placehold.co/128x128/e0e7ff/4a5568.png?text=${job.company_name.substring(0, 2)}`;
+
   return (
     <div className="flex flex-col h-screen bg-background">
       <AppHeader />
       <main className="flex-1 overflow-y-auto bg-muted/10">
         <div className="max-w-5xl mx-auto p-4 md:p-8">
           <Button variant="ghost" onClick={() => router.back()} className="mb-6 -ml-2 text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Search
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back
           </Button>
 
           <Card className="shadow-xl border-border/40 rounded-xl bg-card/80 backdrop-blur-md overflow-hidden">
@@ -187,7 +191,7 @@ export default function JobDetailsPage() {
               <div className="flex flex-col md:flex-row gap-8 items-start">
                 <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden border border-border shadow-sm shrink-0 bg-white p-2">
                   <Image
-                    src={job.company_logo ? (job.company_logo.startsWith('http') ? job.company_logo : `https://backend.hyresense.com${job.company_logo}`) : `https://placehold.co/128x128/e0e7ff/4a5568.png?text=${job.company_name.substring(0, 2)}`}
+                    src={companyLogo}
                     alt={job.company_name}
                     fill
                     className="object-contain"
@@ -260,7 +264,7 @@ export default function JobDetailsPage() {
                         
                         <div className="pt-2">
                           <p className="text-sm font-semibold mb-1">AI Recommendation:</p>
-                          <Badge variant={analysis.interview_recommendation ? 'default' : 'destructive'} className={cn(analysis.interview_recommendation ? "bg-green-500" : "bg-red-500", "w-full justify-center py-1.5 text-sm")}>
+                          <Badge variant={analysis.interview_recommendation ? 'default' : 'destructive'} className={cn(analysis.interview_recommendation ? "bg-green-500" : "bg-red-500", "w-full justify-center py-1.5 text-sm text-white")}>
                             {analysis.interview_recommendation ? <><ThumbsUp className="mr-2 h-4 w-4" /> Recommended</> : <><ThumbsDown className="mr-2 h-4 w-4" /> Low Fit</>}
                           </Badge>
                         </div>
