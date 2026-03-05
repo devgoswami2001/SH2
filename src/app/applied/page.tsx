@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CalendarDays, PackageSearch, Loader2, AlertCircle, Sparkles, Briefcase, Check, X, ThumbsUp, ThumbsDown, MessageSquare, Send, ArrowLeft, MoreHorizontal, Paperclip, User } from 'lucide-react';
+import { CalendarDays, PackageSearch, Loader2, AlertCircle, Sparkles, Briefcase, Check, X, ThumbsUp, ThumbsDown, MessageSquare, Send, ArrowLeft, MoreHorizontal, Paperclip, User, FileIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { MobileAppLayout } from '@/components/layout/MobileAppLayout'; 
@@ -64,6 +64,7 @@ interface ChatMessage {
     sender: 'me' | 'employer';
     time: Date;
     isRead?: boolean;
+    attachment?: string | null;
 }
 
 // --- Innovative Chat Component ---
@@ -72,53 +73,64 @@ const JobChatDrawer: React.FC<{ job: AppliedAppJob }> = ({ job }) => {
     const [inputValue, setInputValue] = useState('');
     const [isSending, setIsSending] = useState(false);
     const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
+    const pollingInterval = useRef<NodeJS.Timeout | null>(null);
     const { toast } = useToast();
 
     // Fetch existing messages
-    const fetchMessages = useCallback(async () => {
-        setIsLoadingMessages(true);
+    const fetchMessages = useCallback(async (isInitial = false) => {
+        if (isInitial) setIsLoadingMessages(true);
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) return;
 
         try {
-            // Attempting to fetch messages for this application
-            const response = await fetch(`https://backend.hyresense.com/api/v1/employer/job-chat/?job_application_id=${job.id}`, {
+            const response = await fetch(`https://backend.hyresense.com/api/v1/employer/job-chat/messages/${job.id}/`, {
                 headers: { 'Authorization': `Bearer ${accessToken}` },
             });
             
             if (response.ok) {
                 const data = await response.json();
-                const formattedMessages: ChatMessage[] = (data.results || []).map((msg: any) => ({
+                const newMessages: ChatMessage[] = (data.results || []).map((msg: any) => ({
                     id: msg.id,
                     text: msg.message,
                     sender: msg.sender_role === 'jobseeker' ? 'me' : 'employer',
                     time: new Date(msg.sent_at),
-                    isRead: msg.is_read
+                    isRead: msg.is_read,
+                    attachment: msg.attachment
                 }));
-                setMessages(formattedMessages.reverse()); // Show chronological order
-            } else {
-                // If endpoint doesn't exist yet, show a friendly simulated start
-                setMessages([
-                    { 
-                        id: 'initial', 
-                        text: `Hello! We've received your application for the ${job.title} position at ${job.company}. Your profile looks impressive. Would you be available for a brief introductory call this week?`, 
-                        sender: 'employer', 
-                        time: new Date(Date.now() - 1000 * 60 * 60) 
+                
+                // Update only if messages have changed to avoid unnecessary re-renders
+                setMessages(prev => {
+                    if (JSON.stringify(prev) !== JSON.stringify(newMessages)) {
+                        return newMessages;
                     }
-                ]);
+                    return prev;
+                });
             }
         } catch (error) {
             console.error("Failed to fetch messages:", error);
         } finally {
-            setIsLoadingMessages(false);
+            if (isInitial) setIsLoadingMessages(false);
         }
-    }, [job.id, job.title, job.company]);
+    }, [job.id]);
 
+    // Handle open/close and start polling
     useEffect(() => {
-        fetchMessages();
-    }, [fetchMessages]);
+        if (isOpen) {
+            fetchMessages(true);
+            pollingInterval.current = setInterval(() => {
+                fetchMessages(false);
+            }, 5000);
+        } else {
+            if (pollingInterval.current) clearInterval(pollingInterval.current);
+        }
+        return () => {
+            if (pollingInterval.current) clearInterval(pollingInterval.current);
+        };
+    }, [isOpen, fetchMessages]);
 
+    // Scroll to bottom on message update
     useEffect(() => {
         if (scrollRef.current) {
             scrollRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -169,7 +181,7 @@ const JobChatDrawer: React.FC<{ job: AppliedAppJob }> = ({ job }) => {
 
             const data = await response.json();
             
-            // Replace optimistic message with actual data from server
+            // Replace optimistic message with actual data
             setMessages(prev => prev.map(msg => 
                 msg.id === tempId 
                 ? { ...msg, id: data.id, time: new Date(data.sent_at) } 
@@ -178,16 +190,15 @@ const JobChatDrawer: React.FC<{ job: AppliedAppJob }> = ({ job }) => {
 
         } catch (err: any) {
             toast({ title: "Message Failed", description: err.message, variant: "destructive" });
-            // Remove the failed message from UI
             setMessages(prev => prev.filter(msg => msg.id !== tempId));
-            setInputValue(messageContent); // Put text back in input
+            setInputValue(messageContent);
         } finally {
             setIsSending(false);
         }
     };
 
     return (
-        <Sheet>
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
                 <Button className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 flex items-center gap-2 group transition-all duration-300">
                     <MessageSquare className="h-4 w-4 group-hover:scale-110 transition-transform" />
@@ -236,7 +247,21 @@ const JobChatDrawer: React.FC<{ job: AppliedAppJob }> = ({ job }) => {
                                             ? "bg-primary text-primary-foreground rounded-br-none" 
                                             : "bg-card border border-border/50 text-foreground rounded-bl-none"
                                     )}>
-                                        <p className="leading-relaxed">{msg.text}</p>
+                                        {msg.text && <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>}
+                                        {msg.attachment && (
+                                            <a 
+                                                href={msg.attachment} 
+                                                target="_blank" 
+                                                rel="noreferrer" 
+                                                className={cn(
+                                                    "mt-2 flex items-center gap-2 p-2 rounded-lg border",
+                                                    msg.sender === 'me' ? "bg-white/10 border-white/20" : "bg-muted border-border"
+                                                )}
+                                            >
+                                                <FileIcon className="h-4 w-4 shrink-0" />
+                                                <span className="text-xs truncate max-w-[150px]">View Attachment</span>
+                                            </a>
+                                        )}
                                         <p className={cn(
                                             "text-[10px] mt-1.5 opacity-70",
                                             msg.sender === 'me' ? "text-right" : "text-left"
