@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CalendarDays, PackageSearch, Loader2, AlertCircle, Sparkles, Briefcase, Check, X, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { CalendarDays, PackageSearch, Loader2, AlertCircle, Sparkles, Briefcase, Check, X, ThumbsUp, ThumbsDown, MessageSquare, Send, ArrowLeft, MoreHorizontal, Paperclip, User } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { MobileAppLayout } from '@/components/layout/MobileAppLayout'; 
@@ -17,7 +17,9 @@ import { formatDistanceToNow, isValid } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { useSession } from 'next-auth/react';
-
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
 
 interface AiAnalysis {
     id: string;
@@ -51,10 +53,148 @@ interface ComprehensiveApplication {
     ai_analysis: AiAnalysis | null;
 }
 
-// Extend AppJob to include the appliedDate string
 interface AppliedAppJob extends AppJob {
     appliedDate: string;
 }
+
+// --- Innovative Chat Component ---
+const JobChatDrawer: React.FC<{ job: AppliedAppJob }> = ({ job }) => {
+    const [messages, setMessages] = useState<{ id: string, text: string, sender: 'me' | 'employer', time: Date }[]>([]);
+    const [inputValue, setInputValue] = useState('');
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        // Initial simulated message
+        setMessages([
+            { 
+                id: '1', 
+                text: `Hello! We've received your application for the ${job.title} position. Your profile looks impressive. Would you be available for a brief introductory call this week?`, 
+                sender: 'employer', 
+                time: new Date(Date.now() - 1000 * 60 * 60) 
+            }
+        ]);
+    }, [job.title]);
+
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [messages]);
+
+    const handleSendMessage = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!inputValue.trim()) return;
+
+        const newMessage = {
+            id: Date.now().toString(),
+            text: inputValue,
+            sender: 'me' as const,
+            time: new Date()
+        };
+
+        setMessages(prev => [...prev, newMessage]);
+        setInputValue('');
+
+        // Simulate employer typing
+        setTimeout(() => {
+            setMessages(prev => [...prev, {
+                id: (Date.now() + 1).toString(),
+                text: "Thanks for your response! Our HR team will reach out shortly with a calendar invite.",
+                sender: 'employer',
+                time: new Date()
+            }]);
+        }, 1500);
+    };
+
+    return (
+        <Sheet>
+            <SheetTrigger asChild>
+                <Button className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 flex items-center gap-2 group transition-all duration-300">
+                    <MessageSquare className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                    <span>Message Recruiter</span>
+                    <span className="relative flex h-2 w-2 ml-1">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
+                    </span>
+                </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col border-l border-border/40 bg-background/95 backdrop-blur-xl">
+                <SheetHeader className="p-4 border-b border-border/50 bg-muted/30">
+                    <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10 border-2 border-primary/20">
+                            <AvatarImage src={job.image} />
+                            <AvatarFallback>{job.company.substring(0, 2)}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 text-left">
+                            <SheetTitle className="text-base font-bold text-foreground truncate">{job.company}</SheetTitle>
+                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                                Recruitment Team • Online
+                            </p>
+                        </div>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                            <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </SheetHeader>
+
+                <ScrollArea className="flex-grow p-4 bg-muted/5 dark:bg-slate-900/10">
+                    <div className="space-y-4">
+                        <div className="flex justify-center">
+                            <Badge variant="outline" className="bg-background/50 text-[10px] uppercase tracking-wider py-0.5">Today</Badge>
+                        </div>
+                        {messages.map((msg) => (
+                            <div key={msg.id} className={cn("flex w-full", msg.sender === 'me' ? "justify-end" : "justify-start")}>
+                                <div className={cn(
+                                    "max-w-[85%] p-3 rounded-2xl text-sm shadow-sm transition-all duration-300",
+                                    msg.sender === 'me' 
+                                        ? "bg-primary text-primary-foreground rounded-br-none" 
+                                        : "bg-card border border-border/50 text-foreground rounded-bl-none"
+                                )}>
+                                    <p className="leading-relaxed">{msg.text}</p>
+                                    <p className={cn(
+                                        "text-[10px] mt-1.5 opacity-70",
+                                        msg.sender === 'me' ? "text-right" : "text-left"
+                                    )}>
+                                        {msg.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                        <div ref={scrollRef} />
+                    </div>
+                </ScrollArea>
+
+                <div className="p-4 border-t border-border/50 bg-background/80">
+                    <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+                        <Button type="button" variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:bg-muted rounded-full">
+                            <Paperclip className="h-4 w-4" />
+                        </Button>
+                        <div className="relative flex-1">
+                            <Input 
+                                placeholder="Type a message..." 
+                                className="h-10 rounded-full bg-muted/50 border-border/40 focus-visible:ring-primary/30 pr-10"
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                            />
+                            <Button 
+                                type="submit" 
+                                size="icon" 
+                                className="absolute right-1 top-1 h-8 w-8 rounded-full bg-primary hover:bg-primary/90 transition-transform active:scale-95"
+                                disabled={!inputValue.trim()}
+                            >
+                                <Send className="h-3.5 w-3.5" />
+                            </Button>
+                        </div>
+                    </form>
+                    <p className="text-[10px] text-center text-muted-foreground mt-3 italic">
+                        Messages are shared securely with the hiring team.
+                    </p>
+                </div>
+            </SheetContent>
+        </Sheet>
+    );
+};
 
 // Custom AppliedJobDetailsView component for Applied Jobs
 const AppliedJobDetailsView: React.FC<{
@@ -92,14 +232,16 @@ const AppliedJobDetailsView: React.FC<{
 
   return (
     <div className="h-full w-full flex flex-col bg-card md:bg-transparent">
-        {isDesktop && onBack && (
-            <div className="p-4 pb-0">
-                <Button variant="outline" onClick={onBack} className="flex items-center gap-2">
-                    <CalendarDays className="h-4 w-4" />
-                    Back to List
+        <div className="p-4 pb-0 flex items-center justify-between bg-card/50 backdrop-blur-md sticky top-0 z-20 md:bg-transparent">
+            {onBack && (
+                <Button variant="outline" onClick={onBack} className="flex items-center gap-2 group border-border/60 hover:border-primary/50 transition-all">
+                    <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+                    <span className="hidden sm:inline">Back to List</span>
+                    <span className="sm:hidden text-xs">Back</span>
                 </Button>
-            </div>
-        )}
+            )}
+            <JobChatDrawer job={job} />
+        </div>
         <ScrollArea className="flex-grow">
             <div className={cn("space-y-4 p-4", isDesktop && "p-8 pt-4")}>
                 <div className="flex flex-col md:flex-row gap-6">
@@ -107,10 +249,17 @@ const AppliedJobDetailsView: React.FC<{
                         <Image src={job.image} alt={job.dataAiHint} fill className="object-cover" />
                     </div>
                     <div className="flex-1">
-                        <h2 className="text-2xl md:text-3xl font-bold text-foreground">{job.title}</h2>
-                        <div className="text-base mt-1">
-                            <span className="font-medium text-primary">{job.company}</span>
-                            <span className="text-muted-foreground"> - {job.location}</span>
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <h2 className="text-2xl md:text-3xl font-bold text-foreground">{job.title}</h2>
+                                <div className="text-base mt-1">
+                                    <span className="font-medium text-primary">{job.company}</span>
+                                    <span className="text-muted-foreground"> - {job.location}</span>
+                                </div>
+                            </div>
+                            <Badge className={cn("hidden sm:flex px-3 py-1 text-sm capitalize", getStatusBadgeClass(job.applicationStatus))}>
+                                {job.applicationStatus?.replace(/_/g, ' ')}
+                            </Badge>
                         </div>
                         <div className="pt-3 space-y-2 text-sm text-muted-foreground">
                             <div className="flex items-center gap-2"><Briefcase className="h-4 w-4 text-primary/80" /><span>{job.jobType} &middot; {job.experienceLevel}</span></div>
